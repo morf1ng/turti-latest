@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TURTI — урбеч каменного помола из гор Анди, Дагестан. Не горчит: камень на воде не пережигает орех. Без консервантов и красителей.">
+  <!-- ПРОБНЫЙ ЗАПУСК: скрыто от поиска. Убрать эту строку, когда сайт готов к настоящему запуску. -->
+  <meta name="robots" content="noindex, nofollow">
+  <title>О нас — TURTI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Prata&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+    :root{
+      /* палитра TURTI — та же, что на главной */
+      --green:#C6362B; --green-dark:#9E271F;
+      --cream:#F7F0E3; --nut:#C89B6A;
+      --ink:#1B1B18; --gray:#6F6B60; --line:#E9E2D3; --white:#fff;
+      /* оттенки для значков — тёплые, из одной семьи */
+      --c-clay:#C6362B; --c-nut:#C89B6A; --c-earth:#8A5A32;
+      --c-olive:#6E7B4B; --c-amber:#D89A3C; --c-stone:#7A736A;
+    }
+    html{ scroll-behavior:smooth; }
+    body{
+      font-family:'Manrope',sans-serif; background:var(--cream); color:var(--ink);
+      font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    }
+    a{ color:inherit; text-decoration:none; }
+    h1,h2,h3{ font-family:'Prata',serif; font-weight:400; }
+    .wrap{ max-width:660px; margin:0 auto; padding:0 20px; }
+
+    /* ─── шапка ─── */
+    .topbar{
+      position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 20px; background:rgba(247,240,227,.9);
+      -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-bottom:1px solid var(--line);
+    }
+    .brand{ display:flex; align-items:center; gap:9px; font-family:'Unbounded',sans-serif; font-weight:800; letter-spacing:.22em; font-size:13px; }
+    .brand .mk{
+      width:27px; height:27px; border-radius:50%;
+      background:radial-gradient(circle at 32% 28%, #F0A98C, var(--green) 60%, var(--green-dark));
+      box-shadow:inset 0 -2px 5px rgba(0,0,0,.25), 0 3px 8px rgba(198,54,43,.32);
+    }
+    .back{ font-weight:800; font-size:12.5px; color:var(--green-dark); }
+
+    /* ─── появление ─── */
+    .rv{ opacity:0; transform:translateY(22px); transition:opacity .75s ease, transform .75s cubic-bezier(.2,.7,.2,1); }
+    .rv.in{ opacity:1; transform:none; }
+    @media (prefers-reduced-motion:reduce){ .rv{ opacity:1; transform:none; transition:none; } }
+
+    /* ─── HERO ─── */
+    .hero{ position:relative; min-height:62svh; display:flex; align-items:flex-end; overflow:hidden; }
+    .hero-bg{ position:absolute; inset:0; background:linear-gradient(165deg,#E7C98A 0%, #B87A3D 48%, #4A2810 100%); }
+    .hero-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .hero-shade{ position:absolute; inset:0; background:linear-gradient(to top, rgba(20,12,6,.94) 6%, rgba(20,12,6,.45) 55%, rgba(20,12,6,.1)); }
+    .hero-in{ position:relative; z-index:2; width:100%; padding:0 20px 38px; }
+    .hero-in .wrap{ padding:0; }
+    .kicker{
+      display:inline-flex; align-items:center; gap:7px; padding:7px 14px; border-radius:999px;
+      background:linear-gradient(120deg, rgba(198,54,43,.95), rgba(217,120,38,.95));
+      border:1px solid rgba(255,255,255,.4); color:#fff;
+      font-size:11.5px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin-bottom:14px;
+      box-shadow:0 8px 20px rgba(178,60,30,.35);
+    }
+    .kicker svg{ width:12px; height:10px; }
+    .hero h1{ color:#FFFDF6; font-size:clamp(30px,8.4vw,46px); line-height:1.12; text-shadow:0 6px 30px rgba(0,0,0,.5); }
+    .hero .lead{ color:rgba(255,252,244,.94); font-size:clamp(15px,4.2vw,17.5px); font-weight:600; margin-top:12px; max-width:460px; text-shadow:0 2px 12px rgba(0,0,0,.4); }
+
+    /* ─── общий блок секции ─── */
+    .sec{ padding:56px 0 8px; }
+    .eyebrow{ display:block; font-size:11.5px; font-weight:800; letter-spacing:.26em; text-transform:uppercase; color:var(--green); margin-bottom:12px; }
+    .sec h2{ font-size:clamp(25px,6.4vw,33px); line-height:1.22; margin-bottom:14px; }
+    .sec > .wrap > p{ color:#3A342C; font-weight:600; font-size:15.5px; line-height:1.78; margin-bottom:14px; }
+    .sec p .hl{ color:var(--green); font-weight:800; }
+    .rule{ width:52px; height:3px; background:var(--nut); border-radius:2px; margin:0 0 24px; }
+
+    /* ─── цифры-факты ─── */
+    .facts{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:26px 0 6px; }
+    .fact{ background:var(--white); border:1.5px solid var(--line); border-radius:18px; padding:18px 12px; text-align:center; box-shadow:0 10px 26px rgba(60,45,20,.06); }
+    .fact b{ display:block; font-family:'Prata',serif; font-weight:400; font-size:clamp(24px,7vw,32px); color:var(--green); line-height:1; }
+    .fact span{ display:block; font-size:11.5px; font-weight:800; color:var(--gray); letter-spacing:.05em; margin-top:7px; line-height:1.35; }
+
+    /* ─── история: блоки с разноцветными значками ─── */
+    .story-block{ display:flex; gap:15px; align-items:flex-start; padding:22px 0; border-top:1px solid var(--line); }
+    .story-block:first-of-type{ border-top:none; padding-top:6px; }
+    .ic{
+      flex-shrink:0; width:46px; height:46px; border-radius:15px; display:grid; place-items:center;
+      box-shadow:0 8px 18px rgba(60,45,20,.16);
+    }
+    .ic svg{ width:23px; height:23px; stroke:#fff; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+    .ic-clay { background:linear-gradient(155deg,#E07A6E,var(--c-clay)); }
+    .ic-nut  { background:linear-gradient(155deg,#E5C295,var(--c-nut)); }
+    .ic-earth{ background:linear-gradient(155deg,#B98756,var(--c-earth)); }
+    .ic-olive{ background:linear-gradient(155deg,#9AA574,var(--c-olive)); }
+    .ic-amber{ background:linear-gradient(155deg,#EFC072,var(--c-amber)); }
+    .ic-stone{ background:linear-gradient(155deg,#A79E93,var(--c-stone)); }
+    .story-block .tx h3{ font-size:19px; margin-bottom:5px; }
+    .story-block .tx p{ font-size:15px; font-weight:600; line-height:1.72; color:#3A342C; }
+    .story-block .tx p strong{ color:var(--green); font-weight:800; }
+
+    /* ─── карточки «что важно знать» ─── */
+    .cards{ display:grid; gap:12px; margin-top:6px; }
+    .card{
+      position:relative; overflow:hidden; background:var(--white); border:1.5px solid var(--line);
+      border-radius:20px; padding:20px 18px 18px; box-shadow:0 14px 34px rgba(60,45,20,.07);
+    }
+    .card::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--nut); }
+    .card.c-clay::before { background:var(--c-clay); }
+    .card.c-olive::before{ background:var(--c-olive); }
+    .card.c-amber::before{ background:var(--c-amber); }
+    .card.c-earth::before{ background:var(--c-earth); }
+    .card.c-stone::before{ background:var(--c-stone); }
+    .card-top{ display:flex; align-items:center; gap:11px; margin-bottom:9px; }
+    .card-top .ic{ width:38px; height:38px; border-radius:12px; box-shadow:0 6px 14px rgba(60,45,20,.15); }
+    .card-top .ic svg{ width:19px; height:19px; }
+    .card h3{ font-size:17.5px; }
+    .card p{ font-size:14.5px; font-weight:600; line-height:1.66; color:#3A342C; }
+    .card p + p{ margin-top:8px; }
+
+    /* ─── как есть ─── */
+    .ways{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
+    .way{ background:var(--white); border:1.5px solid var(--line); border-radius:18px; padding:16px 14px; box-shadow:0 10px 26px rgba(60,45,20,.06); }
+    .way .ic{ width:38px; height:38px; border-radius:12px; margin-bottom:10px; box-shadow:0 6px 14px rgba(60,45,20,.15); }
+    .way .ic svg{ width:19px; height:19px; }
+    .way strong{ display:block; font-size:14.5px; font-weight:800; margin-bottom:3px; }
+    .way span{ display:block; font-size:13px; font-weight:600; color:var(--gray); line-height:1.5; }
+
+    /* ─── честная плашка ─── */
+    .honest{
+      background:var(--white); border:1.5px dashed var(--nut); border-radius:20px;
+      padding:20px 18px; margin-top:20px;
+    }
+    .honest h3{ font-size:18px; margin-bottom:8px; color:var(--green-dark); }
+    .honest p{ font-size:14.5px; font-weight:600; line-height:1.7; color:#3A342C; }
+
+    /* ─── финал ─── */
+    .final{ background:linear-gradient(160deg,#7A3A2C 0%, #3A1A10 100%); padding:52px 20px 56px; margin-top:52px; text-align:center; }
+    .final-in{ max-width:520px; margin:0 auto; }
+    .final .eyebrow{ color:rgba(255,255,255,.7); }
+    .final h2{ color:#fff; font-size:clamp(24px,6.6vw,34px); line-height:1.22; margin-bottom:10px; }
+    .final h2 .acc{ color:#E8C99A; font-style:italic; }
+    .final p{ color:rgba(255,252,244,.88); font-weight:600; font-size:15px; margin-bottom:24px; }
+    .btns{ display:flex; flex-direction:column; gap:10px; }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:54px;
+      padding:15px 28px; border-radius:999px; font-weight:800; font-size:15.5px; transition:transform .16s;
+    }
+    .btn:active{ transform:scale(.97); }
+    .btn-main{ background:linear-gradient(180deg,#E0A46F,var(--nut)); color:#fff; box-shadow:0 12px 26px rgba(200,155,106,.4); }
+    .btn-ghost{ background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.45); }
+
+    footer{ background:#2A130C; color:rgba(255,252,244,.6); text-align:center; padding:26px 20px 34px; font-size:12.5px; font-weight:600; }
+    footer a{ color:#E8C99A; }
+
+    @media(min-width:620px){
+      .cards{ grid-template-columns:1fr 1fr; }
+      .ways{ grid-template-columns:repeat(4,1fr); }
+      .btns{ flex-direction:row; justify-content:center; }
+      .btns .btn{ min-width:210px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="mk"></span>TURTI</a>
+    <a class="back" href="index.html">← В магазин</a>
+  </header>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <img class="hero-img" src="images/about-hero.jpg" alt="Горы Дагестана" onerror="this.onerror=null;this.style.display='none'">
+    <div class="hero-shade"></div>
+    <div class="hero-in"><div class="wrap">
+      <span class="kicker"><svg viewBox="0 0 20 14" fill="currentColor" aria-hidden="true"><path d="M1 13L6.5 4L10 9.5L13 5L19 13H1Z"/></svg>горы Анди · Дагестан</span>
+      <h1>Урбеч, который<br>не горчит</h1>
+      <p class="lead">Потому что камень, который крутит вода, не успевает пережечь орех.</p>
+    </div></div>
+  </section>
+
+  <!-- ═══ ПОЧЕМУ НЕ ГОРЧИТ ═══ -->
+  <section class="sec"><div class="wrap">
+    <span class="eyebrow rv">Главное отличие</span>
+    <h2 class="rv">Если урбеч горчил — его пережгли</h2>
+    <div class="rule rv"></div>
+    <p class="rv">Многие пробовали урбеч один раз, он оказался горьким, и банка осталась стоять в шкафу. Дело обычно не в орехе. Дело в том, <span class="hl">как его перетирали</span>.</p>
+    <p class="rv">На промышленной линии металлические жернова разгоняются и нагреваются — орех подгорает изнутри. Отсюда та самая горечь.</p>
+    <p class="rv">У нас жернова каменные, и крутит их вода. Реку нельзя ускорить, камень не успевает нагреться — жечь попросту нечем. Поэтому во вкусе остаётся сам орех, а не то, что с ним сделали.</p>
+
+    <div class="facts rv">
+      <div class="fact"><b>40</b><span>лет мельнице</span></div>
+      <div class="fact"><b>16</b><span>вкусов</span></div>
+      <div class="fact"><b>0</b><span>консервантов<br>и красителей</span></div>
+    </div>
+  </div></section>
+
+  <!-- ═══ СОСТАВ ═══ -->
+  <section class="sec"><div class="wrap">
+    <span class="eyebrow rv">Состав</span>
+    <h2 class="rv">Прочитайте состав вслух — это займёт две секунды</h2>
+    <div class="rule rv"></div>
+    <p class="rv">В банке — орех. Всё, что дополнительно входит в конкретный вкус, написано на этикетке обычным шрифтом: не мелко, не в сноске и не на обороте.</p>
+    <p class="rv">Без пальмового масла, без консервантов, без красителей и загустителей. Есть вопрос по составу — просто спросите, ответим как есть.</p>
+  </div></section>
+
+  <!-- ═══ ИСТОРИЯ ═══ -->
+  <section class="sec"><div class="wrap">
+    <span class="eyebrow rv">Откуда он</span>
+    <h2 class="rv">Наша история</h2>
+    <div class="rule rv"></div>
+
+    <div class="story-block rv">
+      <span class="ic ic-clay"><svg viewBox="0 0 24 24"><path d="M3 12h18M12 3v18"/><circle cx="12" cy="12" r="9"/></svg></span>
+      <div class="tx">
+        <h3>Мельница на реке</h3>
+        <p>Ботлихский район Дагестана, берег горной реки. Никакого электричества: вода крутит колесо, колесо крутит жернова, жернова перетирают орех. Так здесь мелют с тех пор, как эту мельницу поставили.</p>
+      </div>
+    </div>
+
+    <div class="story-block rv">
+      <span class="ic ic-earth"><svg viewBox="0 0 24 24"><path d="M9 21v-7a3 3 0 0 1 6 0v7"/><path d="M6 21v-4a2 2 0 0 0-4 0v4"/><path d="M18 21v-4a2 2 0 0 1 4 0v4"/><circle cx="12" cy="7" r="3"/></svg></span>
+      <div class="tx">
+        <h3>Одна семья</h3>
+        <p>Урбеч здесь делают каждый день — так же, как делали их родители и родители их родителей. Вкус ореха, перетёртого камнем на медленном ходу, ни с чем не спутаешь. Настоящий природный вкус остаётся <strong>живым</strong>.</p>
+      </div>
+    </div>
+
+    <div class="story-block rv">
+      <span class="ic ic-olive"><svg viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg></span>
+      <div class="tx">
+        <h3>Рецепт был до нас</h3>
+        <p>Мы его не придумывали и не улучшали. Просто решили, что этот вкус не должен оставаться только в горах, и начали отправлять банки по России.</p>
+      </div>
+    </div>
+
+    <div class="story-block rv">
+      <span class="ic ic-amber"><svg viewBox="0 0 24 24"><path d="M3 9l9-6 9 6v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 21V12h6v9"/></svg></span>
+      <div class="tx">
+        <h3>Мы ничего не стали менять</h3>
+        <p>Можно было поставить электрический аппарат и делать в двадцать раз больше. Тогда пришлось бы объяснять, почему вкус стал другим. Мы выбрали не объяснять.</p>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- ═══ ЧЕСТНОСТЬ ═══ -->
+  <section class="sec"><div class="wrap">
+    <span class="eyebrow rv">Без обещаний</span>
+    <h2 class="rv">Мы не будем обещать вам здоровье</h2>
+    <div class="rule rv"></div>
+    <p class="rv">Про урбеч часто пишут, что он лечит, продлевает жизнь и заменяет аптеку. Мы так писать не станем: это неправда, и зарабатывать на этом мы не хотим.</p>
+    <p class="rv">Урбеч — густая паста из перетёртых орехов или семян. Сытная, калорийная, с настоящим вкусом ореха. Всё остальное решайте сами — <span class="hl">мы отвечаем за состав, а не за ваше здоровье</span>.</p>
+  </div></section>
+
+  <!-- ═══ КАК ЕСТЬ ═══ -->
+  <section class="sec"><div class="wrap">
+    <span class="eyebrow rv">С чем едят</span>
+    <h2 class="rv">Урбеч — это просто</h2>
+    <div class="rule rv"></div>
+    <p class="rv">Ложка на хлеб, ложка в кашу — самый обычный способ. Продукт сытный, поэтому одной банки хватает надолго.</p>
+
+    <div class="ways">
+      <div class="way rv">
+        <span class="ic ic-amber"><svg viewBox="0 0 24 24"><path d="M4 8c0-2.2 3.6-4 8-4s8 1.8 8 4-3.6 4-8 4-8-1.8-8-4Z"/><path d="M4 8v6c0 2.2 3.6 4 8 4s8-1.8 8-4V8"/></svg></span>
+        <strong>На хлеб</strong>
+        <span>Тонким слоем на тёплый хлеб или тост</span>
+      </div>
+      <div class="way rv">
+        <span class="ic ic-olive"><svg viewBox="0 0 24 24"><path d="M4 13h16a8 8 0 0 1-16 0Z"/><path d="M2 21h20"/><path d="M9 9c0-1.5 1-1.5 1-3s-1-1.5-1-3"/><path d="M14 9c0-1.5 1-1.5 1-3s-1-1.5-1-3"/></svg></span>
+        <strong>В кашу</strong>
+        <span>Ложка в горячую овсянку — размешать</span>
+      </div>
+      <div class="way rv">
+        <span class="ic ic-earth"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4Z"/><path d="M6 2v3M10 2v3M14 2v3"/></svg></span>
+        <strong>С мёдом</strong>
+        <span>Классика Дагестана: урбеч, мёд, масло</span>
+      </div>
+      <div class="way rv">
+        <span class="ic ic-nut"><svg viewBox="0 0 24 24"><path d="M12 3a4 4 0 0 1 4 4c0 3-4 8-4 8s-4-5-4-8a4 4 0 0 1 4-4Z"/><path d="M5 21h14"/></svg></span>
+        <strong>Просто ложкой</strong>
+        <span>Честно — так делает большинство</span>
+      </div>
+    </div>
+
+    <div class="honest rv">
+      <h3>Если сверху собралось масло</h3>
+      <p>Это хороший знак, а не брак: масло у настоящей ореховой пасты своё собственное, и оно отделяется. Перемешайте ложкой. Насторожиться стоит в обратном случае — когда паста стоит месяцами и не расслаивается совсем.</p>
+    </div>
+  </div></section>
+
+  <!-- ═══ ФИНАЛ ═══ -->
+  <section class="final">
+    <div class="final-in">
+      <span class="eyebrow rv">Мы на связи</span>
+      <h2 class="rv">Сорок лет работы<br><span class="acc">в одной ложке</span></h2>
+      <p class="rv">Не знаете, с какого вкуса начать? Напишите — подскажем и посчитаем доставку в ваш город.</p>
+      <div class="btns rv">
+        <a class="btn btn-main" href="index.html#catalog">Выбрать вкус</a>
+        <a class="btn btn-ghost" href="https://wa.me/79882754421" target="_blank" rel="noopener">Написать в WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Натуральный урбеч каменного помола · Республика Дагестан, горы Анди<br>
+    <a href="tel:+79882754421">+7 988 275-44-21</a>
+  </footer>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll(".rv");
+    var show = function (e) { e.classList.add("in"); };
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (ents) {
+        ents.forEach(function (x) { if (x.isIntersecting) { show(x.target); io.unobserve(x.target); } });
+      }, { threshold: .08, rootMargin: "0px 0px -6% 0px" });
+      els.forEach(function (e) { io.observe(e); });
+      setTimeout(function () { els.forEach(show); }, 1500);
+    } else {
+      els.forEach(show);
+    }
+  })();
+</script>
+</body>
+</html>

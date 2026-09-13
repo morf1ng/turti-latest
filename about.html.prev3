@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TURTI — урбеч с водяной мельницы в горах Анди, Дагестан. Каменный помол, без консервантов и красителей.">
+  <!-- ПРОБНЫЙ ЗАПУСК: скрыто от поиска. Убрать эту строку, когда сайт готов к настоящему запуску. -->
+  <meta name="robots" content="noindex, nofollow">
+  <title>О нас — TURTI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Prata&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+
+    /* ═══ ОДНОТОННАЯ СИНЯЯ ПАЛИТРА ═══ */
+    :root{
+      --deep:#0B2038;      /* самый тёмный — фон героя и финала */
+      --navy:#12335A;      /* основной синий */
+      --blue:#1C4A7A;      /* акцент */
+      --blue-mid:#2F6DA8;  /* ссылки, линии */
+      --blue-soft:#7FB3DE; /* светлый акцент */
+      --blue-pale:#DCE8F4; /* границы */
+      --paper:#F2F6FA;     /* фон страницы */
+      --white:#FFFFFF;
+      --ink:#0E2135;
+      --muted:#5B7590;
+    }
+    html{ scroll-behavior:smooth; }
+    body{
+      font-family:'Manrope',sans-serif; background:var(--paper); color:var(--ink);
+      font-size:16px; line-height:1.68; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    }
+    a{ color:inherit; text-decoration:none; }
+    h1,h2,h3{ font-family:'Prata',serif; font-weight:400; }
+    .wrap{ max-width:680px; margin:0 auto; padding:0 20px; }
+
+    /* ─── шапка ─── */
+    .topbar{
+      position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 20px; background:rgba(242,246,250,.9);
+      -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-bottom:1px solid var(--blue-pale);
+    }
+    .brand{ display:flex; align-items:center; gap:9px; font-family:'Unbounded',sans-serif; font-weight:800; letter-spacing:.22em; font-size:13px; color:var(--navy); }
+    .brand .mk{
+      width:27px; height:27px; border-radius:50%;
+      background:radial-gradient(circle at 32% 28%, var(--blue-soft), var(--blue) 60%, var(--deep));
+      box-shadow:inset 0 -2px 5px rgba(0,0,0,.25), 0 3px 8px rgba(28,74,122,.3);
+    }
+    .back{ font-weight:800; font-size:12.5px; color:var(--blue-mid); }
+
+    /* ─── появление ─── */
+    .rv{ opacity:0; transform:translateY(22px); transition:opacity .75s ease, transform .75s cubic-bezier(.2,.7,.2,1); }
+    .rv.in{ opacity:1; transform:none; }
+    @media (prefers-reduced-motion:reduce){ .rv{ opacity:1; transform:none; transition:none; } }
+
+    /* ─── HERO ─── */
+    .hero{ position:relative; min-height:66svh; display:flex; align-items:flex-end; overflow:hidden; }
+    .hero-bg{ position:absolute; inset:0; background:linear-gradient(165deg,var(--blue-mid) 0%, var(--navy) 45%, var(--deep) 100%); }
+    .hero-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.42; }
+    .hero-shade{ position:absolute; inset:0; background:linear-gradient(to top, rgba(11,32,56,.96) 6%, rgba(11,32,56,.6) 52%, rgba(11,32,56,.28)); }
+    .hero-in{ position:relative; z-index:2; width:100%; padding:0 20px 40px; }
+    .hero-in .wrap{ padding:0; }
+    .kicker{
+      display:inline-block; padding:7px 15px; border-radius:999px;
+      background:rgba(127,179,222,.18); border:1px solid rgba(127,179,222,.5); color:#DCE8F4;
+      font-size:11.5px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; margin-bottom:16px;
+      -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    }
+    .hero h1{ color:#FFFFFF; font-size:clamp(31px,8.6vw,48px); line-height:1.1; text-shadow:0 6px 30px rgba(0,0,0,.45); }
+    .hero .lead{ color:rgba(220,232,244,.94); font-size:clamp(15px,4.2vw,17.5px); font-weight:600; margin-top:14px; max-width:470px; }
+
+    /* ─── секции ─── */
+    .sec{ padding:58px 0 6px; }
+    .eyebrow{ display:block; font-size:11.5px; font-weight:800; letter-spacing:.26em; text-transform:uppercase; color:var(--blue-mid); margin-bottom:12px; }
+    .sec h2{ font-size:clamp(26px,6.6vw,35px); line-height:1.2; margin-bottom:14px; color:var(--navy); }
+    .sec > .wrap > p{ color:#2B4157; font-weight:600; font-size:15.5px; line-height:1.8; margin-bottom:14px; }
+    .hl{ color:var(--blue-mid); font-weight:800; }
+    .rule{ width:54px; height:3px; background:var(--blue-mid); border-radius:2px; margin:0 0 26px; }
+
+    /* ─── КАРТОЧКИ ИСТОРИИ (без значков) ─── */
+    .story-cards{ display:grid; gap:14px; margin-top:4px; }
+    .scard{
+      position:relative; background:var(--white); border:1px solid var(--blue-pale);
+      border-radius:22px; padding:26px 24px 24px;
+      box-shadow:0 16px 40px rgba(18,51,90,.07);
+      transition:transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s;
+      overflow:hidden;
+    }
+    .scard::before{
+      content:""; position:absolute; left:0; top:0; height:100%; width:3px;
+      background:linear-gradient(to bottom, var(--blue-mid), rgba(47,109,168,.12));
+    }
+    .scard:hover{ transform:translateY(-3px); box-shadow:0 22px 52px rgba(18,51,90,.12); }
+    .scard-n{
+      display:block; font-family:'Prata',serif; font-size:13px; letter-spacing:.24em;
+      color:var(--blue-soft); margin-bottom:10px;
+    }
+    .scard h3{ font-size:21px; line-height:1.25; color:var(--navy); margin-bottom:9px; }
+    .scard p{ font-size:15px; font-weight:600; line-height:1.76; color:#2B4157; }
+    .scard p strong{ color:var(--blue-mid); font-weight:800; }
+    .scard p + p{ margin-top:10px; }
+
+    /* ─── цифры ─── */
+    .facts{ display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin:30px 0 6px; }
+    .fact{ background:var(--white); border:1px solid var(--blue-pale); border-radius:18px; padding:20px 12px; text-align:center; box-shadow:0 12px 30px rgba(18,51,90,.06); }
+    .fact b{ display:block; font-family:'Prata',serif; font-weight:400; font-size:clamp(26px,7.4vw,34px); color:var(--blue-mid); line-height:1; }
+    .fact span{ display:block; font-size:11.5px; font-weight:800; color:var(--muted); letter-spacing:.04em; margin-top:8px; line-height:1.35; }
+
+    /* ─── выделенная плашка ─── */
+    .note{
+      background:var(--white); border:1px solid var(--blue-pale); border-left:3px solid var(--blue-mid);
+      border-radius:0 20px 20px 0; padding:22px 22px; margin-top:22px;
+      box-shadow:0 14px 34px rgba(18,51,90,.07);
+    }
+    .note h3{ font-size:19px; margin-bottom:8px; color:var(--navy); }
+    .note p{ font-size:14.8px; font-weight:600; line-height:1.72; color:#2B4157; }
+
+    /* ─── как едят ─── */
+    .ways{ display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-top:6px; }
+    .way{
+      background:var(--white); border:1px solid var(--blue-pale); border-radius:18px;
+      padding:20px 16px; box-shadow:0 12px 30px rgba(18,51,90,.06);
+      transition:transform .2s, box-shadow .2s;
+    }
+    .way:hover{ transform:translateY(-2px); box-shadow:0 18px 40px rgba(18,51,90,.1); }
+    .way b{ display:block; font-family:'Prata',serif; font-weight:400; font-size:17px; color:var(--navy); margin-bottom:5px; }
+    .way span{ display:block; font-size:13.5px; font-weight:600; color:var(--muted); line-height:1.55; }
+
+    /* ─── финал: тёплый красно-оранжевый, как раньше ─── */
+    .final{ background:linear-gradient(160deg,#C6362B 0%, #8E2A1E 55%, #3A1A10 100%); padding:58px 20px 62px; margin-top:56px; text-align:center; }
+    .final-in{ max-width:530px; margin:0 auto; }
+    .final .eyebrow{ color:#F3C39A; }
+    .final h2{ color:#fff; font-size:clamp(26px,7vw,37px); line-height:1.22; margin-bottom:14px; }
+    .final h2 .acc{ color:#F0BF86; font-style:italic; }
+    .final p{ color:rgba(255,246,238,.9); font-weight:600; font-size:15.5px; margin-bottom:26px; }
+    .btns{ display:flex; flex-direction:column; gap:10px; }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; min-height:54px;
+      padding:15px 28px; border-radius:999px; font-weight:800; font-size:15.5px; transition:transform .16s, filter .16s;
+    }
+    .btn:active{ transform:scale(.97); }
+    .btn-main{ background:linear-gradient(180deg,#F0BF86,#D98726); color:#3A1A10; box-shadow:0 12px 28px rgba(0,0,0,.28); }
+    .btn-main:hover{ filter:brightness(1.05); }
+    .btn-ghost{ background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.45); }
+
+    footer{ background:#2A130C; color:rgba(255,246,238,.62); text-align:center; padding:26px 20px 34px; font-size:12.5px; font-weight:600; }
+    footer a{ color:#F0BF86; }
+
+    @media(min-width:640px){
+      .story-cards{ grid-template-columns:1fr 1fr; }
+      .scard:first-child{ grid-column:1 / -1; }
+      .ways{ grid-template-columns:repeat(4,1fr); }
+      .btns{ flex-direction:row; justify-content:center; }
+      .btns .btn{ min-width:210px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="mk"></span>TURTI</a>
+    <a class="back" href="index.html">← В магазин</a>
+  </header>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <img class="hero-img" src="images/about-hero.jpg" alt="Горы Дагестана" onerror="this.onerror=null;this.style.display='none'">
+    <div class="hero-shade"></div>
+    <div class="hero-in"><div class="wrap">
+      <span class="kicker">горы Анди · Дагестан</span>
+      <h1>Урбеч с водяной<br>мельницы</h1>
+      <p class="lead">Сорок лет вода крутит одно и то же колесо. Мы ничего не стали в этом менять.</p>
+    </div></div>
+  </section>
+
+  <!-- ═══ ИСТОРИЯ ═══ -->
+  <section class="sec"><div class="wrap">
+    <span class="eyebrow rv">О нас</span>
+    <h2 class="rv">40 лет каменного помола</h2>
+    <div class="rule rv"></div>
+
+    <div class="story-cards">
+      <div class="scard rv">
+        <span class="scard-n">О Д И Н</span>
+        <h3>Мельница на горной реке</h3>
+        <p>Ботлихский район Дагестана, берег реки. Водяная мельница, никакого электричества: вода крутит колесо, колесо крутит каменные жернова, жернова перетирают орех.</p>
+        <p>Скорость задаёт река. Ускорить её нельзя — да никто и не пробовал.</p>
+      </div>
+
+      <div class="scard rv">
+        <span class="scard-n">Д В А</span>
+        <h3>Сорок лет у одних жерновов</h3>
+        <p>У этих камней сорок лет стоит один и тот же человек. Женщина из нашей семьи, которая начала задолго до того, как слово «урбеч» стало модным.</p>
+        <p>Такой опыт не покупается и не передаётся за неделю: она слышит по звуку камня, когда пора останавливать, и знает каждый орех на ощупь. <strong>Этого не заменит ни один аппарат.</strong></p>
+      </div>
+
+      <div class="scard rv">
+        <span class="scard-n">Т Р И</span>
+        <h3>Вкус, который ни с чем не сравнится</h3>
+        <p>Орех, перетёртый камнем на медленном ходу, не спутаешь ни с чем. Камень не перегревает и не сжигает аромат — настоящий природный вкус остаётся <strong>живым</strong>.</p>
+        <p>Рецепт мы не придумывали и не улучшали. Он был до нас, и это лучшее, что можно про него сказать.</p>
+      </div>
+
+      <div class="scard rv">
+        <span class="scard-n">Ч Е Т Ы Р Е</span>
+        <h3>Мы ничего не стали менять</h3>
+        <p>Можно было поставить электрический аппарат и делать в двадцать раз больше. Тогда пришлось бы объяснять, почему вкус стал другим.</p>
+        <p>Мы выбрали не объяснять.</p>
+      </div>
+    </div>
+
+    <div class="facts rv">
+      <div class="fact"><b>40</b><span>лет мельнице</span></div>
+      <div class="fact"><b>16</b><span>вкусов</span></div>
+      <div class="fact"><b>0</b><span>консервантов<br>и красителей</span></div>
+    </div>
+  </div></section>
+
+  <!-- ═══ ПОЧЕМУ НЕ ГОРЧИТ ═══ -->
+  <section class="sec"><div class="wrap">
+    <span class="eyebrow rv">Почему это важно</span>
+    <h2 class="rv">Если урбеч горчил — его пережгли</h2>
+    <div class="rule rv"></div>
+    <p class="rv">Многие пробовали урбеч один раз, он оказался горьким, и банка осталась стоять в шкафу. Дело обычно не в орехе, а в том, <span class="hl">как его перетирали</span>.</p>
+    <p class="rv">На промышленной линии металлические жернова разгоняются и нагреваются — орех подгорает изнутри. Отсюда та самая горечь.</p>
+    <p class="rv">Камень, который крутит вода, разогнаться не может. Он не успевает нагреться, и жечь ему попросту нечем. Поэтому во вкусе остаётся сам орех, а не то, что с ним сделали.</p>
+  </div></section>
+
+  <!-- ═══ СОСТАВ ═══ -->
+  <section class="sec"><div class="wrap">
+    <span class="eyebrow rv">Состав</span>
+    <h2 class="rv">Прочитайте состав вслух — это займёт две секунды</h2>
+    <div class="rule rv"></div>
+    <p class="rv">В банке — орех. Всё, что дополнительно входит в конкретный вкус, написано на этикетке обычным шрифтом: не мелко, не в сноске и не на обороте.</p>
+    <p class="rv">Без пальмового масла, без консервантов, без красителей и загустителей. Есть вопрос по составу — просто спросите, ответим как есть.</p>
+
+    <div class="note rv">
+      <h3>Мы не будем обещать вам здоровье</h3>
+      <p>Про урбеч часто пишут, что он лечит, продлевает жизнь и заменяет аптеку. Мы так писать не станем: это неправда, и зарабатывать на этом мы не хотим. Урбеч — густая паста из перетёртых орехов или семян. Сытная, калорийная, с настоящим вкусом ореха. Мы отвечаем за состав, а не за ваше здоровье.</p>
+    </div>
+  </div></section>
+
+  <!-- ═══ ПОМОЖЕМ ВЫБРАТЬ ═══ -->
+  <section class="sec"><div class="wrap">
+    <span class="eyebrow rv">Выбор вкуса</span>
+    <h2 class="rv">Не можете выбрать — спросите нас</h2>
+    <div class="rule rv"></div>
+    <p class="rv">Шестнадцать вкусов, и почти все незнакомые — выбирать вслепую тяжело. Это нормально, и стесняться тут нечего.</p>
+    <p class="rv">Напишите нам, и мы разберём с вами всё <span class="hl">от А до Я</span>: чем миндальный отличается от арахисового, какой мягче, какой ярче, что понравится ребёнку, а что взять человеку, который любит погорчее. Расскажем про каждый вкус — из чего он, какой на ложке, с чем его едят и кому обычно заходит.</p>
+    <p class="rv">Это бесплатно и ни к чему вас не обязывает. <span class="hl">Мы всё для вас</span> — нам важнее, чтобы вы попали в свой вкус с первого раза, чем продать банку наугад.</p>
+  </div></section>
+
+  <!-- ═══ КАК ЕСТЬ ═══ -->
+  <section class="sec"><div class="wrap">
+    <span class="eyebrow rv">С чем едят</span>
+    <h2 class="rv">Урбеч — это просто</h2>
+    <div class="rule rv"></div>
+    <p class="rv">Ложка на хлеб, ложка в кашу — самый обычный способ. Продукт сытный, поэтому одной банки хватает надолго.</p>
+
+    <div class="ways">
+      <div class="way rv"><b>На хлеб</b><span>Тонким слоем на тёплый хлеб или тост</span></div>
+      <div class="way rv"><b>В кашу</b><span>Ложка в горячую овсянку — размешать</span></div>
+      <div class="way rv"><b>С мёдом</b><span>Классика Дагестана: урбеч, мёд, масло</span></div>
+      <div class="way rv"><b>Просто ложкой</b><span>Честно — так делает большинство</span></div>
+    </div>
+
+    <div class="note rv">
+      <h3>Если сверху собралось масло</h3>
+      <p>Это хороший знак, а не брак: у настоящей ореховой пасты масло своё собственное, и оно отделяется. Перемешайте ложкой. Насторожиться стоит в обратном случае — когда паста стоит месяцами и не расслаивается совсем.</p>
+    </div>
+  </div></section>
+
+  <!-- ═══ ФИНАЛ ═══ -->
+  <section class="final">
+    <div class="final-in">
+      <span class="eyebrow rv">TURTI</span>
+      <h2 class="rv">Мы не делаем урбеч быстрее.<br>Мы делаем его <span class="acc">так, как правильно</span>.</h2>
+      <p class="rv">В каждой банке вы пробуете сорок лет чьей-то ежедневной работы. Напишите — подскажем вкус и посчитаем доставку в ваш город.</p>
+      <div class="btns rv">
+        <a class="btn btn-main" href="index.html#catalog">Выбрать вкус</a>
+        <a class="btn btn-ghost" href="https://wa.me/79882754421" target="_blank" rel="noopener">Написать в WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Урбеч каменного помола · Республика Дагестан, горы Анди<br>
+    <a href="tel:+79882754421">+7 988 275-44-21</a>
+  </footer>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll(".rv");
+    var show = function (e) { e.classList.add("in"); };
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (ents) {
+        ents.forEach(function (x) { if (x.isIntersecting) { show(x.target); io.unobserve(x.target); } });
+      }, { threshold: .08, rootMargin: "0px 0px -6% 0px" });
+      els.forEach(function (e) { io.observe(e); });
+      setTimeout(function () { els.forEach(show); }, 1500);
+    } else {
+      els.forEach(show);
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F9F4E9">
+<title>Отзывы TURTI</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/feedback.css">
+</head>
+<body>
+
+<main class="stage">
+
+  <!-- ═══ ЭКРАН · СПИСОК ОТЗЫВОВ ═══ -->
+  <section class="card" id="s-list">
+    <a class="back" href="/feedback">‹ Назад</a>
+    <div class="brand"><span class="mark">T</span><b>TURTI</b></div>
+
+    <h1>Отзывы TURTI</h1>
+
+    <div id="rev-list"><p class="rev-load">Загружаем отзывы…</p></div>
+
+    <div class="rev-toolbar">
+      <button class="btn" type="button" id="to-form">Оставить свой отзыв</button>
+    </div>
+  </section>
+
+  <!-- ═══ ЭКРАН · ФОРМА ═══ -->
+  <section class="card" id="s-form" hidden>
+    <button class="back" type="button" id="back-to-list">‹ Назад к отзывам</button>
+    <div class="brand"><span class="mark">T</span><b>TURTI</b></div>
+
+    <h1>Оставить отзыв</h1>
+    <p class="lead">Напиши свободно, что хочешь. Отзыв опубликуем после проверки.</p>
+
+    <form id="form" novalidate>
+      <div class="hp" aria-hidden="true">
+        <label>Сайт<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+      </div>
+
+      <label class="fld">Отзыв
+        <textarea name="text" rows="5" required minlength="10" maxlength="2000"
+          placeholder="Каким показался вкус, текстура, как едите — свободно, своими словами"></textarea>
+      </label>
+
+      <label class="fld">Вкус
+        <select name="productId" id="pid"><option value="">Необязательно</option></select>
+      </label>
+
+      <label class="fld">Имя
+        <input name="name" maxlength="60" placeholder="Необязательно">
+      </label>
+
+      <div class="upload">
+        <label class="file-btn">
+          <input type="file" id="files" hidden multiple
+                 accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime">
+          <span>Добавить фотографию</span>
+        </label>
+        <small>Необязательно. До 6 файлов.</small>
+        <div class="previews" id="previews"></div>
+      </div>
+
+      <p class="legal-note">Отправляя отзыв, вы соглашаетесь с
+        <a href="/legal/consent.html" target="_blank" rel="noopener">обработкой персональных данных</a>.</p>
+
+      <button class="btn" type="submit" id="submit">Отправить отзыв</button>
+      <p class="note" id="note" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <!-- ═══ ЭКРАН · СПАСИБО ═══ -->
+  <section class="card center" id="s-done" hidden>
+    <div class="check">✓</div>
+    <h1>Спасибо! Твой отзыв отправлен на проверку.</h1>
+    <a class="btn ghost" href="/">На сайт TURTI</a>
+  </section>
+
+</main>
+
+<script type="module" src="/js/reviews-page.js"></script>
+</body>
+</html>

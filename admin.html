@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>TURTI · панель управления</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#FFFFFF;
+  --panel:#F7F7F8;
+  --line:#E5E5E7;
+  --line-soft:#F0F0F2;
+  --ink:#1D1D1F;
+  --soft:#6E6E76;
+  --faint:#9A9AA2;
+  --accent:#1D1D1F;
+  --green:#0F8A4C;
+  --amber:#B8730A;
+  --red:#C4342A;
+  --r:12px;
+}
+
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  background:var(--bg);color:var(--ink);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+
+/* ═══════════════ ВХОД ═══════════════ */
+.gate{max-width:380px;margin:0 auto;padding:16vh 20px 40px}
+.gate-logo{width:46px;height:46px;border-radius:13px;background:var(--ink);color:#fff;
+  display:grid;place-items:center;font-weight:700;font-size:21px;margin:0 auto 20px}
+.gate h1{font-size:22px;font-weight:600;text-align:center;letter-spacing:-.02em;margin-bottom:6px}
+.gate p{text-align:center;color:var(--soft);font-size:14px;margin-bottom:24px}
+.gate input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);
+  padding:13px 15px;font:400 16px 'Inter',sans-serif;color:var(--ink);transition:border-color .15s}
+.gate input:focus{outline:none;border-color:var(--ink)}
+.gate .btn{width:100%;margin-top:10px}
+.gate-err{text-align:center;color:var(--red);font-size:13.5px;font-weight:500;margin-top:12px;min-height:20px}
+
+/* ═══════════════ КАРКАС ═══════════════ */
+.shell{display:none;min-height:100vh}
+.shell.on{display:grid;grid-template-columns:240px 1fr}
+
+.side{border-right:1px solid var(--line);padding:20px 14px;background:var(--bg);
+  position:sticky;top:0;height:100vh;overflow-y:auto}
+.side-top{display:flex;align-items:center;gap:10px;padding:0 8px 20px}
+.side-top i{width:30px;height:30px;border-radius:9px;background:var(--ink);color:#fff;
+  display:grid;place-items:center;font-weight:700;font-size:14px;font-style:normal;flex-shrink:0}
+.side-top b{font-weight:600;font-size:15px;letter-spacing:-.01em}
+
+.nav{display:grid;gap:2px}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:none;border:0;border-radius:9px;padding:9px 10px;
+  font:500 14.5px 'Inter',sans-serif;color:var(--soft);cursor:pointer;transition:background .13s,color .13s}
+.nav button:hover{background:var(--panel);color:var(--ink)}
+.nav button.on{background:var(--panel);color:var(--ink);font-weight:600}
+.nav svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.7}
+.nav .cnt{margin-left:auto;background:var(--red);color:#fff;border-radius:20px;
+  padding:1px 7px;font-size:11px;font-weight:600}
+.nav .cnt.zero{display:none}
+
+.side-foot{margin-top:24px;padding:14px 10px 0;border-top:1px solid var(--line-soft)}
+.side-foot a,.side-foot button{display:block;width:100%;text-align:left;background:none;border:0;
+  color:var(--faint);font:500 13px 'Inter',sans-serif;padding:6px 0;cursor:pointer;text-decoration:none}
+.side-foot a:hover,.side-foot button:hover{color:var(--ink)}
+
+/* ═══════════════ КОНТЕНТ ═══════════════ */
+.main{padding:28px 32px 80px;max-width:940px}
+.head{margin-bottom:22px}
+.head h1{font-size:26px;font-weight:600;letter-spacing:-.025em;margin-bottom:4px}
+.head p{color:var(--soft);font-size:14.5px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:42px;padding:10px 18px;border:0;border-radius:10px;
+  background:var(--accent);color:#fff;font:600 14.5px 'Inter',sans-serif;cursor:pointer;
+  transition:opacity .15s}
+.btn:hover{opacity:.86}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.line{background:none;color:var(--ink);border:1px solid var(--line)}
+.btn.line:hover{background:var(--panel);opacity:1}
+.btn.ok{background:var(--green)}
+.btn.warn{background:none;color:var(--soft);border:1px solid var(--line)}
+.btn.danger{background:none;color:var(--red);border:1px solid var(--line)}
+.btn.s{min-height:34px;padding:7px 13px;font-size:13.5px;border-radius:8px}
+
+/* карточки статистики */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:26px}
+.tile{border:1px solid var(--line);border-radius:var(--r);padding:15px 16px}
+.tile b{display:block;font-size:27px;font-weight:600;letter-spacing:-.03em;line-height:1.2}
+.tile span{font-size:13px;color:var(--soft)}
+.tile.hi b{color:var(--amber)}
+.tile.hot b{color:var(--red)}
+
+/* карточка записи */
+.rec{border:1px solid var(--line);border-radius:var(--r);padding:16px 17px;margin-bottom:11px}
+.rec.wait{border-left:3px solid var(--amber)}
+.rec.live{border-left:3px solid var(--green)}
+.rec.off{border-left:3px solid var(--line);opacity:.6}
+.rec-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.rec-top strong{font-weight:600;font-size:15.5px}
+.when{color:var(--faint);font-size:12.5px;white-space:nowrap}
+.body{margin:10px 0;font-size:14.5px;color:#3A3A40;white-space:pre-wrap}
+.sub{color:var(--soft);font-size:13.5px;line-height:1.6}
+.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+
+.tag{display:inline-block;background:var(--panel);border-radius:20px;padding:3px 10px;
+  font-size:12px;font-weight:500;color:var(--soft)}
+.tag.gift{background:#FDF3E3;color:var(--amber)}
+.tag.ver{background:#E9F6EE;color:var(--green)}
+.tag.no{background:#FBEBEA;color:var(--red)}
+.stars{color:#E0A030;letter-spacing:1.5px;font-size:14px}
+
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin:11px 0}
+.thumbs img,.thumbs video{width:92px;height:92px;object-fit:cover;border-radius:9px;background:var(--panel)}
+
+/* важная плашка секрета */
+.secret{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:#FDF3E3;border:1px solid #F0D9A8;border-radius:10px;padding:12px 14px;margin:12px 0}
+.secret span{font-weight:600;font-size:14.5px;color:#7A4E06}
+
+select,input[type=text],input[type=search]{background:var(--bg);border:1px solid var(--line);
+  border-radius:9px;padding:8px 11px;font:500 13.5px 'Inter',sans-serif;color:var(--ink)}
+select:focus,input:focus{outline:none;border-color:var(--ink)}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line-soft)}
+th{color:var(--soft);font-weight:500;font-size:12.5px;background:var(--panel)}
+th:first-child{border-radius:9px 0 0 0} th:last-child{border-radius:0 9px 0 0}
+tr:last-child td{border-bottom:0}
+.wrap-t{border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.scroll{overflow-x:auto}
+
+.note{border:1px solid var(--line);border-radius:var(--r);padding:26px;text-align:center;color:var(--soft)}
+.note b{display:block;color:var(--ink);font-weight:600;margin-bottom:5px;font-size:15px}
+.warnbox{background:#FDF3E3;border:1px solid #F0D9A8;border-radius:var(--r);
+  padding:13px 15px;font-size:13.5px;color:#7A4E06;margin-bottom:20px;font-weight:500}
+.loading{padding:40px;text-align:center;color:var(--faint)}
+
+/* ═══════════════ ТЕЛЕФОН ═══════════════ */
+@media (max-width:860px){
+  .shell.on{grid-template-columns:1fr}
+  .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:14px}
+  .side-top{padding-bottom:12px}
+  .nav{grid-auto-flow:column;grid-auto-columns:max-content;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .nav button{white-space:nowrap;padding:8px 13px}
+  .nav svg{display:none}
+  .side-foot{display:flex;gap:16px;margin-top:12px;padding-top:10px}
+  .main{padding:20px 16px 70px}
+  .head h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ ВХОД ═══════════════ -->
+<div class="gate" id="gate">
+  <div class="gate-logo">T</div>
+  <h1>Панель TURTI</h1>
+  <p>Введите пароль</p>
+  <input id="pw" type="password" autocomplete="current-password" placeholder="Пароль">
+  <button class="btn" id="go">Войти</button>
+  <p class="gate-err" id="gerr"></p>
+</div>
+
+<!-- ═══════════════ ПАНЕЛЬ ═══════════════ -->
+<div class="shell" id="shell">
+
+  <aside class="side">
+    <div class="side-top"><i>T</i><b>TURTI</b></div>
+    <nav class="nav" id="nav">
+      <button class="on" data-p="orders">
+        <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        Заказы <span class="cnt zero" id="c-ord">0</span>
+      </button>
+      <button data-p="reviews">
+        <svg viewBox="0 0 24 24"><path d="M12 4l2.3 5 5.2.6-3.8 3.5 1 5.1L12 15.7 7.3 18.2l1-5.1L4.5 9.6 9.7 9z"/></svg>
+        Отзывы <span class="cnt zero" id="c-rev">0</span>
+      </button>
+      <button data-p="feedback">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Обратная связь
+      </button>
+      <button data-p="surprises">
+        <svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M4 13h16M12 9v11"/><path d="M12 9c-1.8 0-3.5-1-3.5-2.5S10 4.5 12 9zm0 0c1.8 0 3.5-1 3.5-2.5S14 4.5 12 9z"/></svg>
+        Секреты
+      </button>
+      <button data-p="qr">
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2z"/></svg>
+        QR и подарки
+      </button>
+      <button data-p="push">
+        <svg viewBox="0 0 24 24"><path d="M18 15v-4a6 6 0 1 0-12 0v4l-1.5 2.5h15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+        Напоминания
+      </button>
+    </nav>
+    <div class="side-foot">
+      <a href="index.html">← На сайт</a>
+      <button id="out">Выйти</button>
+    </div>
+  </aside>
+
+  <main class="main" id="main"><div class="loading">Загружаем…</div></main>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   ПАНЕЛЬ TURTI
+
+   Работает в двух режимах, переключается сама:
+     • файл открыт с компьютера → показывает заказы из этого браузера;
+     • сайт опубликован и задан ADMIN_KEY → тянет всё с сервера.
+
+   ВАЖНО про пароль ниже: он лежит в этом файле, поэтому защищает
+   только от случайного захода. Настоящая защита — переменная ADMIN_KEY
+   на сервере: без неё серверные данные не отдаются вообще.
+   ══════════════════════════════════════════════════════════════════════ */
+
+var PASSWORD = "turti-botlih-25";     // ← пароль для входа в панель. Меняйте здесь.
+
+var $ = function (s) { return document.querySelector(s); };
+var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+  return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+var rub = function (n) { return new Intl.NumberFormat("ru-RU").format(Math.round(Number(n) || 0)) + " ₽"; };
+var when = function (s) { try {
+  return new Date(s).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+} catch (e) { return ""; } };
+var stars = function (n) { return "★".repeat(n) + "☆".repeat(5 - n); };
+
+var SERVER = false;     // доступен ли серверный режим
+var page = "orders";
+
+/* ═══════════ вход ═══════════ */
+$("#go").onclick = function () {
+  if ($("#pw").value.trim() !== PASSWORD) { $("#gerr").textContent = "Неверный пароль"; return; }
+  sessionStorage.setItem("turti_panel", "1");
+  open_();
+};
+$("#pw").addEventListener("keydown", function (e) { if (e.key === "Enter") $("#go").click(); });
+$("#out").onclick = function () { sessionStorage.removeItem("turti_panel"); location.reload(); };
+if (sessionStorage.getItem("turti_panel")) open_();
+
+function open_() {
+  $("#gate").style.display = "none";
+  $("#shell").classList.add("on");
+  $("#nav").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-p]"); if (!b) return;
+    document.querySelectorAll(".nav button").forEach(function (x) { x.classList.toggle("on", x === b); });
+    page = b.dataset.p;
+    load();
+  });
+  probe();
+}
+
+/* проверяем, есть ли сервер */
+function probe() {
+  fetch("/api/admin?section=stats", { headers: { "x-admin-key": PASSWORD } })
+    .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+    .then(function (res) {
+      SERVER = res.d && res.d.ok === true;
+      if (!SERVER && res.s === 401) SERVER = "wrongkey";
+      load();
+    })
+    .catch(function () { SERVER = false; load(); })
+}
+
+function api(section) {
+  return fetch("/api/admin?section=" + section, { headers: { "x-admin-key": PASSWORD } })
+    .then(function (r) { return r.json(); });
+}
+function act(body) {
+  return fetch("/api/admin", {
+    method: "POST",
+    headers: { "x-admin-key": PASSWORD, "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  }).then(function (r) { return r.json(); });
+}
+
+/* ═══════════ отрисовка ═══════════ */
+function load() {
+  var m = $("#main");
+  m.innerHTML = '<div class="loading">Загружаем…</div>';
+
+  if (page === "orders") return drawOrders();
+
+  if (SERVER !== true) return m.innerHTML = head(titleOf(page), "") + offline();
+
+  api(page === "surprises" ? "surprises" : page).then(function (d) {
+    if (!d.ok) { m.innerHTML = head(titleOf(page), "") + '<div class="note"><b>' + esc(d.error) + '</b>' + esc(d.hint || "") + '</div>'; return; }
+    if (page === "reviews") drawReviews(d);
+    if (page === "feedback") drawFeedback(d);
+    if (page === "surprises") drawSurprises(d);
+    if (page === "qr") drawQr(d);
+    if (page === "push") drawPush(d);
+  });
+}
+
+function titleOf(p) {
+  return { orders: "Заказы", reviews: "Отзывы", feedback: "Обратная связь", surprises: "Секретные комплименты",
+           qr: "QR и подарочные наборы", push: "Напоминания" }[p];
+}
+
+function head(t, sub) {
+  return '<div class="head"><h1>' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : "") + '</div>';
+}
+
+function offline() {
+  if (SERVER === "wrongkey")
+    return '<div class="note"><b>Сервер не принял пароль</b>' +
+      'Задайте переменную ADMIN_KEY на Vercel такой же, как пароль в этом файле.</div>';
+  return '<div class="note"><b>Этот раздел заработает после публикации сайта</b>' +
+    'Отзывы, QR и напоминания хранятся на сервере. Пока сайт открыт файлом с компьютера, ' +
+    'серверных данных нет. Заказы этого браузера смотрите в разделе «Заказы».</div>';
+}
+
+/* ─── ЗАКАЗЫ: работают и локально, и с сервера ─── */
+function drawOrders() {
+  var m = $("#main");
+
+  if (SERVER === true) {
+    api("orders").then(function (d) {
+      var list = (d.items || []);
+      var wait = list.filter(function (o) { return o.paid && o.status !== "shipped" && o.status !== "delivered"; }).length;
+      var sec = list.filter(function (o) { return o.surpriseId && !o.surpriseUsed; }).length;
+      badge("c-ord", wait);
+      m.innerHTML = head("Заказы", "Данные с сервера") +
+        tiles([[list.length, "всего"], [wait, "собрать", wait ? "hi" : ""], [sec, "с секретом", sec ? "hot" : ""],
+               [rub(list.reduce(function (s, o) { return s + (o.total || 0); }, 0)), "оборот"]]) +
+        (list.length ? list.map(serverOrder).join("") : '<div class="note"><b>Заказов пока нет</b></div>');
+      bind();
+    });
+    return;
+  }
+
+  /* локальные заказы из этого браузера */
+  var all = [];
+  try { all = JSON.parse(localStorage.getItem("turti_orders")) || []; } catch (e) { all = []; }
+  var neu = all.filter(function (o) { return o.status === "new"; }).length;
+  badge("c-ord", neu);
+
+  m.innerHTML = head("Заказы", "Из браузера этого компьютера") +
+    '<div class="warnbox">Пока сайт не опубликован, заказы сохраняются только в этом браузере. ' +
+    'После публикации они будут приходить на сервер и в Telegram.</div>' +
+    tiles([[all.length, "всего"], [neu, "новых", neu ? "hi" : ""],
+           [rub(all.reduce(function (s, o) { return s + (Number(o.total) || 0); }, 0)), "на сумму"]]) +
+    (all.length ? all.map(localOrder).join("") : '<div class="note"><b>Заказов пока нет</b>Оформите тестовый заказ на сайте.</div>');
+
+  $("#main").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-loc]"); if (!b) return;
+    var a = JSON.parse(localStorage.getItem("turti_orders") || "[]");
+    var i = Number(b.dataset.loc);
+    if (b.dataset.do === "del") { if (!confirm("Удалить заказ?")) return; a.splice(i, 1); }
+    else a[i].status = "done";
+    localStorage.setItem("turti_orders", JSON.stringify(a));
+    drawOrders();
+  }, { once: true });
+}
+
+function localOrder(o, i) {
+  var items = (o.items || []).map(function (l) { return esc(l.label) + " × " + l.qty + " — " + rub(l.sum); }).join("<br>");
+  return '<div class="rec ' + (o.status === "new" ? "wait" : "") + '">' +
+    '<div class="rec-top"><strong>' + esc(o.name || "") + '</strong><span class="when">' + esc(o.date || "") + '</span></div>' +
+    '<p class="sub">' + esc(o.phone || "") + ' · ' + esc(o.city || "") + '<br>' + esc(o.pvz || "") + '</p>' +
+    '<div class="body">' + items + '</div>' +
+    '<div class="rec-top"><span class="tag">' + esc(o.status || "") + '</span><strong>' + rub(o.total) + '</strong></div>' +
+    '<div class="acts">' +
+      (o.status === "new" ? '<button class="btn ok s" data-loc="' + i + '" data-do="done">Выполнен</button>' : "") +
+      '<button class="btn danger s" data-loc="' + i + '" data-do="del">Удалить</button>' +
+    '</div></div>';
+}
+
+function serverOrder(o) {
+  var items = (o.lines || []).map(function (l) { return esc(l.label) + " " + esc(l.sub) + " × " + l.qty; }).join("<br>");
+  var opts = ["new","awaiting_payment","paid","processing","shipped","delivered","cancelled"]
+    .map(function (s) { return '<option value="' + s + '"' + (s === o.status ? " selected" : "") + '>' + s + '</option>'; }).join("");
+  return '<div class="rec ' + (o.paid ? "live" : "wait") + '" data-id="' + o.id + '">' +
+    '<div class="rec-top"><strong>' + o.id + '</strong>' +
+      '<span class="when">' + when(o.createdAt) + ' · ' + (o.paid ? "оплачен" : "не оплачен") + '</span></div>' +
+    (o.surpriseId && !o.surpriseUsed
+      ? '<div class="secret"><span>🎁 Секрет TURTI: вложить комплимент</span>' +
+        '<button class="btn ok s" data-a="surprise-use" data-sid="' + o.surpriseId + '" data-oid="' + o.id + '">Секрет вложен</button></div>'
+      : (o.surpriseUsed ? '<p class="sub">🎁 Комплимент вложен</p>' : "")) +
+    '<div class="body">' + items + '</div>' +
+    '<div class="rec-top"><p class="sub">' + esc(o.name) + ' · ' + esc(o.phone) + ' · ' + esc(o.city) + '<br>' +
+      esc(o.deliveryLabel || "") + (o.pvzCode ? " · ПВЗ " + esc(o.pvzCode) : "") + '<br>' + esc(o.address || "") + '</p>' +
+      '<strong>' + rub(o.total) + '</strong></div>' +
+    '<div class="acts"><select data-f="status">' + opts + '</select>' +
+      '<input type="text" data-f="tracking" placeholder="трек-номер" value="' + esc(o.trackingNumber || "") + '">' +
+      '<button class="btn line s" data-a="order-status">Сохранить</button>' +
+      (o.utm && o.utm.source ? '<span class="tag">' + esc(o.utm.source) + '</span>' : "") +
+    '</div></div>';
+}
+
+/* ─── ОТЗЫВЫ ─── */
+function drawReviews(d) {
+  var list = d.items || [], c = d.counts || {};
+  badge("c-rev", c.pending || 0);
+  $("#main").innerHTML = head("Отзывы", "На сайте показываются только одобренные") +
+    tiles([[c.pending || 0, "на проверке", c.pending ? "hi" : ""], [c.approved || 0, "опубликовано"], [c.rejected || 0, "отклонено"]]) +
+    (list.length ? list.map(function (r) {
+      var media = (r.media || []).map(function (mm) {
+        return mm.type === "video"
+          ? '<video src="' + esc(mm.url) + '" controls preload="metadata" playsinline></video>'
+          : '<img src="' + esc(mm.url) + '" alt="" loading="lazy">'; }).join("");
+      return '<div class="rec ' + (r.status === "pending" ? "wait" : r.status === "approved" ? "live" : "off") + '" data-id="' + r.id + '">' +
+        '<div class="rec-top"><span><span class="stars">' + stars(r.rating) + '</span> <strong>' + esc(r.name) + '</strong>' +
+          (r.city ? ' <span class="when">· ' + esc(r.city) + '</span>' : "") + '</span>' +
+          '<span class="when">' + when(r.createdAt) + '</span></div>' +
+        '<div style="margin-top:7px">' +
+          (r.isGift ? '<span class="tag gift">Отзыв о подарочном наборе TURTI</span> ' : '<span class="tag">' + esc(r.flavor || "") + '</span> ') +
+          (r.verified ? '<span class="tag ver">Проверенный отзыв</span> ' : "") +
+          (!r.showOnSite ? '<span class="tag no">публикацию не разрешил</span> ' : "") +
+          (r.qr_token ? '<span class="tag">QR ' + esc(r.qr_token) + '</span> ' : "") +
+          (r.phoneTail ? '<span class="tag">тел ···' + esc(r.phoneTail) + '</span>' : "") +
+        '</div>' +
+        '<div class="body">' + esc(r.text) + '</div>' +
+        (media ? '<div class="thumbs">' + media + '</div>' : "") +
+        '<div class="acts">' +
+          (r.status !== "approved" && r.showOnSite ? '<button class="btn ok s" data-a="review-approve">Опубликовать</button>' : "") +
+          (r.status !== "rejected" ? '<button class="btn warn s" data-a="review-reject">Отклонить</button>' : "") +
+          '<button class="btn danger s" data-a="review-delete">Удалить</button>' +
+          '<span class="when">' + r.id + '</span>' +
+        '</div></div>';
+    }).join("") : '<div class="note"><b>Отзывов пока нет</b>Они появятся, когда покупатели начнут писать.</div>');
+  bind();
+}
+
+/* ─── ОБРАТНАЯ СВЯЗЬ (личные сообщения из /feedback/private) ─── */
+function drawFeedback(d) {
+  var list = d.items || [];
+  $("#main").innerHTML = head("Обратная связь", "Личные сообщения — видит только команда TURTI, нигде не публикуются") +
+    tiles([[list.length, "всего сообщений"]]) +
+    (list.length ? list.map(function (f) {
+      var media = (f.media || []).map(function (mm) {
+        return mm.type === "video"
+          ? '<video src="' + esc(mm.url) + '" controls preload="metadata" playsinline></video>'
+          : '<img src="' + esc(mm.url) + '" alt="" loading="lazy">'; }).join("");
+      return '<div class="rec" data-id="' + f.id + '">' +
+        '<div class="rec-top"><strong>' + esc(f.name) + '</strong><span class="when">' + when(f.createdAt) + '</span></div>' +
+        (f.hintLabel ? '<div style="margin-top:7px"><span class="tag">' + esc(f.hintLabel) + '</span></div>' : "") +
+        '<div class="body">' + esc(f.text) + '</div>' +
+        (media ? '<div class="thumbs">' + media + '</div>' : "") +
+        '</div>';
+    }).join("") : '<div class="note"><b>Сообщений пока нет</b>Они появятся, когда покупатели напишут через «Написать лично TURTI».</div>');
+}
+
+/* ─── СЕКРЕТЫ ─── */
+function drawSurprises(d) {
+  var A = d.active || [], U = d.used || [];
+  $("#main").innerHTML = head("Секретные комплименты", "Клиент не знает, что внутри — только сам факт") +
+    tiles([[A.length, "активных", A.length ? "hi" : ""], [U.length, "вложено"]]) +
+    (A.length ? A.map(function (s) {
+      return '<div class="rec wait" data-id="' + s.id + '">' +
+        '<div class="rec-top"><strong>' + s.id + '</strong><span class="when">' + when(s.createdAt) + '</span></div>' +
+        '<div class="secret"><span>🎁 ' + esc(s.label) + '</span>' +
+          '<button class="btn ok s" data-a="surprise-use" data-sid="' + s.id + '" data-oid="' + esc(s.used_order_id || "") + '">Секрет вложен</button></div>' +
+        '<p class="sub">' + (s.phoneTail ? "тел ···" + esc(s.phoneTail) + " · " : "") +
+          (s.qr_token ? "QR " + esc(s.qr_token) + " · " : "") + "отзыв " + esc(s.review_id || "—") +
+          (s.used_order_id ? " · заказ " + esc(s.used_order_id) : " · заказа пока нет") + '</p>' +
+        '</div>';
+    }).join("") : '<div class="note"><b>Активных комплиментов нет</b>Они создаются, когда клиент оставляет отзыв через QR.</div>') +
+    (U.length ? '<h2 style="font-size:16px;font-weight:600;margin:26px 0 11px">Использованные</h2>' +
+      '<div class="wrap-t scroll"><table><tr><th>ID</th><th>Заказ</th><th>Вложен</th><th>QR</th></tr>' +
+      U.map(function (s) { return '<tr><td>' + s.id + '</td><td>' + esc(s.used_order_id || "—") + '</td><td>' + when(s.usedAt) + '</td><td>' + esc(s.qr_token || "—") + '</td></tr>'; }).join("") +
+      '</table></div>' : "");
+  bind();
+}
+
+/* ─── QR ─── */
+function drawQr(d) {
+  var list = d.items || [], t = d.total || {};
+  $("#main").innerHTML = head("QR и подарочные наборы", "Отдача от коробок, листовок и дегустаций") +
+    tiles([[t.scans || 0, "сканирований"], [t.reviews || 0, "отзывов"], [t.push || 0, "разрешили напоминание"], [t.returned || 0, "вернулись"]]) +
+    (list.length ? '<div class="wrap-t scroll"><table>' +
+      '<tr><th>QR-метка</th><th>Сканы</th><th>Отзывы</th><th>Конверсия</th><th>Push</th><th>Последний скан</th></tr>' +
+      list.map(function (q) { return '<tr><td><strong>' + esc(q.token) + '</strong></td><td>' + q.scans + '</td><td>' + q.reviews +
+        '</td><td>' + q.convReview + '%</td><td>' + q.pushAllowed + '</td><td>' + (q.lastAt ? when(q.lastAt) : "—") + '</td></tr>'; }).join("") +
+      '</table></div>' : '<div class="note"><b>QR ещё не сканировали</b></div>') +
+    '<div class="rec" style="margin-top:18px"><strong>Разные QR под разные каналы</strong>' +
+      '<p class="sub" style="margin-top:7px">Добавьте метку к ссылке — статистика разделится сама:<br>' +
+      '<code>/qr/gift?t=korobka-01</code> · <code>/qr/gift?t=degustaciya</code> · <code>/qr/gift?t=bloger-ivan</code></p></div>';
+}
+
+/* ─── PUSH ─── */
+function drawPush(d) {
+  var list = d.items || [];
+  $("#main").innerHTML = head("Напоминания", "Одно уведомление через 20 или 30 дней") +
+    (d.configured ? "" : '<div class="warnbox">Ключи VAPID не заданы — уведомления не отправляются. ' +
+      'Сгенерируйте их командой <code>npx web-push generate-vapid-keys</code> и добавьте в переменные Vercel.</div>') +
+    '<div class="rec"><div class="rec-top"><strong>Проверка</strong>' +
+      '<button class="btn line s" id="tpush">Отправить тестовый push</button></div>' +
+      '<p class="sub" id="tres" style="margin-top:8px">Уйдёт последней сохранённой подписке.</p></div>' +
+    (list.length ? '<div class="wrap-t scroll" style="margin-top:14px"><table>' +
+      '<tr><th>ID</th><th>Срок</th><th>Отправить</th><th>Статус</th><th>QR</th></tr>' +
+      list.map(function (s) { return '<tr><td>' + s.id + '</td><td>' + s.days + ' дн.</td><td>' + when(s.dueAt) +
+        '</td><td>' + esc(s.status) + (s.sentAt ? " · " + when(s.sentAt) : "") + '</td><td>' + esc(s.qr_token || "—") + '</td></tr>'; }).join("") +
+      '</table></div>' : '<div class="note" style="margin-top:14px"><b>Напоминаний пока нет</b></div>');
+
+  var b = $("#tpush");
+  if (b) b.onclick = function () {
+    var out = $("#tres");
+    out.textContent = "Отправляем…";
+    fetch("/api/push-test", { method: "POST", headers: { "x-admin-key": PASSWORD, "Content-Type": "application/json" }, body: "{}" })
+      .then(function (r) { return r.json(); })
+      .then(function (r) { out.textContent = r.ok ? "Отправлено. Проверьте телефон." : "Не вышло: " + (r.error || "ошибка"); })
+      .catch(function () { out.textContent = "Сервер недоступен."; });
+  };
+}
+
+/* ═══════════ мелочи ═══════════ */
+function tiles(rows) {
+  return '<div class="tiles">' + rows.map(function (r) {
+    return '<div class="tile ' + (r[2] || "") + '"><b>' + r[0] + '</b><span>' + r[1] + '</span></div>';
+  }).join("") + '</div>';
+}
+
+function badge(id, n) {
+  var el = $("#" + id); if (!el) return;
+  el.textContent = n;
+  el.classList.toggle("zero", !n);
+}
+
+function bind() {
+  $("#main").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-a]"); if (!b) return;
+    var rec = b.closest(".rec");
+    var body = { action: b.dataset.a, id: b.dataset.sid || (rec && rec.dataset.id) };
+    if (b.dataset.a === "surprise-use") body.orderId = b.dataset.oid || "";
+    if (b.dataset.a === "order-status") {
+      body.status = rec.querySelector('[data-f="status"]').value;
+      body.tracking = rec.querySelector('[data-f="tracking"]').value;
+    }
+    if (b.dataset.a === "review-delete" && !confirm("Удалить отзыв навсегда?")) return;
+    b.disabled = true;
+    act(body).then(function (r) {
+      if (!r.ok) { alert(r.error || "Не получилось"); b.disabled = false; return; }
+      load();
+    });
+  }, { once: true });
+}
+</script>
+</body>
+</html>
