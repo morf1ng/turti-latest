@@ -140,7 +140,8 @@ tr:last-child td{border-bottom:0}
 .note{border:1px solid var(--line);border-radius:var(--r);padding:26px;text-align:center;color:var(--soft)}
 .note b{display:block;color:var(--ink);font-weight:600;margin-bottom:5px;font-size:15px}
 .warnbox{background:#FDF3E3;border:1px solid #F0D9A8;border-radius:var(--r);
-  padding:13px 15px;font-size:13.5px;color:#7A4E06;margin-bottom:20px;font-weight:500}
+  padding:13px 15px;font-size:13.5px;color:#7A4E06;margin-bottom:20px;font-weight:500;line-height:1.55}
+.warnbox.err{background:#FBEBEA;border-color:#E8B4B0;color:#8B2E26}
 .loading{padding:40px;text-align:center;color:var(--faint)}
 
 .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
@@ -278,6 +279,7 @@ var orderFilter = "all";
 var reviewFilter = "all";
 var searchQ = "";
 var toastTimer;
+var SERVER_DETAIL = "";
 
 function toast(msg, isErr) {
   var el = $("#toast"); if (!el) return;
@@ -305,9 +307,38 @@ function copyText(t) {
 }
 function setServerPill() {
   var el = $("#srv"); if (!el) return;
-  if (SERVER === true) { el.className = "srv on"; el.textContent = "Сервер подключён"; }
-  else if (SERVER === "wrongkey") { el.className = "srv err"; el.textContent = "Пароль не совпадает с ADMIN_KEY на Vercel"; }
-  else { el.className = "srv off"; el.textContent = "Локальный режим — только заказы из браузера"; }
+  if (SERVER === true) { el.className = "srv on"; el.textContent = "Сервер подключён"; return; }
+  if (SERVER === "file") { el.className = "srv err"; el.textContent = "Открыто с компьютера — нужен адрес Vercel"; return; }
+  if (SERVER === "wrongkey") { el.className = "srv err"; el.textContent = "ADMIN_KEY на Vercel не совпадает с паролем"; return; }
+  if (SERVER === "nokey") { el.className = "srv err"; el.textContent = "На Vercel не задан ADMIN_KEY"; return; }
+  if (SERVER === "error" || SERVER === "offline") {
+    el.className = "srv err";
+    el.textContent = SERVER_DETAIL || "API недоступен — проверьте деплой";
+    return;
+  }
+  el.className = "srv off";
+  el.textContent = "Локальный режим — только заказы из браузера";
+}
+function serverStatusWarn() {
+  if (location.protocol === "file:") {
+    return '<div class="warnbox err"><b>Админка открыта с компьютера, не с Vercel.</b> ' +
+      'Деплой сам по себе не помогает, если вы открываете файл двойным щелчком. ' +
+      'Зайдите по адресу сайта: <strong>https://ваш-проект.vercel.app/admin</strong></div>';
+  }
+  if (SERVER === "wrongkey") {
+    return '<div class="warnbox err"><b>Сервер отклонил пароль.</b> ' +
+      'Vercel → Settings → Environment Variables → <code>ADMIN_KEY</code> = <code>turti-botlih-25</code> → Redeploy.</div>';
+  }
+  if (SERVER === "nokey") {
+    return '<div class="warnbox err"><b>На Vercel не задан ADMIN_KEY.</b> ' +
+      'Settings → Environment Variables → добавьте <code>ADMIN_KEY</code> = <code>turti-botlih-25</code> для Production → Redeploy.</div>';
+  }
+  if (SERVER === "error" || SERVER === "offline") {
+    return '<div class="warnbox err"><b>Не удалось связаться с API.</b> ' +
+      esc(SERVER_DETAIL || "Откройте /api/cities?q=мах — должен вернуть JSON.") +
+      ' Если 404 — деплой не прошёл или старый коммит.</div>';
+  }
+  return "";
 }
 function toolbar(placeholder) {
   return '<div class="toolbar"><input type="search" class="search" id="q" placeholder="' + esc(placeholder) +
@@ -397,15 +428,43 @@ function open_() {
 
 /* проверяем, есть ли сервер */
 function probe() {
+  if (location.protocol === "file:") {
+    SERVER = "file";
+    setServerPill();
+    load();
+    return;
+  }
   fetch("/api/admin?section=stats", { headers: { "x-admin-key": PASSWORD } })
-    .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+    .then(function (r) {
+      return r.text().then(function (raw) {
+        var d = {};
+        try { d = raw ? JSON.parse(raw) : {}; } catch (e) { d = { ok: false, error: raw.slice(0, 120) }; }
+        return { s: r.status, d: d };
+      });
+    })
     .then(function (res) {
-      SERVER = res.d && res.d.ok === true;
-      if (!SERVER && res.s === 401) SERVER = "wrongkey";
+      if (res.d && res.d.ok === true) {
+        SERVER = true;
+      } else if (res.s === 401) {
+        SERVER = "wrongkey";
+      } else if (res.s === 503 && String(res.d.error || "").indexOf("ADMIN_KEY") >= 0) {
+        SERVER = "nokey";
+      } else if (res.s === 404) {
+        SERVER = "error";
+        SERVER_DETAIL = "Маршрут /api/admin не найден (404). Нужен коммит с api/[...path].js.";
+      } else {
+        SERVER = "error";
+        SERVER_DETAIL = (res.d && (res.d.error || res.d.hint)) || ("HTTP " + res.s);
+      }
       setServerPill();
       load();
     })
-    .catch(function () { SERVER = false; setServerPill(); load(); })
+    .catch(function (err) {
+      SERVER = "offline";
+      SERVER_DETAIL = err && err.message ? err.message : "Сеть или CORS";
+      setServerPill();
+      load();
+    });
 }
 
 function api(section) {
@@ -450,12 +509,10 @@ function head(t, sub) {
 }
 
 function offline() {
-  if (SERVER === "wrongkey")
-    return '<div class="note"><b>Сервер не принял пароль</b>' +
-      'Задайте переменную ADMIN_KEY на Vercel такой же, как пароль в этом файле.</div>';
-  return '<div class="note"><b>Этот раздел заработает после публикации сайта</b>' +
-    'Отзывы, QR и напоминания хранятся на сервере. Пока сайт открыт файлом с компьютера, ' +
-    'серверных данных нет. Заказы этого браузера смотрите в разделе «Заказы».</div>';
+  var w = serverStatusWarn();
+  if (w) return w;
+  return '<div class="note"><b>Сервер пока недоступен</b>' +
+    'Отзывы, QR и напоминания хранятся на сервере. Заказы этого браузера — в разделе «Заказы».</div>';
 }
 
 /* ─── ЗАКАЗЫ: работают и локально, и с сервера ─── */
@@ -488,8 +545,8 @@ function drawOrders() {
 
   var all = [];
   try { all = JSON.parse(localStorage.getItem("turti_orders")) || []; } catch (e) { all = []; }
-  var warn = '<div class="warnbox">Пока сайт не опубликован, заказы сохраняются только в этом браузере. ' +
-    'После публикации они будут приходить на сервер.</div>';
+  var warn = serverStatusWarn() || ('<div class="warnbox">Сервер не подключён — показываем только заказы, ' +
+    'сохранённые в этом браузере. После настройки Vercel заказы будут приходить на сервер.</div>');
   renderOrders(all.map(function (o, i) {
     return {
       id: "local-" + (i + 1), name: o.name, phone: o.phone, city: o.city, pvzCode: o.pvz,
