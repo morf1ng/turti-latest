@@ -257,7 +257,7 @@
 
     /* ═══ НИЖНИЙ ДОК — стекло, как в iOS ═══ */
     .dock {
-      position: fixed; z-index: 66; left: 12px; right: 12px; bottom: 10px;
+      position: fixed; z-index: 66; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom, 0px));
       background: rgba(253,250,243,.78);
       border: 1px solid rgba(255,255,255,.7);
       border-radius: 32px; padding: 10px 22px;
@@ -504,7 +504,7 @@
     .delivery-line { color: var(--gray); font-size: 13px; }
 
     /* ═══ ФУТЕР ═══ */
-    footer { border-top: 1px solid var(--line); padding: 40px 20px 150px; text-align: center; }
+    footer { border-top: 1px solid var(--line); padding: 40px 20px calc(120px + env(safe-area-inset-bottom, 0px)); text-align: center; }
     footer .logo { justify-content: center; margin-bottom: 12px; }
     footer p { color: var(--gray); font-size: 13.5px; margin-bottom: 6px; }
     .footer-wa {
@@ -513,7 +513,7 @@
       padding: 13px 26px; border-radius: 999px; box-shadow: 0 8px 20px rgba(198,54,43,.35);
     }
     .whatsapp-float {
-      position:fixed; left:16px; bottom:92px; z-index:65;
+      position:fixed; left:16px; bottom:calc(88px + env(safe-area-inset-bottom, 0px)); z-index:65;
       display:grid; place-items:center; width:54px; height:54px; border-radius:50%;
       background:#25D366; color:#fff; box-shadow:0 8px 22px rgba(20,125,67,.35);
       text-decoration:none; transition:transform .2s ease, box-shadow .2s ease;
@@ -1602,13 +1602,14 @@
     <p><strong>Остались вопросы? Мы рядом.</strong><br>Напишите нам в WhatsApp — поможем с выбором и доставкой.</p>
     <a class="footer-wa" href="https://wa.me/79282197962?text=Здравствуйте!%20Пишу%20с%20сайта%20TURTI" target="_blank" rel="noopener">💬 +7 928 219-79-62 · WhatsApp</a>
     <nav class="foot-links">
-      <a href="#delivery">Доставка и оплата</a>
-      <a href="#faq">Возврат</a>
-      <a href="#" onclick="return false" title="Страница готовится">Публичная оферта</a>
-      <a href="#" onclick="return false" title="Страница готовится">Политика конфиденциальности</a>
-      <a href="#" onclick="return false" title="Страница готовится">Согласие на обработку ПД</a>
+      <a href="legal/delivery.html">Доставка</a>
+      <a href="legal/returns.html">Возврат</a>
+      <a href="legal/oferta.html">Оферта</a>
+      <a href="legal/privacy.html">Конфиденциальность</a>
+      <a href="legal/consent.html">Согласие на ПД</a>
+      <a href="legal/contacts.html">Контакты</a>
     </nav>
-    <p class="foot-req">Контакты: +7 928 219-79-62 · WhatsApp<br>Производитель: Республика Дагестан, Ботлихский район, село Рахата<br>Реквизиты продавца будут опубликованы здесь</p>
+    <p class="foot-req">Производство: село Рахата, Ботлихский район, Дагестан<br><a href="legal/contacts.html" style="color:var(--green);font-weight:700;text-decoration:none">Реквизиты продавца →</a></p>
     <p>© 2026 TURTI · Сделано в горах Кавказа с любовью</p>
   </footer>
 
