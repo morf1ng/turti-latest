@@ -504,13 +504,67 @@
     .delivery-line { color: var(--gray); font-size: 13px; }
 
     /* ═══ ФУТЕР ═══ */
-    footer { border-top: 1px solid var(--line); padding: 40px 20px calc(120px + env(safe-area-inset-bottom, 0px)); text-align: center; }
-    footer .logo { justify-content: center; margin-bottom: 12px; }
-    footer p { color: var(--gray); font-size: 13.5px; margin-bottom: 6px; }
+    .site-foot {
+      background: linear-gradient(180deg, #1E1812 0%, #14100C 100%);
+      color: rgba(255,252,244,.88);
+      margin-top: 8px;
+      padding: 0 0 calc(96px + env(safe-area-inset-bottom, 0px));
+    }
+    .foot-inner {
+      max-width: 1080px; margin: 0 auto;
+      padding: 36px 18px 28px;
+      display: grid; gap: 28px 24px;
+      grid-template-columns: 1fr;
+    }
+    .foot-brand .logo { margin-bottom: 12px; }
+    .foot-brand .logo strong {
+      background: linear-gradient(180deg, #FFD8C8 0%, #F5B889 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .foot-brand .logo small { color: rgba(255,252,244,.55); }
+    .foot-brand p { font-size: 14px; line-height: 1.65; color: rgba(255,252,244,.72); max-width: 320px; }
+    .foot-col h4 {
+      font-family: 'Unbounded','Manrope',sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: #F5B889; margin-bottom: 12px;
+    }
+    .foot-col ul { list-style: none; display: grid; gap: 9px; }
+    .foot-col a, .foot-col button.foot-link {
+      display: inline-block; background: none; border: 0; padding: 0;
+      color: rgba(255,252,244,.82); text-decoration: none;
+      font: 600 14px 'Manrope',sans-serif; text-align: left; cursor: pointer;
+      transition: color .15s;
+    }
+    .foot-col a:hover, .foot-col button.foot-link:hover { color: #fff; }
+    .foot-contact .foot-phone { font-family:'Unbounded','Manrope',sans-serif; font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .foot-contact .foot-place { font-size: 13px; line-height: 1.55; color: rgba(255,252,244,.62); margin-bottom: 14px; }
     .footer-wa {
-      display: inline-flex; align-items: center; gap: 8px; margin: 14px 0;
-      background: linear-gradient(180deg,#E0574C,#C6362B); color: #fff; text-decoration: none; font-weight: 800; font-size: 15px;
-      padding: 13px 26px; border-radius: 999px; box-shadow: 0 8px 20px rgba(198,54,43,.35);
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: linear-gradient(180deg,#25D366,#1DA851); color: #fff; text-decoration: none;
+      font-weight: 800; font-size: 14px; padding: 12px 20px; border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(20,125,67,.28); width: 100%; max-width: 280px;
+    }
+    .footer-wa:hover { filter: brightness(1.05); }
+    .foot-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      max-width: 1080px; margin: 0 auto;
+      padding: 16px 18px 20px;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+    }
+    .foot-bottom p { font-size: 12.5px; color: rgba(255,252,244,.5); margin: 0; }
+    .foot-legal { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+    .foot-legal a {
+      font-size: 12px; font-weight: 600; color: rgba(255,252,244,.55); text-decoration: none;
+    }
+    .foot-legal a:hover { color: rgba(255,252,244,.9); }
+    @media (min-width: 640px) {
+      .foot-inner { grid-template-columns: 1.2fr 1fr 1fr; }
+      .foot-contact { grid-column: 1 / -1; }
+    }
+    @media (min-width: 900px) {
+      .foot-inner { grid-template-columns: 1.4fr 1fr 1fr 1.1fr; padding: 44px 24px 32px; }
+      .foot-contact { grid-column: auto; }
+      .footer-wa { width: auto; }
     }
     .whatsapp-float {
       position:fixed; left:16px; bottom:calc(88px + env(safe-area-inset-bottom, 0px)); z-index:65;
@@ -734,9 +788,6 @@
     .gslot span{ font-size:10.5px; font-weight:700; color:var(--gray); text-align:center; padding:0 6px; }
     .gslot img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
     .free-del{ font-size:13px; font-weight:800; color:var(--green); padding:4px 4px 0; }
-    .foot-links{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0; }
-    .foot-links a{ background:rgba(0,0,0,.05); border:1px solid var(--line); border-radius:999px; padding:8px 13px; font:700 12px 'Manrope',sans-serif; color:var(--ink); text-decoration:none; }
-    .foot-req{ font-size:11.5px; color:var(--gray); line-height:1.7; margin-top:10px; }
     /* details-блоки карточки товара (десктоп — раскрыты, вид как раньше) */
     details.pm-acc summary{ font:800 11px 'Manrope',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:var(--nut); cursor:pointer; list-style:none; padding:2px 0; }
     details.pm-acc summary::-webkit-details-marker{ display:none; }
@@ -824,8 +875,10 @@
       .pm-block{ padding:11px 13px; margin-bottom:8px; }
       .pm-gallery .gslot{ height:64px; }
       /* нижний док не перекрывает контент */
-      footer{ padding-bottom:170px; }
-      .screen{ padding-bottom:40px; }
+      .site-foot{ padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
+      .screen{ padding-bottom: 24px; }
+      .section:last-of-type{ padding-bottom: 32px; }
+      .whatsapp-float{ display:none; }
     }
 
     /* ═══════════════ ОТЗЫВЫ ═══════════════ */
@@ -1593,24 +1646,53 @@
   </main>
 
   <!-- ФУТЕР -->
-  <footer id="contacts">
-    <a class="logo" href="index.html">
-      <span class="logo-mark"><img src="images/turti-avatar.png" alt=""></span>
-      <span><strong>TURTI</strong><small>урбеч с водяной мельницы</small></span>
-    </a>
-    <p>Натуральный урбеч с водяной мельницы в горах Дагестана.</p>
-    <p><strong>Остались вопросы? Мы рядом.</strong><br>Напишите нам в WhatsApp — поможем с выбором и доставкой.</p>
-    <a class="footer-wa" href="https://wa.me/79282197962?text=Здравствуйте!%20Пишу%20с%20сайта%20TURTI" target="_blank" rel="noopener">💬 +7 928 219-79-62 · WhatsApp</a>
-    <nav class="foot-links">
-      <a href="legal/delivery.html">Доставка</a>
-      <a href="legal/returns.html">Возврат</a>
-      <a href="legal/oferta.html">Оферта</a>
-      <a href="legal/privacy.html">Конфиденциальность</a>
-      <a href="legal/consent.html">Согласие на ПД</a>
-      <a href="legal/contacts.html">Контакты</a>
-    </nav>
-    <p class="foot-req">Производство: село Рахата, Ботлихский район, Дагестан<br><a href="legal/contacts.html" style="color:var(--green);font-weight:700;text-decoration:none">Реквизиты продавца →</a></p>
-    <p>© 2026 TURTI · Сделано в горах Кавказа с любовью</p>
+  <footer class="site-foot" id="contacts">
+    <div class="foot-inner">
+      <div class="foot-brand">
+        <a class="logo" href="index.html">
+          <span class="logo-mark"><img src="images/turti-avatar.png" alt="TURTI"></span>
+          <span><strong>TURTI</strong><small>урбеч с водяной мельницы</small></span>
+        </a>
+        <p>Натуральный дагестанский урбеч. Медленный каменный помол на водяной мельнице в горах Ботлиха.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Каталог</h4>
+        <ul>
+          <li><a href="#catalog">Все урбечи</a></li>
+          <li><a href="#hits">Хиты продаж</a></li>
+          <li><a href="#sets">Наборы и подарки</a></li>
+          <li><a href="#intro">Первое знакомство</a></li>
+          <li><button type="button" class="foot-link" data-open-opt>Опт</button></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Покупателям</h4>
+        <ul>
+          <li><a href="legal/delivery.html">Доставка и оплата</a></li>
+          <li><a href="legal/returns.html">Возврат</a></li>
+          <li><a href="#faq">Частые вопросы</a></li>
+          <li><a href="legal/oferta.html">Публичная оферта</a></li>
+          <li><a href="legal/privacy.html">Конфиденциальность</a></li>
+          <li><a href="legal/consent.html">Согласие на обработку ПД</a></li>
+        </ul>
+      </div>
+      <div class="foot-col foot-contact">
+        <h4>Контакты</h4>
+        <p class="foot-phone"><a href="tel:+79282197962" style="color:inherit;text-decoration:none">+7 928 219-79-62</a></p>
+        <p class="foot-place">Производство: село Рахата, Ботлихский район, Республика Дагестан</p>
+        <a class="footer-wa" href="https://wa.me/79282197962?text=Здравствуйте!%20Пишу%20с%20сайта%20TURTI" target="_blank" rel="noopener">Написать в WhatsApp</a>
+        <p class="foot-place" style="margin-top:12px;margin-bottom:0"><a href="legal/contacts.html" style="color:#F5B889;font-weight:700;text-decoration:none">Реквизиты продавца →</a></p>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p>© 2026 TURTI · Сделано в горах Кавказа</p>
+      <nav class="foot-legal" aria-label="Юридические документы">
+        <a href="legal/contacts.html">Контакты</a>
+        <a href="legal/oferta.html">Оферта</a>
+        <a href="legal/delivery.html">Доставка</a>
+        <a href="legal/returns.html">Возврат</a>
+      </nav>
+    </div>
   </footer>
 
   <a class="whatsapp-float" href="https://wa.me/79282197962?text=Здравствуйте!%20Пишу%20с%20сайта%20TURTI" target="_blank" rel="noopener" aria-label="Написать TURTI в WhatsApp">
