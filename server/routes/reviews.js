@@ -11,7 +11,7 @@ import {
   markReviewDuplicate,
   listReviews,
 } from "../reviews-store.js";
-import { PRODUCTS, COLLECTIONS } from "../../../js/catalog.js";
+import { PRODUCTS, COLLECTIONS } from "../../js/catalog.js";
 
 function validProductId(id) {
   if (!id) return true;

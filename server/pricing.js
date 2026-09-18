@@ -4,7 +4,7 @@ import {
   orderWeight,
   codFee,
   FREE_DELIVERY_THRESHOLD,
-} from "../../js/catalog.js";
+} from "../js/catalog.js";
 
 export { itemInfo, goodsTotal, orderWeight, codFee, FREE_DELIVERY_THRESHOLD };
 

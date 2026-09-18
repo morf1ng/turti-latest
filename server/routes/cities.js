@@ -1,5 +1,5 @@
 ﻿import { ok, fail, methodNotAllowed } from "../http.js";
-import { ZONES } from "../../../js/catalog.js";
+import { ZONES } from "../../js/catalog.js";
 
 async function dadataSuggest(q) {
   const token = process.env.DADATA_TOKEN;

@@ -1,4 +1,4 @@
-import { zoneForCity, ZONES } from "../../../js/catalog.js";
+import { zoneForCity, ZONES } from "../../js/catalog.js";
 import { orderWeight, goodsTotal } from "../pricing.js";
 import { isMakhachkala } from "./util.js";
 import * as pickup from "./pickup.js";
