@@ -1,7 +1,8 @@
 import { storeGet, storeSet, storeListPush, storeDel } from "./kv.js";
 import { phoneHash, phoneTail } from "./phone.js";
 import { PRODUCTS, COLLECTIONS } from "../js/catalog.js";
-import { findPaidOrdersByPhone, orderContainsProduct } from "./orders.js";
+import { findPaidOrdersByPhone } from "./orders.js";
+import { orderContainsProduct } from "./pricing.js";
 
 const LIST_KEY = "reviews:list";
 
