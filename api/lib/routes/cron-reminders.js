@@ -1,7 +1,7 @@
-import { ok, fail, methodNotAllowed } from "./lib/http.js";
-import { storeGet, storeSet } from "./lib/kv.js";
+﻿import { ok, fail, methodNotAllowed } from "../http.js";
+import { storeGet, storeSet } from "../kv.js";
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "GET" && req.method !== "POST") return methodNotAllowed(res, ["GET", "POST"]);
 
   const secret = process.env.CRON_SECRET;

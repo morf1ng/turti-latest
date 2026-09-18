@@ -1,11 +1,7 @@
-import { ok, fail, methodNotAllowed } from "./lib/http.js";
-import { checkRateLimit } from "./lib/spam.js";
-import { validateUpload, uploadBlob } from "./lib/blob.js";
+﻿import { ok, fail, methodNotAllowed } from "../http.js";
+import { checkRateLimit } from "../spam.js";
+import { validateUpload, uploadBlob } from "../blob.js";
 import { IncomingForm } from "formidable";
-
-export const config = {
-  api: { bodyParser: false },
-};
 
 function parseForm(req) {
   return new Promise((resolve, reject) => {
@@ -17,7 +13,7 @@ function parseForm(req) {
   });
 }
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
 
   const rl = await checkRateLimit(req, "upload");

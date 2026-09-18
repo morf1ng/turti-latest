@@ -1,8 +1,8 @@
-import { ok, fail, methodNotAllowed } from "./lib/http.js";
-import { getOrder } from "./lib/orders.js";
-import { normalizePhone } from "./lib/phone.js";
+﻿import { ok, fail, methodNotAllowed } from "../http.js";
+import { getOrder } from "../orders.js";
+import { normalizePhone } from "../phone.js";
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "GET") return methodNotAllowed(res, ["GET"]);
 
   const id = String(req.query.id || "").trim();

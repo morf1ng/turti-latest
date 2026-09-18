@@ -1,7 +1,7 @@
-import { ok, fail, methodNotAllowed } from "./lib/http.js";
-import { resolvePvz } from "./lib/delivery/engine.js";
+﻿import { ok, fail, methodNotAllowed } from "../http.js";
+import { resolvePvz } from "../delivery/engine.js";
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "GET") return methodNotAllowed(res, ["GET"]);
 
   const provider = String(req.query.provider || "cdek");

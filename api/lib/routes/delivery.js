@@ -1,7 +1,7 @@
-import { ok, fail, methodNotAllowed, readJson } from "./lib/http.js";
-import { resolveDelivery } from "./lib/delivery/engine.js";
+﻿import { ok, fail, methodNotAllowed, readJson } from "../http.js";
+import { resolveDelivery } from "../delivery/engine.js";
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
 
   try {

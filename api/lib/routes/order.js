@@ -1,11 +1,11 @@
-import { ok, fail, methodNotAllowed, readJson } from "./lib/http.js";
-import { checkRateLimit } from "./lib/spam.js";
-import { validateAndBuildOrder } from "./lib/validate-order.js";
-import { saveOrder } from "./lib/orders.js";
-import { notifyTelegram, formatOrderMessage } from "./lib/telegram.js";
-import { yookassaConfigured } from "./lib/yookassa.js";
+﻿import { ok, fail, methodNotAllowed, readJson } from "../http.js";
+import { checkRateLimit } from "../spam.js";
+import { validateAndBuildOrder } from "../validate-order.js";
+import { saveOrder } from "../orders.js";
+import { notifyTelegram, formatOrderMessage } from "../telegram.js";
+import { yookassaConfigured } from "../yookassa.js";
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
 
   const rl = await checkRateLimit(req, "order");

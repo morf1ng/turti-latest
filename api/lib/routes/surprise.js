@@ -1,8 +1,8 @@
-import { ok, fail, methodNotAllowed } from "./lib/http.js";
-import { storeGet } from "./lib/kv.js";
-import { phoneHash } from "./lib/phone.js";
+﻿import { ok, fail, methodNotAllowed } from "../http.js";
+import { storeGet } from "../kv.js";
+import { phoneHash } from "../phone.js";
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "GET") return methodNotAllowed(res, ["GET"]);
 
   const phone = String(req.query.phone || "").replace(/\D/g, "");

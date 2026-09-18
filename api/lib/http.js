@@ -19,9 +19,26 @@ export function methodNotAllowed(res, allowed) {
   fail(res, 405, "Метод не поддерживается");
 }
 
+function readRawBody(req) {
+  if (req._rawBody != null) return Promise.resolve(req._rawBody);
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on("data", (chunk) => chunks.push(chunk));
+    req.on("end", () => {
+      req._rawBody = Buffer.concat(chunks).toString("utf8");
+      resolve(req._rawBody);
+    });
+    req.on("error", reject);
+  });
+}
+
 export async function readJson(req) {
-  if (req.body && typeof req.body === "object") return req.body;
-  const raw = req.body || "";
+  if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) {
+    return req.body;
+  }
+  const ct = String(req.headers["content-type"] || "");
+  if (ct.includes("multipart/form-data")) return {};
+  const raw = typeof req.body === "string" ? req.body : await readRawBody(req);
   if (!raw) return {};
   try {
     return JSON.parse(raw);

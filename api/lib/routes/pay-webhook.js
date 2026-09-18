@@ -1,10 +1,10 @@
-import { ok, fail, methodNotAllowed, readJson } from "./lib/http.js";
-import { storeGet, storeSet } from "./lib/kv.js";
-import { getOrder, markOrderPaid, markPaymentFailed } from "./lib/orders.js";
-import { getPayment } from "./lib/yookassa.js";
-import { notifyTelegram, formatOrderMessage } from "./lib/telegram.js";
+﻿import { ok, fail, methodNotAllowed, readJson } from "../http.js";
+import { storeGet, storeSet } from "../kv.js";
+import { getOrder, markOrderPaid, markPaymentFailed } from "../orders.js";
+import { getPayment } from "../yookassa.js";
+import { notifyTelegram, formatOrderMessage } from "../telegram.js";
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
 
   try {

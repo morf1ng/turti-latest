@@ -1,7 +1,7 @@
-import { ok, fail, methodNotAllowed, readJson } from "./lib/http.js";
-import { storeGet, storeSet } from "./lib/kv.js";
+﻿import { ok, fail, methodNotAllowed, readJson } from "../http.js";
+import { storeGet, storeSet } from "../kv.js";
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
 
   try {

@@ -1,14 +1,14 @@
-import { ok, fail, methodNotAllowed, readJson } from "./lib/http.js";
-import { requireAdmin } from "./lib/auth.js";
-import { listOrders, getOrder, saveOrder } from "./lib/orders.js";
+﻿import { ok, fail, methodNotAllowed, readJson } from "../http.js";
+import { requireAdmin } from "../auth.js";
+import { listOrders, getOrder, saveOrder } from "../orders.js";
 import {
   listReviews,
   getReview,
   updateReview,
   deleteReview,
-} from "./lib/reviews-store.js";
-import { createRefund, yookassaConfigured } from "./lib/yookassa.js";
-import { storeGet, storeSet } from "./lib/kv.js";
+} from "../reviews-store.js";
+import { createRefund, yookassaConfigured } from "../yookassa.js";
+import { storeGet, storeSet } from "../kv.js";
 
 function trackingUrlFor(provider, num) {
   if (!num) return "";
@@ -27,7 +27,7 @@ function countsReviews(list) {
   };
 }
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   const auth = requireAdmin(req, res);
   if (!auth.ok) return fail(res, auth.status, auth.error, { hint: auth.hint });
 

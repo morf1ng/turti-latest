@@ -1,6 +1,6 @@
-import { ok, fail, methodNotAllowed, readJson } from "./lib/http.js";
-import { checkRateLimit, checkHoneypot, checkFormTiming } from "./lib/spam.js";
-import { normalizePhone } from "./lib/phone.js";
+﻿import { ok, fail, methodNotAllowed, readJson } from "../http.js";
+import { checkRateLimit, checkHoneypot, checkFormTiming } from "../spam.js";
+import { normalizePhone } from "../phone.js";
 import {
   listApprovedForProduct,
   reviewStats,
@@ -10,15 +10,15 @@ import {
   saveReview,
   markReviewDuplicate,
   listReviews,
-} from "./lib/reviews-store.js";
-import { PRODUCTS, COLLECTIONS } from "../js/catalog.js";
+} from "../reviews-store.js";
+import { PRODUCTS, COLLECTIONS } from "../../../js/catalog.js";
 
 function validProductId(id) {
   if (!id) return true;
   return Boolean(PRODUCTS[id] || COLLECTIONS[id]);
 }
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method === "GET") {
     const productId = String(req.query.product || "").trim();
     if (productId && !validProductId(productId)) {

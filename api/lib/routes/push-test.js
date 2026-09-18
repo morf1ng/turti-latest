@@ -1,7 +1,7 @@
-import { ok, fail, methodNotAllowed } from "./lib/http.js";
-import { requireAdmin } from "./lib/auth.js";
+﻿import { ok, fail, methodNotAllowed } from "../http.js";
+import { requireAdmin } from "../auth.js";
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
 
   const auth = requireAdmin(req, res);

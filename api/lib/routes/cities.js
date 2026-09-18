@@ -1,5 +1,5 @@
-import { ok, fail, methodNotAllowed } from "./lib/http.js";
-import { ZONES } from "../js/catalog.js";
+﻿import { ok, fail, methodNotAllowed } from "../http.js";
+import { ZONES } from "../../../js/catalog.js";
 
 async function dadataSuggest(q) {
   const token = process.env.DADATA_TOKEN;
@@ -80,7 +80,7 @@ function fallbackCities(q) {
   return items.slice(0, 8);
 }
 
-export default async function handler(req, res) {
+export async function handle(req, res) {
   if (req.method !== "GET") return methodNotAllowed(res, ["GET"]);
 
   const q = String(req.query.q || "").trim();
