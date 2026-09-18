@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="TURTI — натуральный дагестанский урбеч из гор Анди. Медленный каменный помол на водяной мельнице. 13 вкусов, доставка по России.">
+  <meta name="description" content="TURTI — натуральный дагестанский урбеч из Ботлихского района. Медленный каменный помол на водяной мельнице. 17 вкусов, доставка по России.">
   <!-- ПРОБНЫЙ ЗАПУСК: скрыто от поиска. Убрать эту строку, когда сайт готов к настоящему запуску. -->
   <meta name="robots" content="noindex, nofollow">
-  <title>TURTI — настоящий урбеч из гор Анди | Урбеч с водяной мельницы</title>
+  <title>TURTI — дагестанский урбеч с водяной мельницы</title>
+  <link rel="icon" type="image/png" href="images/turti-avatar.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Prata&family=Archivo+Black&family=Playfair+Display:wght@800&display=swap" rel="stylesheet">
@@ -72,7 +73,9 @@
       background: linear-gradient(160deg, #E0574C 0%, #C6362B 55%, #7E1D16 100%);
       display: grid; place-items: center;
       box-shadow: 0 6px 14px rgba(15,95,136,.35), inset 0 1.5px 2px rgba(255,255,255,.5);
+      overflow: hidden;
     }
+    .logo-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .logo strong {
       font-family: 'Archivo Black', 'Manrope', sans-serif;
       font-size: 16.5px; letter-spacing: .07em;
@@ -509,6 +512,15 @@
       background: linear-gradient(180deg,#E0574C,#C6362B); color: #fff; text-decoration: none; font-weight: 800; font-size: 15px;
       padding: 13px 26px; border-radius: 999px; box-shadow: 0 8px 20px rgba(198,54,43,.35);
     }
+    .whatsapp-float {
+      position:fixed; left:16px; bottom:92px; z-index:65;
+      display:grid; place-items:center; width:54px; height:54px; border-radius:50%;
+      background:#25D366; color:#fff; box-shadow:0 8px 22px rgba(20,125,67,.35);
+      text-decoration:none; transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .whatsapp-float:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(20,125,67,.42); }
+    .whatsapp-float:focus-visible { outline:3px solid var(--nut); outline-offset:3px; }
+    .whatsapp-float svg { width:28px; height:28px; fill:currentColor; }
 
     /* ═══ ПЛАНШЕТ / ДЕСКТОП ═══ */
     @media (min-width: 720px) {
@@ -677,7 +689,7 @@
     .catalog-grid .pcard-body h3{ font-size:14.5px; }
     .catalog-grid .pcard-price{ font-size:17px; }
     .catalog-grid .pcard-actions .btn{ min-height:38px; font-size:12.5px; }
-    /* «13 вкусов» крупнее */
+    /* количество вкусов крупнее */
     #catalog .sec-head .eyebrow{ font-size:13.5px; letter-spacing:.14em; }
     .grid-sub{ grid-column:1/-1; font:800 14.5px 'Unbounded','Manrope',sans-serif; letter-spacing:.02em; color:#17140F; text-transform:uppercase; padding:18px 2px 4px; }
     .pcard-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#fff; z-index:4; }
@@ -740,7 +752,7 @@
     .pcard-desc{ font-weight:600; color:#4A463C; }
     .pm-desc, .intro-info > p, .col-flavors{ font-weight:600; color:#453F35; }
     .pm-block p, details.pm-acc p{ font-weight:600; }
-    .brandmark{ display:inline-block; font-family:'Unbounded','Manrope',sans-serif; font-weight:800; font-size:clamp(18px,4.6vw,23px); letter-spacing:.3em; color:#FFFDF6; text-shadow:0 2px 14px rgba(0,0,0,.45); margin:2px 0 14px 16px; padding-bottom:7px; border-bottom:2px solid rgba(232,201,154,.5); }
+    .brandmark{ width:76px; height:76px; display:block; object-fit:cover; border-radius:20px; margin:2px 0 14px; border:2px solid rgba(255,255,255,.78); box-shadow:0 12px 30px rgba(0,0,0,.32); }
     .dock{ left:50%; right:auto; transform:translateX(-50%); width:calc(100% - 22px); max-width:430px; bottom:10px; padding:9px 4px; border-radius:24px; background:rgba(253,250,243,.97); border:1px solid rgba(255,255,255,.75); box-shadow:0 10px 30px rgba(30,20,10,.18); justify-content:space-around; }
     .dock a, .dock > button{ color:#A39A85; font-size:9.5px; gap:3px; padding:2px 6px; }
     .dock svg.di{ width:23px; height:23px; }
@@ -1343,13 +1355,13 @@
   </style>
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="TURTI — настоящий урбеч из гор Анди">
-  <meta property="og:description" content="Натуральный дагестанский урбеч. Медленный каменный помол на водяной мельнице. 13 вкусов.">
+  <meta property="og:title" content="TURTI — дагестанский урбеч с водяной мельницы">
+  <meta property="og:description" content="Натуральный дагестанский урбеч. Медленный каменный помол на водяной мельнице. 17 вкусов.">
   <meta property="og:image" content="images/hero.jpg">
   <meta property="og:locale" content="ru_RU">
   <!-- JSON-LD (замените example.com на реальный домен после публикации) -->
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"Organization","name":"TURTI","description":"Натуральный дагестанский урбеч с водяной мельницы, горы Анди","areaServed":"RU","contactPoint":{"@type":"ContactPoint","telephone":"+7-928-219-79-62","contactType":"sales"}}
+  {"@context":"https://schema.org","@type":"Organization","name":"TURTI","description":"Натуральный дагестанский урбеч с водяной мельницы, Ботлихский район, Дагестан","areaServed":"RU","contactPoint":{"@type":"ContactPoint","telephone":"+7-928-219-79-62","contactType":"sales"}}
   </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://example.com/"},{"@type":"ListItem","position":2,"name":"Каталог","item":"https://example.com/#catalog"}]}
@@ -1363,7 +1375,7 @@
     <div class="header-side">
       <button class="icon-btn" data-open-menu aria-label="Меню">☰</button>
       <a class="logo" href="index.html" aria-label="TURTI — на главную">
-        <span class="logo-mark" style="font-family:'Unbounded','Manrope',sans-serif;font-weight:800;color:#FFF6E0;font-size:19px;letter-spacing:-.02em">T</span>
+        <span class="logo-mark"><img src="images/turti-avatar.png" alt=""></span>
         <span><strong>TURTI</strong><small>урбеч с водяной мельницы</small></span>
       </a>
     </div>
@@ -1400,8 +1412,8 @@
            onerror="var t=['images/hero.jpeg','images/hero.png','images/hero.JPG'];this.onerror=()=>{if(t.length)this.src=t.shift();else{this.onerror=null;this.style.display='none'}};this.src=t.shift();">
       <div class="hero-shade"></div>
       <div class="hero-content">
-        <div class="brandmark">TURTI</div>
-        <span class="hero-kicker"><svg viewBox="0 0 20 14" fill="currentColor" aria-hidden="true"><path d="M1 13L6.5 4L10 9.5L13 5L19 13H1Z"/></svg>горы Анди · Дагестан</span>
+        <img class="brandmark" src="images/turti-avatar.png" alt="TURTI">
+        <span class="hero-kicker"><svg viewBox="0 0 20 14" fill="currentColor" aria-hidden="true"><path d="M1 13L6.5 4L10 9.5L13 5L19 13H1Z"/></svg>Ботлихский район · Дагестан</span>
         <h1 class="hero-title">25 лет каменного помола<br>Вкус <span class="accent" style="color:#E8C99A">без спешки</span></h1>
         <p class="hero-intro">Урбеч из орехов и семян с водяной мельницы в Дагестане.</p>
         <div class="hero-btns">
@@ -1432,7 +1444,7 @@
       </div>
       <div class="hits-scroll" id="hits-home"></div>
       <div class="hits-catalog-footer">
-        <a class="hits-catalog-link" href="#catalog"><span>Все урбечи</span><span class="hits-catalog-count">13 вкусов</span><span class="hits-catalog-arrow" aria-hidden="true">→</span></a>
+        <a class="hits-catalog-link" href="#catalog"><span>Все урбечи</span><span class="hits-catalog-count">17 вкусов</span><span class="hits-catalog-arrow" aria-hidden="true">→</span></a>
       </div>
     </section>
 
@@ -1455,15 +1467,13 @@
     <section class="section" style="padding-top:0" id="delivery">
       <div class="sec-head">
         <span class="eyebrow">Доставка и оплата</span>
-        <h2 class="sec-title">Как получить заказ</h2>
+        <h2 class="sec-title">Как заказать TURTI</h2>
       </div>
-      <div class="pm-block"><h4>Ozon Доставка</h4><p>По всей России до пункта выдачи. Примерный срок — 2–7 дней, стоимость — от 150 ₽ (зависит от города).</p></div>
-      <div class="pm-block"><h4>СДЭК</h4><p>Подключим в ближайшее время.</p></div>
-      <div class="pm-block"><h4>Оплата</h4><p>После заявки менеджер подтвердит стоимость доставки и способ оплаты.</p></div>
-      <label class="del-city">Ваш город
-        <input id="city-input" placeholder="Например: Махачкала">
-      </label>
-      <p class="del-note">Точный срок и стоимость по вашему городу подтвердит менеджер.</p>
+      <div class="pm-block"><h4>1. Выберите свой вкус</h4><p>Откройте понравившийся урбеч, выберите объём и добавьте банку или набор в корзину.</p></div>
+      <div class="pm-block"><h4>2. Оформите заказ</h4><p>В корзине укажите город и контакты. Регистрация не нужна — только данные, необходимые для доставки.</p></div>
+      <div class="pm-block"><h4>3. Выберите удобную доставку</h4><p>Выберите подходящий вариант: пункт выдачи, курьер до двери или Почта России. Заказ можно получить там, где вам удобно.</p></div>
+      <div class="pm-block"><h4>4. Получите TURTI</h4><p>Срок зависит от города и выбранного способа. Мы заранее подтвердим стоимость и дату, бережно упакуем заказ и сообщим, когда он будет в пути.</p></div>
+      <p class="del-note">Доставляем по России. Если подходящего варианта не окажется, напишите нам — подберём другой способ.</p>
     </section>
 
     <section class="section" style="padding-top:0" id="faq">
@@ -1473,13 +1483,10 @@
       </div>
       <details class="faq"><summary>Что такое урбеч?</summary><p>Густая паста из орехов или семян, перетёртых каменными жерновами. Только сам орех и его собственное масло.</p></details>
       <details class="faq"><summary>Какой вкус выбрать первым?</summary><p>Чаще всего начинают с миндального, арахисового или фундука с какао-бобами — набор «Первое знакомство» собран как раз из них.</p></details>
-      <details class="faq"><summary>Почему сверху появляется масло?</summary><p>Это натуральное масло ореха — признак честного состава. Просто перемешайте ложкой перед употреблением.</p></details>
+      <details class="faq"><summary>Почему сверху появляется масло?</summary><p>Небольшой слой масла после хранения — это нормально: у орехов и семян есть собственное масло. В тепле или после долгого простоя его может быть заметнее — просто перемешайте урбеч ложкой. Количество отделившегося масла само по себе не доказывает наличие добавок: это зависит от вкуса, температуры и помола. В TURTI дополнительные масла не добавляем.</p></details>
       <details class="faq"><summary>Как хранить?</summary><p>В тёмном прохладном месте. После вскрытия — плотно закрывать крышку.</p></details>
       <details class="faq"><summary>Сколько хранится после открытия?</summary><p>До 2 месяцев при правильном хранении.</p></details>
-      <details class="faq"><summary>Есть ли сахар?</summary><p>Вы выбираете сами: при заказе есть вариант без сахара и вариант с сахаром. Что именно входит в вашу банку, написано на этикетке.</p></details>
-      <details class="faq"><summary>Как происходит доставка?</summary><p>Ozon Доставка по всей России, 2–7 дней. После заявки менеджер подтвердит срок и стоимость.</p></details>
-      <details class="faq"><summary>Можно ли заказать подарок?</summary><p>Да — любой набор в фирменной коробке TURTI. Напишите комментарий к заявке или в WhatsApp.</p></details>
-      <details class="faq"><summary>А если вкуса нет в наличии?</summary><p>Напишите — зарезервируем его специально для вас. Обычно пополнение за 3–5 дней. Честно говорим, если чего-то нет, не обещаем то, что невозможно.</p></details>
+      <details class="faq"><summary>Как происходит доставка?</summary><p>Укажите город и выберите удобный вариант: пункт выдачи, курьер до двери или Почта России. Срок зависит от города; стоимость и дату прибытия подтвердим до отправки.</p></details>
     </section>
 
     </div>
@@ -1502,7 +1509,7 @@
     <!-- 4. ВСЕ УРБЕЧИ -->
     <section class="section" id="catalog">
       <div class="sec-head">
-        <span class="eyebrow">13 вкусов</span>
+        <span class="eyebrow">17 вкусов</span>
         <h2 class="sec-title">Все урбечи</h2>
         <p class="sec-lead">Выберите вкус. Все вкусы — натуральные, без добавок, медленный помол.</p>
       </div>
@@ -1565,7 +1572,7 @@
 
         <div class="st-facts">
           <div class="st-fact"><b>25</b><span>лет мельнице</span></div>
-          <div class="st-fact"><b>13</b><span>вкусов</span></div>
+          <div class="st-fact"><b>17</b><span>вкусов</span></div>
           <div class="st-fact"><b>0</b><span>консервантов<br>и красителей</span></div>
         </div>
 
@@ -1584,11 +1591,12 @@
   <!-- ФУТЕР -->
   <footer id="contacts">
     <a class="logo" href="index.html">
-      <span class="logo-mark">T</span>
+      <span class="logo-mark"><img src="images/turti-avatar.png" alt=""></span>
       <span><strong>TURTI</strong><small>урбеч с водяной мельницы</small></span>
     </a>
     <p>Натуральный урбеч с водяной мельницы в горах Дагестана.</p>
-    <a class="footer-wa" href="https://wa.me/79282197962?text=Здравствуйте!%20Пишу%20с%20сайта%20TURTI" target="_blank" rel="noopener">💬 Написать в WhatsApp</a>
+    <p><strong>Остались вопросы? Мы рядом.</strong><br>Напишите нам в WhatsApp — поможем с выбором и доставкой.</p>
+    <a class="footer-wa" href="https://wa.me/79282197962?text=Здравствуйте!%20Пишу%20с%20сайта%20TURTI" target="_blank" rel="noopener">💬 +7 928 219-79-62 · WhatsApp</a>
     <nav class="foot-links">
       <a href="#delivery">Доставка и оплата</a>
       <a href="#faq">Возврат</a>
@@ -1596,9 +1604,13 @@
       <a href="#" onclick="return false" title="Страница готовится">Политика конфиденциальности</a>
       <a href="#" onclick="return false" title="Страница готовится">Согласие на обработку ПД</a>
     </nav>
-    <p class="foot-req">Контакты: +7 928 219-79-62 · WhatsApp<br>Производитель: Республика Дагестан, горы Анди<br>Реквизиты продавца будут опубликованы здесь</p>
+    <p class="foot-req">Контакты: +7 928 219-79-62 · WhatsApp<br>Производитель: Республика Дагестан, Ботлихский район, село Рахата<br>Реквизиты продавца будут опубликованы здесь</p>
     <p>© 2026 TURTI · Сделано в горах Кавказа с любовью</p>
   </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/79282197962?text=Здравствуйте!%20Пишу%20с%20сайта%20TURTI" target="_blank" rel="noopener" aria-label="Написать TURTI в WhatsApp">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M19.11 17.28c-.27-.14-1.59-.78-1.84-.87-.25-.09-.43-.14-.61.14-.18.27-.7.87-.86 1.05-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.17-1.35-.8-.71-1.35-1.59-1.5-1.86-.16-.27-.02-.42.12-.56.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.61-.47h-.52c-.18 0-.48.07-.73.34-.25.27-.95.93-.95 2.26s.98 2.61 1.12 2.79c.14.18 1.93 2.94 4.67 4.12.65.28 1.16.45 1.56.57.66.21 1.26.18 1.73.11.53-.08 1.59-.65 1.82-1.28.22-.63.22-1.17.16-1.28-.07-.12-.25-.18-.52-.32zM16.04 3.2c-7.05 0-12.76 5.71-12.76 12.76 0 2.25.59 4.45 1.71 6.39L3.16 29l6.82-1.79a12.7 12.7 0 0 0 6.05 1.53h.01c7.04 0 12.76-5.71 12.76-12.76S23.09 3.2 16.04 3.2zm0 23.4h-.01a10.58 10.58 0 0 1-5.4-1.48l-.39-.23-4.05 1.06 1.08-3.95-.25-.41a10.6 10.6 0 0 1-1.62-5.63c0-5.85 4.76-10.61 10.62-10.61 2.84 0 5.5 1.11 7.51 3.11a10.54 10.54 0 0 1 3.11 7.51c0 5.86-4.76 10.62-10.6 10.62z"/></svg>
+  </a>
 
 
   <!-- НИЖНИЙ ДОК -->
@@ -1750,31 +1762,35 @@
     const money = v => new Intl.NumberFormat("ru-RU").format(v) + " ₽";
 
     const PRODUCTS = {
-      "flax-black":     { name: "Чёрный лён",             color: "#33302A", group: "seed", ing: "чёрный лён",     plus: "Лёгкая горчинка · Плотная текстура", desc: "Классика урбеча: плотный вкус льна с лёгкой горчинкой.", eat: "В кашу, в смузи, с мёдом на хлеб.", prices: { 250: 200, 500: 270, 1000: 480 } },
-      "flax-white":     { name: "Белый лён",              color: "#E2D3B3", group: "seed", ing: "белый лён",      plus: "Нежный мягкий вкус · Светлая паста", desc: "Нежнее чёрного льна. Мягкий вкус для лёгкого старта.", eat: "В йогурт, кашу, смузи.", prices: { 250: 240, 500: 380, 1000: 700 } },
-      "flax-mix":       { name: "Ассорти со льном",       color: "#7A6B4F", group: "seed", ing: "лён и орехи",    plus: "Лён и орехи · Сбалансированный вкус", desc: "Лён с орехами: вкус семян и орехов в одной банке.", eat: "С хлебом, фруктами, в выпечку.", prices: { 250: 340, 500: 530, 1000: 1000 } },
-      "peanut":         { name: "Арахисовый",             color: "#B87A3D", group: "nut",  ing: "арахис",         plus: "Вкус жареного арахиса · Много белка", desc: "Насыщенный вкус обжаренного арахиса. Много белка.", eat: "С тостами, бананом, в кашу и смузи.", prices: { 250: 340, 500: 530, 1000: 1000 }, hit: true },
-      "almond":         { name: "Миндальный",             color: "#DDB97C", group: "nut",  ing: "миндаль",        plus: "Кремовая текстура · Мягкий сладковатый вкус", desc: "Мягкий, кремовый, самый популярный вкус.", eat: "С тостами, в кашу, в кофе.", prices: { 250: 450, 500: 830, 1000: 1600 }, hit: true, badge: "Хит №1" },
-      "cashew":         { name: "Кешью",                  color: "#C9A96E", group: "nut",  ing: "кешью",          plus: "Самый нежный и сливочный вкус", desc: "Самый нежный. Нравится даже детям.", eat: "С фруктами, блинами, в десерты.", prices: { 250: 450, 500: 830, 1000: 1600 }, hit: true },
-      "almond-cashew":  { name: "Миндаль с кешью",        color: "#D4B084", group: "nut",  ing: "миндаль и кешью", plus: "Два нежных ореха в одной банке", desc: "Два самых нежных ореха в одной банке.", eat: "С тостами, сырниками, фруктами.", prices: { 250: 450, 500: 830, 1000: 1600 } },
-      "three-nuts":     { name: "Три ореха",      color: "#A9885C", group: "nut",  ing: "миндаль, кешью, арахис", plus: "Миндаль, кешью и арахис · Богатый вкус", desc: "Миндаль, кешью и арахис — богатый ореховый вкус.", eat: "На хлеб, в кашу, к сырам.", prices: { 250: 450, 500: 830, 1000: 1600 } },
-      "hazelnut":       { name: "Фундук",                 color: "#8A5A2B", group: "nut",  ing: "фундук",         plus: "Глубокий вкус лесного ореха", desc: "Глубокий вкус лесного ореха без единой добавки.", eat: "С блинами, кофе, в десерты.", prices: { 250: 450, 500: 780, 1000: 1500 } },
-      "hazelnut-cocoa": { name: "Фундук Какао-бобы",      color: "#4A2810", group: "nut",  ing: "фундук и какао-бобы", plus: "Фундук и какао-бобы · Честная альтернатива шоколадной пасте", desc: "Честная альтернатива шоколадной пасте. Только фундук и какао.", eat: "На хлеб, с блинами, в горячее молоко.", prices: { 250: 540, 500: 980, 1000: 1900 }, hit: true, badge: "Хит продаж" },
-      "almond-cocoa": { name: "Миндаль Какао-бобы", color: "#65402C", group: "nut", ing: "миндаль и какао-бобы", plus: "Миндаль и какао-бобы", desc: "Сочетание миндаля и какао-бобов.", eat: "На тосты, с блинами или в кашу.", prices: { 250: 620, 500: 1030, 1000: 1900 } },
-      "sesame":         { name: "Кунжут",                 color: "#E8DCC0", group: "seed", ing: "кунжут",         plus: "Тахини-текстура · Мягкий вкус", desc: "Нежная тахини-текстура и мягкий вкус кунжута.", eat: "В соусы, хумус, выпечку, с мёдом.", prices: { 250: 350, 500: 530, 1000: 1000 } },
-      "hemp":           { name: "Конопля",                color: "#5F7048", group: "seed", ing: "семена конопли", plus: "Растительный белок · Ореховый вкус", desc: "Растительный белок и мягкий ореховый вкус.", eat: "В смузи, кашу, спортивное питание.", prices: { 250: 350, 500: 530, 1000: 1000 } },
+      "flax-black":     { name: "Чёрный лён",             color: "#33302A", group: "seed", ing: "чёрный лён",     plus: "Насыщенный вкус · Заметная горчинка · Густая текстура", desc: "Насыщенный семенной вкус с заметной горчинкой и густой, слегка зернистой текстурой.", eat: "С мёдом, в кашу или смузи.", prices: { 250: 200, 500: 270, 1000: 480 } },
+      "flax-seeds":     { name: "Чёрный лён с семечками", color: "#4A4136", group: "seed", ing: "чёрный лён и семечки подсолнечника", plus: "Округлый семенной вкус · Ореховая нота", desc: "Льняная основа с мягкой ореховой нотой семечек — вкус округлее, чем у чистого чёрного льна.", eat: "С тостами, творогом или кашей.", prices: { 250: 240, 500: 380, 1000: 700 } },
+      "flax-white":     { name: "Белый лён",              color: "#E2D3B3", group: "seed", ing: "белый лён",      plus: "Деликатный вкус · Светлая густая паста", desc: "Более мягкий и деликатный, чем чёрный лён, с лёгкой ореховой нотой.", eat: "В йогурт, кашу или смузи.", prices: { 250: 240, 500: 380, 1000: 700 } },
+      "flax-mix":       { name: "Ассорти со льном",       color: "#7A6B4F", group: "seed", ing: "лён и орехи",    plus: "Семенной вкус · Мягкая ореховая нота", desc: "Вкус льна дополнен орехами: густая паста с более мягким и сбалансированным характером.", eat: "С хлебом, фруктами или в кашу.", prices: { 250: 340, 500: 530, 1000: 1000 } },
+      "peanut":         { name: "Арахисовый",             color: "#B87A3D", group: "nut",  ing: "арахис",         plus: "Выраженный арахисовый вкус · Кремовая текстура", desc: "Насыщенный аромат арахиса и густая кремовая текстура — понятный вкус для первого знакомства.", eat: "С тостами, бананом, в кашу или смузи.", prices: { 250: 340, 500: 530, 1000: 1000 }, hit: true },
+      "pistachio":      { name: "Фисташковый",            color: "#6B8C5C", group: "nut",  ing: "фисташка",       plus: "Яркий аромат фисташки · Нежная маслянистая текстура", desc: "Чистый фисташковый вкус с лёгкой естественной сладостью и нежной текстурой.", eat: "С круассаном, фруктами или в десерты.", prices: { 250: 950, 500: 1830, 1000: 3600 }, hit: true, badge: "Премиум" },
+      "almond":         { name: "Миндальный",             color: "#DDB97C", group: "nut",  ing: "миндаль",        plus: "Деликатный аромат · Лёгкая естественная сладость", desc: "Мягкий миндальный вкус и кремовая текстура без приторности.", eat: "С тостами, яблоком, в кашу или кофе.", prices: { 250: 450, 500: 830, 1000: 1600 }, hit: true, badge: "Хит №1" },
+      "cashew":         { name: "Кешью",                  color: "#C9A96E", group: "nut",  ing: "кешью",          plus: "Мягкий сливочно-ореховый вкус · Нежная текстура", desc: "Деликатный сливочно-ореховый вкус и особенно нежная текстура.", eat: "С фруктами, блинами или в десерты.", prices: { 250: 450, 500: 830, 1000: 1600 }, hit: true },
+      "almond-cashew":  { name: "Миндаль с кешью",        color: "#D4B084", group: "nut",  ing: "миндаль и кешью", plus: "Миндальный аромат · Мягкость кешью", desc: "Миндальный аромат соединяется с мягкой сливочной текстурой кешью.", eat: "С тостами, сырниками или фруктами.", prices: { 250: 450, 500: 830, 1000: 1600 } },
+      "three-nuts":     { name: "Три ореха",              color: "#A9885C", group: "nut",  ing: "миндаль, кешью и арахис", plus: "Три ореха · Округлый насыщенный вкус", desc: "Миндаль, кешью и арахис создают насыщенный, но сбалансированный ореховый вкус.", eat: "На хлеб, в кашу или к фруктам.", prices: { 250: 450, 500: 830, 1000: 1600 } },
+      "hazelnut":       { name: "Фундук",                 color: "#8A5A2B", group: "nut",  ing: "фундук",         plus: "Выразительный аромат · Плотная маслянистая текстура", desc: "Насыщенный вкус фундука с долгим ореховым послевкусием.", eat: "С блинами, кофе или в десерты.", prices: { 250: 450, 500: 780, 1000: 1500 } },
+      "hazelnut-cocoa": { name: "Фундук Какао-бобы",      color: "#4A2810", group: "nut",  ing: "фундук и какао-бобы", plus: "Фундук · Какао · Благородная горчинка", desc: "Глубокий орехово-какао вкус с естественной горчинкой; без приторности в варианте без сахара.", eat: "На тосты, с блинами, бананом или тёплой кашей.", prices: { 250: 540, 500: 980, 1000: 1900 }, hit: true, badge: "Хит продаж" },
+      "almond-cocoa":   { name: "Миндаль Какао-бобы",     color: "#65402C", group: "nut",  ing: "миндаль и какао-бобы", plus: "Мягкий миндаль · Насыщенное какао", desc: "Деликатный миндаль смягчает выразительный вкус какао-бобов.", eat: "На тосты, с блинами, фруктами или в кашу.", prices: { 250: 620, 500: 1030, 1000: 1900 } },
+      "walnut":         { name: "Грецкий орех",           color: "#8B7355", group: "nut",  ing: "грецкий орех",   plus: "Характерный аромат · Лёгкая терпкость", desc: "Выразительный вкус грецкого ореха с лёгкой терпкостью и мягкой горчинкой.", eat: "С мёдом, в кашу или к фруктам.", prices: { 250: 430, 500: 730, 1000: 1400 } },
+      "sesame":         { name: "Кунжут",                 color: "#E8DCC0", group: "seed", ing: "кунжут",         plus: "Тахини-текстура · Ореховый вкус · Лёгкая горчинка", desc: "Густая кунжутная паста с характерным ореховым вкусом и лёгкой горчинкой.", eat: "В соусы, хумус, выпечку или с мёдом.", prices: { 250: 350, 500: 530, 1000: 1000 } },
+      "hemp":           { name: "Конопля",                color: "#5F7048", group: "seed", ing: "семена конопли", plus: "Мягкий ореховый вкус · Тонкая травяная нота", desc: "Мягкий семенно-ореховый вкус с деликатной травяной нотой.", eat: "В кашу, смузи, соус или на тост.", prices: { 250: 350, 500: 530, 1000: 1000 } },
+      "thistle":        { name: "Расторопша",             color: "#9C9A6E", group: "seed", ing: "семена расторопши", plus: "Травяной характер · Выраженная горчинка", desc: "Яркий семенной вкус с травяной нотой и заметной горчинкой.", eat: "С мёдом, в кашу или смузи.", prices: { 250: 400, 500: 580, 1000: 1100 } },
     };
 
     /* Настоящие отзывы: {name, city, photo, flavor, text} */
     const REAL_REVIEWS = [];
 
-    const HITS = ["hazelnut-cocoa","almond","peanut","cashew"];
+    const HITS = ["hazelnut-cocoa","almond","peanut","pistachio","cashew"];
 
     const COLLECTIONS = {
       "col-intro":  { name: "Первое знакомство", items: ["almond","peanut","hazelnut-cocoa"], price: 1190 },
       "col-nuts":   { name: "Ореховая коллекция",items: ["almond","peanut","cashew","three-nuts"], price: 1490 },
       "col-fav-v2": { name: "Любимые вкусы", items: ["almond","almond-cocoa","cashew"], price: 1390 },
-      "col-nature-v2": { name: "Сила природы", items: ["flax-black","flax-white","sesame","hemp","flax-mix"], price: 1290 },
+      "col-nature-v2": { name: "Сила природы", items: ["flax-black","flax-white","sesame","hemp","thistle"], price: 1290 },
       "col-full-v2": { name: "Коллекция TURTI", items: ["hazelnut-cocoa","almond","almond-cocoa","cashew","peanut"], price: 2090 },
     };
     Object.values(COLLECTIONS).forEach(c => {
@@ -1916,13 +1932,13 @@
 
     /* ═══ РЕНДЕР КАРТОЧЕК ═══ */
     /* SEO-слаги для будущих отдельных страниц товаров */
-    const SLUGS = {"flax-black":"urbech-chernyi-len","flax-white":"urbech-belyi-len","flax-mix":"urbech-assorti-len","peanut":"urbech-arahis","almond":"urbech-mindal","cashew":"urbech-keshyu","almond-cashew":"urbech-mindal-keshyu","three-nuts":"urbech-tri-oreha","hazelnut":"urbech-funduk","hazelnut-cocoa":"urbech-funduk-kakao","sesame":"urbech-kunzhut","hemp":"urbech-konoplya","almond-cocoa":"urbech-mindal-kakao"};
-    const INTENSITY = {"almond":"Мягкий","cashew":"Мягкий","flax-white":"Мягкий","sesame":"Мягкий","almond-cashew":"Мягкий","three-nuts":"Средний","peanut":"Средний","hemp":"Средний","flax-mix":"Средний","hazelnut":"Насыщенный","hazelnut-cocoa":"Насыщенный","flax-black":"Насыщенный"};
-    const NUTRI = {"almond":[610,21,53,13],"peanut":[590,26,50,10],"cashew":[570,18,44,27],"hazelnut":[650,15,61,9],"hazelnut-cocoa":[600,14,55,14],"almond-cashew":[590,20,49,20],"three-nuts":[590,22,49,15],"flax-black":[530,18,42,12],"flax-white":[530,18,42,12],"flax-mix":[560,19,46,12],"sesame":[560,19,48,12],"hemp":[550,30,40,8]};
+    const SLUGS = {"flax-black":"urbech-chernyi-len","flax-seeds":"urbech-chernyi-len-semechki","flax-white":"urbech-belyi-len","flax-mix":"urbech-assorti-len","peanut":"urbech-arahis","pistachio":"urbech-fistashka","almond":"urbech-mindal","cashew":"urbech-keshyu","almond-cashew":"urbech-mindal-keshyu","three-nuts":"urbech-tri-oreha","hazelnut":"urbech-funduk","hazelnut-cocoa":"urbech-funduk-kakao","almond-cocoa":"urbech-mindal-kakao","walnut":"urbech-greckiy-oreh","sesame":"urbech-kunzhut","hemp":"urbech-konoplya","thistle":"urbech-rastoropsha"};
+    const INTENSITY = {"almond":"Мягкий","cashew":"Мягкий","flax-white":"Мягкий","almond-cashew":"Мягкий","pistachio":"Средний","three-nuts":"Средний","peanut":"Средний","hemp":"Средний","flax-seeds":"Средний","flax-mix":"Средний","sesame":"Средний","hazelnut":"Насыщенный","hazelnut-cocoa":"Насыщенный","almond-cocoa":"Насыщенный","walnut":"Насыщенный","flax-black":"Насыщенный","thistle":"Насыщенный"};
     const PHOTOS = {
       "almond":         { 250:"images/almond-250.png", 500:"images/almond-500.png", 1000:"images/almond-1000.png" },
       "hazelnut-cocoa": { 250:"images/hazelnut-cocoa-250.png", 500:"images/hazelnut-cocoa-500.png", 1000:"images/hazelnut-cocoa-1000.png" },
       "peanut":         { 250:"images/peanut-250.png", 500:"images/peanut-500.png", 1000:"images/peanut-1000.png" },
+      "pistachio":      { 250:"images/pistachio-250.png", 500:"images/pistachio-500.png", 1000:"images/pistachio-1000.png" },
     };
     function productCard(id, badge) {
       const p = PRODUCTS[id];
@@ -1948,11 +1964,11 @@
 
     $("#hits-list").innerHTML = HITS.map(id => productCard(id)).join("");
     const hh = $("#hits-home"); if (hh) hh.innerHTML = HITS.map(id => productCard(id)).join("");
-    const CAT_NUTS = ["hazelnut-cocoa","almond-cocoa","almond","cashew","peanut","hazelnut","almond-cashew","three-nuts"];
-    const CAT_SEEDS = ["sesame","hemp","flax-black","flax-white","flax-mix"];
+    const CAT_NUTS = ["hazelnut-cocoa","almond-cocoa","pistachio","almond","cashew","peanut","hazelnut","walnut","almond-cashew","three-nuts"];
+    const CAT_SEEDS = ["sesame","hemp","flax-black","flax-seeds","flax-white","flax-mix","thistle"];
     $("#catalog-list").innerHTML =
       CAT_NUTS.map(id => productCard(id)).join("") +
-      `<div class="grid-sub">Дары природы · семена и суперфуды</div>` +
+      `<div class="grid-sub">Урбечи из семян</div>` +
       CAT_SEEDS.map(id => productCard(id)).join("");
 
     const collList = $("#collections-list");
@@ -2017,16 +2033,16 @@
         <div class="pm-details">
         <details class="pm-block pm-acc"><summary>Состав и аллергены</summary>
           <ul class="compo-list">
-            <li>100% ${p.ing}</li>
+            <li>Основа: ${p.ing}</li>
             <li>Без добавок</li>
             <li>Без консервантов</li>
           </ul>
           <p>${p.group === "nut" ? "Содержит орехи." : "Содержит семена."} Производится на площадке, где обрабатываются орехи и семена.</p>
         </details>
         <details class="pm-block pm-acc"><summary>Вкус и подача</summary><p>${p.plus}</p><p>${p.eat}</p></details>
-        <details class="pm-block pm-acc"><summary>Пищевая ценность</summary><p>Ориентировочно на 100 г: ${NUTRI[id] ? NUTRI[id][0] + " ккал · белки " + NUTRI[id][1] + " г · жиры " + NUTRI[id][2] + " г · углеводы " + NUTRI[id][3] + " г" : "данные уточняются"}</p></details>
+        <details class="pm-block pm-acc"><summary>Пищевая ценность</summary><p>Точные значения зависят от состава и партии. Смотрите пищевую ценность на этикетке выбранной банки.</p></details>
         <details class="pm-block pm-acc"><summary>Хранение</summary><p>12 месяцев в тёмном прохладном месте. После вскрытия — до 2 месяцев, плотно закрыв крышку. Масло сверху — это нормально: перемешайте перед употреблением.</p></details>
-        <details class="pm-block pm-acc"><summary>Доставка</summary><p>Ozon Доставка по всей России, 2–7 дней. Стоимость подтвердит менеджер после заявки.</p></details>
+        <details class="pm-block pm-acc"><summary>Доставка</summary><p>Выберите пункт выдачи, курьера до двери или Почту России. Срок и стоимость зависят от города и подтверждаются до отправки.</p></details>
         </div>
         <div class="pm-block"><h4>Похожие вкусы</h4>
           <div class="similar-row">
