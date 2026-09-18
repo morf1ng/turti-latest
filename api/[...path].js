@@ -25,11 +25,22 @@ export const config = {
   api: { bodyParser: false },
 };
 
-export default async function handler(req, res) {
+function routeFromRequest(req) {
   const parts = req.query.path;
-  const route = Array.isArray(parts) ? parts.join("/") : String(parts || "");
+  if (Array.isArray(parts) && parts.length) return parts.map(decodeURIComponent).join("/");
+  if (typeof parts === "string" && parts) return decodeURIComponent(parts);
+
+  /* Vercel иногда не заполняет req.query.path для /api/admin — берём из URL */
+  const raw = String(req.url || "");
+  const m = raw.match(/\/api\/([^?#]+)/);
+  if (m) return decodeURIComponent(m[1]).replace(/\/+$/, "");
+  return "";
+}
+
+export default async function handler(req, res) {
+  const route = routeFromRequest(req);
   const load = ROUTES[route];
-  if (!load) return fail(res, 404, "API route not found");
+  if (!load) return fail(res, 404, "API route not found", { route: route || null });
   const handle = await load();
   return handle(req, res);
 }
