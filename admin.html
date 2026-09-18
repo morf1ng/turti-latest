@@ -393,6 +393,8 @@ function serverOrder(o) {
     '<div class="acts"><select data-f="status">' + opts + '</select>' +
       '<input type="text" data-f="tracking" placeholder="трек-номер" value="' + esc(o.trackingNumber || "") + '">' +
       '<button class="btn line s" data-a="order-status">Сохранить</button>' +
+      (o.paid && o.paymentId ? '<button class="btn warn s" data-a="order-refund" data-full="1">Полный возврат</button>' : "") +
+      (o.trackingUrl ? '<a class="btn line s" href="' + esc(o.trackingUrl) + '" target="_blank" rel="noopener">Трек</a>' : "") +
       (o.utm && o.utm.source ? '<span class="tag">' + esc(o.utm.source) + '</span>' : "") +
     '</div></div>';
 }
@@ -535,6 +537,10 @@ function bind() {
     if (b.dataset.a === "order-status") {
       body.status = rec.querySelector('[data-f="status"]').value;
       body.tracking = rec.querySelector('[data-f="tracking"]').value;
+    }
+    if (b.dataset.a === "order-refund") {
+      body.id = rec && rec.dataset.id;
+      if (b.dataset.full && !confirm("Сделать полный возврат через ЮKassa?")) return;
     }
     if (b.dataset.a === "review-delete" && !confirm("Удалить отзыв навсегда?")) return;
     b.disabled = true;

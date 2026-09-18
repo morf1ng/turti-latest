@@ -1297,6 +1297,10 @@
     #product-sheet details.pm-acc p, #product-sheet .compo-list { font-weight:400; padding-bottom:14px; }
     .rv-more summary { cursor:pointer; color:var(--green); padding:10px 0; font-weight:700; }
     .pm-reviews .rv-text { overflow-wrap:anywhere; }
+    .pm-rv-stats { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; font-weight:700; font-size:14px; }
+    .pm-rv-avg { font-size:22px; color:var(--green); }
+    .pm-rv-stars { color:var(--gold); letter-spacing:1px; }
+    .pm-rv-count { color:var(--gray); font-weight:600; font-size:13px; }
     @media (min-width:768px) {
       #product-sheet { width:min(840px, calc(100vw - 48px)); padding:18px 28px 28px; }
       .pm-overview { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:28px; align-items:center; }
@@ -1634,6 +1638,7 @@
   <div class="overlay" id="overlay"></div>
 
   <div class="sheet" id="product-sheet"></div>
+  <div class="sheet" id="collection-sheet"></div>
   <div class="sheet" id="cart-sheet"></div>
   <div class="sheet" id="checkout-sheet"></div>
   <div class="sheet" id="opt-sheet"></div>
@@ -1885,6 +1890,7 @@
       const cur = document.querySelector(".sheet.show");
       const id = cur ? cur.id : null;
       if (id === "cart-sheet") return "Назад в корзину";
+      if (id === "collection-sheet") return "Назад к наборам";
       if (id === "product-sheet") return "Назад к вкусу";
       return "Назад";
     }
@@ -1989,8 +1995,9 @@
             <span class="price-old" style="margin-left:8px">${money(c.oldPrice)}</span></div>
           </div>
           <div class="two-btns">
-            <button class="btn btn-green" data-buy-now="${cid}">Купить сейчас</button>
-            <button class="btn btn-outline" data-add="${cid}">Добавить в корзину</button>
+            <button class="btn btn-green" data-buy-now="${cid}">Купить</button>
+            <button class="btn btn-outline" data-open-collection="${cid}">Подробнее и отзывы</button>
+            <button class="btn btn-outline" data-add="${cid}">В корзину</button>
           </div>
         </div>
       </article>`).join("");
@@ -2075,8 +2082,41 @@
       $("#pm-buy").addEventListener("click", doBuy);
     }
 
-    /* ═══ ОТЗЫВЫ ПО ВКУСАМ — список + форма с фото/видео ═══ */
-    const RV_MAX_FILES = 6, RV_VIDEO_MIN = 5, RV_VIDEO_MAX = 10, RV_IMG_MAX_SIDE = 1600;
+    function openCollection(cid) {
+      const c = COLLECTIONS[cid];
+      if (!c) return;
+      $("#collection-sheet").innerHTML = `
+        <div class="sheet-grip"></div>
+        <button class="sheet-close" data-close>✕</button>
+        <div class="pm-overview">
+          <div class="col-box" style="min-height:200px;margin-bottom:0">${c.items.map(id => jarHTML(id, { w: 56, h: 78 })).join("")}</div>
+          <div class="pm-purchase">
+            <span class="pm-eyebrow">Подарочный набор TURTI</span>
+            <h3 class="pm-title">«${c.name}»</h3>
+            <p class="pm-desc">${c.items.map(id => PRODUCTS[id].name).join(" · ")} — по 250 г в фирменной коробке.</p>
+            <div class="price-row"><span class="price-now">${money(c.price)}</span><span class="price-old">${money(c.oldPrice)}</span></div>
+            <div class="two-btns">
+              <button class="btn btn-green" id="col-buy">Купить</button>
+              <button class="btn btn-outline" id="col-add">В корзину</button>
+            </div>
+          </div>
+        </div>
+        <section class="pm-reviews" aria-labelledby="col-reviews-title">
+          <div class="pm-reviews-heading">
+            <div><span class="pm-eyebrow">Ваши впечатления</span><h4 id="col-reviews-title">Отзывы о наборе</h4></div>
+            <button type="button" class="btn btn-outline btn-sm" data-rv-open="${cid}">Оставить отзыв</button>
+          </div>
+          <div id="col-rv"></div>
+        </section>`;
+      openSheet("collection-sheet");
+      renderProductReviews(cid, "col-rv");
+      $("#col-add").addEventListener("click", () => { addToCart(cid); closeSheets(); });
+      $("#col-buy").addEventListener("click", () => openCheckout([{ key: cid, qty: 1 }], "buynow"));
+    }
+
+    /* ═══ ОТЗЫВЫ ПО ВКУСАМ — список + форма с фото ═══ */
+    const RV_MAX_FILES = 3, RV_IMG_MAX_SIDE = 1600;
+    const TELEGRAM_URL = "https://t.me/turti_shop";
 
     function rvStars(n) { return n ? "★".repeat(n) + "☆".repeat(5 - n) : ""; }
     function rvDate(iso) { try { return new Date(iso).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }); } catch (e) { return ""; } }
@@ -2102,8 +2142,12 @@
       const url = "/api/reviews" + (productId ? "?product=" + encodeURIComponent(productId) : "");
       fetch(url).then(r => r.json()).then(d => {
         const items = (d && d.items) || [];
-        const writeBtn = hostId === "pm-rv" ? "" : `<button type="button" class="btn btn-outline btn-sm rv-write-btn" data-rv-open="${productId || ""}">✍️ Оставить отзыв${productId ? " об этом вкусе" : ""}</button>`;
-        host.innerHTML = (items.length
+        const stats = (d && d.stats) || {};
+        const statsHtml = stats.count
+          ? `<div class="pm-rv-stats"><span class="pm-rv-avg">${stats.average}</span><span class="pm-rv-stars">${rvStars(Math.round(stats.average))}</span><span class="pm-rv-count">${stats.count} ${plural(stats.count, "отзыв", "отзыва", "отзывов")}</span></div>`
+          : "";
+        const writeBtn = hostId === "pm-rv" ? "" : `<button type="button" class="btn btn-outline btn-sm rv-write-btn" data-rv-open="${productId || ""}">✍️ Оставить отзыв${productId ? "" : ""}</button>`;
+        host.innerHTML = statsHtml + (items.length
           ? `<div class="rv-list">${items.slice(0, productId ? 3 : 6).map(rvCard).join("")}</div>`
           : `<p class="rv-empty">${escHtml((d && d.message) || "Отзывов пока нет — станьте первым.")}</p>`
         ) + (productId && items.length > 3 ? `<details class="rv-more"><summary>Ещё отзывы (${items.length - 3})</summary><div class="rv-list">${items.slice(3).map(rvCard).join("")}</div></details>` : "") + writeBtn;
@@ -2120,6 +2164,8 @@
     function rvOpenForm(productId) {
       const flavorOptions = Object.keys(PRODUCTS).map(id =>
         `<option value="${id}" ${id === productId ? "selected" : ""}>${PRODUCTS[id].name}</option>`).join("");
+      const setOptions = Object.entries(COLLECTIONS).map(([id, c]) =>
+        `<option value="${id}" ${id === productId ? "selected" : ""}>Набор «${c.name}»</option>`).join("");
       const sheet = $("#review-sheet");
       sheet.innerHTML = `
         <div class="sheet-grip"></div>
@@ -2127,22 +2173,24 @@
         <h3 style="font-size:22px;margin-bottom:14px">Оставить отзыв</h3>
         <form id="rv-form" class="rv-form">
           <input type="text" name="website" class="rv-hp" tabindex="-1" autocomplete="off">
-          <label>Вкус
-            <select name="productId">
-              <option value="">Не важно / несколько</option>
-              ${flavorOptions}
+          <label>Товар или набор
+            <select name="productId" required>
+              <option value="">Выберите…</option>
+              <optgroup label="Банки">${flavorOptions}</optgroup>
+              <optgroup label="Подарочные наборы">${setOptions}</optgroup>
             </select>
           </label>
+          <label>Телефон из заказа<input type="tel" name="phone" required inputmode="tel" placeholder="Тот же, что при покупке"></label>
           <label>Ваша оценка
             <div class="rv-star-pick" id="rv-star-pick">
               ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="rv-f" data-star="${n}">★</button>`).join("")}
             </div>
-            <input type="hidden" name="rating" id="rv-rating-val" value="">
+            <input type="hidden" name="rating" id="rv-rating-val" value="" required>
           </label>
           <label>Ваше имя (по желанию)<input type="text" name="name" maxlength="60" placeholder="Как к вам обращаться"></label>
           <label>Отзыв<textarea name="text" required minlength="10" maxlength="2000" rows="4" placeholder="Что понравилось, с чем ели, какой вкус — расскажите честно"></textarea></label>
-          <label>Фото или видео до 10 секунд (не обязательно)
-            <input type="file" id="rv-files" accept="image/*,video/*" multiple>
+          <label>Фото (не обязательно, до 3)
+            <input type="file" id="rv-files" accept="image/jpeg,image/png,image/webp" multiple>
           </label>
           <div class="rv-previews" id="rv-previews"></div>
           <p class="rv-note" id="rv-note"></p>
@@ -2176,6 +2224,7 @@
           body: JSON.stringify({
             text: fd.get("text"),
             productId: fd.get("productId") || "",
+            phone: fd.get("phone") || "",
             name: fd.get("name") || "",
             rating: fd.get("rating") || "",
             showOnSite: true, consent: true,
@@ -2205,20 +2254,10 @@
           box.innerHTML = `<span class="spin"></span>`;
           previewsEl.appendChild(box);
           try {
-            const isVideo = file.type.startsWith("video/");
-            let blob = file;
-            if (isVideo) {
-              const dur = await rvVideoDuration(file);
-              if (dur > RV_VIDEO_MAX + 0.6) throw new Error(`Видео должно быть до ${RV_VIDEO_MAX} секунд. У вас ${Math.round(dur)} с.`);
-              if (dur < RV_VIDEO_MIN - 0.6) throw new Error(`Видео слишком короткое — снимите хотя бы ${RV_VIDEO_MIN} секунд.`);
-            } else {
-              blob = await rvShrinkImage(file);
-            }
-            const url = await rvUpload(blob, isVideo ? "clip.mp4" : "photo.jpg");
-            media.push({ type: isVideo ? "video" : "image", url });
-            box.innerHTML = isVideo
-              ? `<video src="${url}" muted playsinline preload="metadata"></video><button type="button" class="rv-prev-x">✕</button>`
-              : `<img src="${url}" alt=""><button type="button" class="rv-prev-x">✕</button>`;
+            const blob = await rvShrinkImage(file);
+            const url = await rvUpload(blob, "photo.jpg");
+            media.push({ type: "image", url });
+            box.innerHTML = `<img src="${url}" alt=""><button type="button" class="rv-prev-x">✕</button>`;
             box.querySelector(".rv-prev-x").onclick = () => {
               const i = media.findIndex(m => m.url === url);
               if (i > -1) media.splice(i, 1);
@@ -2373,8 +2412,8 @@
               '<span class="co-lab">Как доставить</span>' +
               '<div class="co-ways" id="co-ways"></div>' +
               '<p class="co-est" id="co-est" hidden>Цена доставки предварительная — точную сумму подтвердим до отправки.</p>' +
-              '<a class="co-help" href="https://wa.me/79282197962" target="_blank" rel="noopener">' +
-                'Ни один способ не подходит? Напишите нам — довезём' +
+              '<a class="co-help" id="co-tg" href="' + TELEGRAM_URL + '" target="_blank" rel="noopener">' +
+                'Не нашли удобный способ? Напишите TURTI в Telegram' +
               '</a>' +
             '</div>' +
           '</div>' +
@@ -2431,16 +2470,17 @@
       /* ─── сводка ─── */
       function sum() {
         var w = st.options.filter(function (o) { return o.method === st.method; })[0];
-        var del = w ? (w.cost || 0) : null;
+        var del = w ? (w.quoteOnRequest ? null : (w.cost == null ? null : w.cost)) : null;
+        var delLabel = w && w.quoteOnRequest ? "уточнит менеджер" : (del === null ? "укажите город" : del === 0 ? "бесплатно" : money(del));
         var fee = (st.pay === "cod" && st.method && st.method !== "pickup") ? Math.ceil(goods * COD_FEE_PERCENT / 100) : 0;
+        var total = goods + fee + (del == null ? 0 : del);
         $("#co-sum").innerHTML =
           lines.map(function (l) {
             return '<div><span>' + escHtml(l.label) + ' ' + escHtml(l.sub) + ' × ' + l.qty + '</span><span>' + money(l.sum) + '</span></div>';
           }).join("") +
-          '<div><span class="co-dim">Доставка</span><span class="co-dim">' +
-            (del === null ? "укажите город" : del === 0 ? "бесплатно" : money(del)) + '</span></div>' +
+          '<div><span class="co-dim">Доставка</span><span class="co-dim">' + delLabel + '</span></div>' +
           (fee ? '<div><span class="co-dim">Приём денег при получении</span><span class="co-dim">' + money(fee) + '</span></div>' : "") +
-          '<div class="co-total"><span>Итого</span><span>' + money(goods + (del || 0) + fee) + '</span></div>' +
+          '<div class="co-total"><span>Итого</span><span>' + (w && w.quoteOnRequest ? money(goods + fee) + "+" : money(total)) + '</span></div>' +
           '<div class="co-w">Вес посылки ' + weight + ' кг</div>';
       }
 
@@ -2524,8 +2564,13 @@
           if (d.zone) { $zone.hidden = false; $zone.textContent = "Зона: " + (d.zoneName || d.zone); }
           $("#co-est").hidden = !d.anyEstimated;
 
+          if (d.telegramUrl) {
+            var tg = $("#co-tg");
+            if (tg) { tg.href = d.telegramUrl; tg.textContent = "Не нашли удобный способ? Напишите TURTI в Telegram"; }
+          }
           if (!st.options.length) {
-            $ways.innerHTML = '<div class="pvz-err"><p><strong>' + escHtml(d.message || "Доставку подобрать не удалось") + '</strong></p></div>';
+            $ways.innerHTML = '<div class="pvz-err"><p><strong>' + escHtml(d.message || "Доставку подобрать не удалось") + '</strong></p>' +
+              (d.telegramUrl ? '<p><a href="' + escHtml(d.telegramUrl) + '" target="_blank" rel="noopener">Написать в Telegram</a></p>' : '') + '</div>';
             $go.textContent = "Доставка недоступна";
             return;
           }
@@ -2533,26 +2578,9 @@
           drawWays(); drawPays(); afterWay();
         })
         .catch(function () {
-          /* сервера нет — считаем по своей таблице, честно помечаем */
-          st.options = Object.keys(DELIVERY_METHODS).filter(function (k) {
-            var m = DELIVERY_METHODS[k];
-            if (m.onlyZone && m.onlyZone !== zoneForCity(st.city)) return false;
-            if (m.needsFlag) return false;
-            return true;
-          }).map(function (k) {
-            var r = deliveryCost(zoneForCity(st.city), k, weight, goods);
-            return {
-              method: k, label: DELIVERY_METHODS[k].label, days: DELIVERY_METHODS[k].days,
-              note: DELIVERY_METHODS[k].note || "", cost: r.cost, estimated: true,
-              needsMap: k === "pvz" || k === "ozon", provider: k === "ozon" ? "ozon" : "cdek"
-            };
-          });
-          st.zone = zoneForCity(st.city);
-          $zone.hidden = false;
-          $zone.textContent = "Зона: " + (ZONES[st.zone] ? ZONES[st.zone].name : "уточним");
-          $("#co-est").hidden = false;
-          if (!st.options.some(function (o) { return o.method === st.method; })) st.method = st.options[0].method;
-          drawWays(); drawPays(); afterWay();
+          st.options = [];
+          $ways.innerHTML = '<div class="pvz-err"><p><strong>Сервер доставки недоступен</strong></p><p>Оформление заработает после публикации сайта. Или <a href="' + TELEGRAM_URL + '" target="_blank" rel="noopener">напишите нам в Telegram</a>.</p></div>';
+          $go.textContent = "Доставка недоступна";
         });
       }
 
@@ -2591,7 +2619,7 @@
           return '<button type="button" class="co-way' + (o.method === st.method ? " on" : "") + '" data-w="' + o.method + '">' +
             '<span class="co-way-t">' + escHtml(o.label) +
               '<small>' + escHtml(o.days || "") + (o.note ? " · " + escHtml(o.note) : "") + '</small></span>' +
-            '<span class="co-way-p">' + (o.cost === 0 ? "бесплатно" : money(o.cost)) + (o.estimated ? "*" : "") + '</span>' +
+            '<span class="co-way-p">' + (o.quoteOnRequest ? "уточнит менеджер" : o.cost === 0 ? "бесплатно" : o.cost == null ? "—" : money(o.cost)) + (o.estimated ? "*" : "") + '</span>' +
           '</button>';
         }).join("");
       }
@@ -2651,7 +2679,7 @@
       function refreshGo() {
         var miss = whatsMissing();
         $go.disabled = Boolean(miss);
-        $go.textContent = miss || (st.pay === "cod" ? "Оформить заказ" : "Перейти к оплате");
+        $go.textContent = miss || (st.pay === "cod" ? "Оформить заказ" : "Оплатить заказ");
       }
 
       /* пересчитываем доступность кнопки на любое изменение формы */
@@ -2758,7 +2786,7 @@
         .then(function (d) {
           if (!d) return;
           if (!d.ok) throw new Error(d.error || "Не удалось оформить заказ");
-          done(d, payload);
+          done(Object.assign({ paid: false }, d), payload);
           if (checkoutMode === "cart") saveCart({});
         })
         .catch(function (err) {
@@ -2788,31 +2816,37 @@
 
       /* ─── экран «принято» ─── */
       function done(d, sent) {
-        var wa = encodeURIComponent("Заказ " + d.orderId + " с сайта TURTI\n" +
-          lines.map(function (l) { return "• " + l.label + " " + l.sub + " × " + l.qty; }).join("\n") +
-          "\nИтого: " + d.total + " ₽\n" + sent.name + ", " + sent.phone + ", " + sent.city);
+        var trackBtn = (d.trackingUrl || d.trackingNumber)
+          ? '<a class="btn btn-outline btn-block" style="margin-top:10px" target="_blank" rel="noopener" href="' + escHtml(d.trackingUrl || "#") + '">Отследить заказ</a>'
+          : '<button type="button" class="btn btn-outline btn-block" style="margin-top:10px" id="co-track">Отследить заказ</button>';
 
         $("#checkout-sheet").innerHTML =
           '<div class="sheet-grip"></div>' +
           '<button class="sheet-close" data-close aria-label="Закрыть">✕</button>' +
           '<div class="success-box">' +
             '<div class="check-circle">✓</div>' +
-            '<h3>Заказ ' + escHtml(d.orderId) + ' принят</h3>' +
-            '<p>' + (st.pay === "cod"
-              ? "Оплатите при получении в пункте выдачи. Мы свяжемся и подтвердим отправку."
-              : "Мы свяжемся с вами и подтвердим оплату и отправку.") + '</p>' +
+            '<h3>Заказ ' + escHtml(d.orderId) + (d.paid ? ' оплачен' : ' принят') + '</h3>' +
+            '<p>' + (d.paid
+              ? "Оплата прошла. Соберём посылку и сообщим о отправке."
+              : st.pay === "cod"
+                ? "Оплатите при получении. Мы свяжемся и подтвердим отправку."
+                : "Если оплата ещё обрабатывается — подождите минуту и обновите статус.") + '</p>' +
             '<div class="co-sum" style="text-align:left;margin:16px 0">' +
               lines.map(function (l) { return '<div><span>' + escHtml(l.label) + ' ' + escHtml(l.sub) + ' × ' + l.qty + '</span><span>' + money(l.sum) + '</span></div>'; }).join("") +
-              '<div><span class="co-dim">' + escHtml(d.deliveryLabel || "Доставка") + '</span><span class="co-dim">' + (d.delivery ? money(d.delivery) : "бесплатно") + '</span></div>' +
+              '<div><span class="co-dim">' + escHtml(d.deliveryLabel || "Доставка") + '</span><span class="co-dim">' +
+                (d.deliveryQuoteOnRequest ? "уточнит менеджер" : d.delivery ? money(d.delivery) : "бесплатно") + '</span></div>' +
               (d.codFee ? '<div><span class="co-dim">Приём денег</span><span class="co-dim">' + money(d.codFee) + '</span></div>' : "") +
               '<div class="co-total"><span>Итого</span><span>' + money(d.total) + '</span></div>' +
             '</div>' +
-            '<div class="co-done-addr"><strong>' + escHtml(sent.city) + '</strong><br>' + escHtml(sent.address || "самовывоз") +
+            '<div class="co-done-addr"><strong>' + escHtml(sent.city) + '</strong><br>' + escHtml(sent.address || sent.pvz || "самовывоз") +
               (d.deliveryEstimated ? '<br><small>Стоимость доставки предварительная</small>' : "") + '</div>' +
             (d.offline ? '<p class="co-note">Заказ сохранён в этом браузере. После публикации сайта заказы будут приходить сразу нам.</p>' : "") +
-            '<button class="btn btn-green btn-block" data-close style="margin-top:14px">Вернуться в магазин</button>' +
-            '<a class="btn btn-outline btn-block" style="margin-top:10px" target="_blank" rel="noopener" href="https://wa.me/' + WA_NUMBER + '?text=' + wa + '">Продублировать в WhatsApp</a>' +
+            trackBtn +
+            '<button class="btn btn-green btn-block" data-close style="margin-top:10px">Вернуться в магазин</button>' +
           '</div>';
+
+        var tb = $("#co-track");
+        if (tb) tb.onclick = function () { checkOrderStatus(d.orderId, sent.phone); };
       }
 
       sum();
@@ -2828,6 +2862,9 @@
 
       const openP = e.target.closest("[data-open-product]");
       if (openP) { openProduct(openP.dataset.openProduct); return; }
+
+      const openC = e.target.closest("[data-open-collection]");
+      if (openC) { openCollection(openC.dataset.openCollection); return; }
 
       if (e.target.closest("[data-open-cart]")) { renderCartSheet(); openSheet("cart-sheet"); return; }
 
@@ -3197,6 +3234,39 @@
       const id = (a.getAttribute("href") || "").replace("#", "");
       if (id && location.hash === "#" + id) { e.preventDefault(); route(id); }
     });
+
+    function checkOrderStatus(orderId, phone) {
+      fetch("/api/track?id=" + encodeURIComponent(orderId) + "&phone=" + encodeURIComponent(phone || ""))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d.ok) { toast(d.error || "Заказ не найден"); return; }
+          if (d.trackingUrl) { window.open(d.trackingUrl, "_blank"); return; }
+          if (d.trackingNumber) { toast("Трек-номер: " + d.trackingNumber); return; }
+          toast("Трек-номер появится после отправки. Статус: " + (d.status || "в обработке"));
+        })
+        .catch(function () { toast("Не удалось проверить статус"); });
+    }
+
+    (function () {
+      var p = new URLSearchParams(location.search);
+      var oid = p.get("order");
+      if (!oid || p.get("paid") !== "check") return;
+      fetch("/api/track?id=" + encodeURIComponent(oid))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d.ok) return;
+          renderCartSheet();
+          $("#checkout-sheet").innerHTML =
+            '<div class="sheet-grip"></div><button class="sheet-close" data-close>✕</button>' +
+            '<div class="success-box"><div class="check-circle">✓</div>' +
+            '<h3>Заказ ' + escHtml(d.orderId) + (d.paid ? " оплачен" : "") + '</h3>' +
+            '<p>' + escHtml(d.deliveryLabel || "") + ' · ' + escHtml(d.city || "") + '</p>' +
+            (d.trackingUrl ? '<a class="btn btn-outline btn-block" target="_blank" rel="noopener" href="' + escHtml(d.trackingUrl) + '">Отследить заказ</a>' : "") +
+            '<button class="btn btn-green btn-block" data-close style="margin-top:10px">В магазин</button></div>';
+          openSheet("checkout-sheet");
+          history.replaceState(null, "", location.pathname + location.hash);
+        });
+    })();
 
     /* ═══ ОТЗЫВЫ на главной (последние, по всем вкусам) ═══ */
     renderProductReviews(null, "home-rv");

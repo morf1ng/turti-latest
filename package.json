@@ -6,6 +6,9 @@
   "description": "TURTI — натуральный урбеч с водяной мельницы, Ботлихский район, Дагестан",
   "engines": { "node": ">=20" },
   "dependencies": {
+    "@vercel/blob": "^0.27.3",
+    "@vercel/kv": "^3.0.0",
+    "formidable": "^3.5.2",
     "web-push": "^3.6.7"
   }
 }
