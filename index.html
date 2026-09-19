@@ -209,7 +209,8 @@
     .pcard-body { padding: 14px 14px 16px; flex: 1; display: flex; flex-direction: column; }
     .pcard-body h3 { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 16.5px; line-height: 1.3; margin-bottom: 6px; }
     .pcard-desc { font-size: 13.5px; color: var(--gray); line-height: 1.55; flex: 1; margin-bottom: 10px; }
-    .pcard-eat { font-size: 12px; color: var(--nut); font-weight: 700; margin: -4px 0 10px; line-height: 1.4; }
+    .pcard-eat { font-size: 12px; color: var(--nut); font-weight: 700; margin: -4px 0 10px; line-height: 1.4; display: flex; align-items: flex-start; gap: 6px; }
+    .pcard-eat svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; color: var(--nut); }
     .pcard-sizes { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
     .pcard-sizes span { font-size: 11px; font-weight: 700; color: var(--gray); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; }
     .pcard-price { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -.02em; color: var(--green); margin-bottom: 11px; }
@@ -356,8 +357,10 @@
     .sheet-grip { width: 44px; height: 5px; border-radius: 99px; background: #D8CFBC; margin: 4px auto 14px; }
     .sheet-close {
       position: absolute; top: 14px; right: 14px; width: 38px; height: 38px;
-      border-radius: 50%; border: none; background: #EFE8D8; font-size: 17px; font-weight: 800; color: var(--ink);
+      border-radius: 50%; border: none; background: #EFE8D8; font-size: 0;
+      display: grid; place-items: center; color: var(--ink); cursor: pointer;
     }
+    .sheet-close svg { width: 18px; height: 18px; display: block; }
     /* кнопка «назад» внутри шторки — вернуться на шаг, а не закрыть всё */
     .sheet-back {
       position: absolute; top: 13px; left: 13px; z-index: 3;
@@ -419,7 +422,11 @@
     .order-summary-mini div { display: flex; justify-content: space-between; gap: 10px; }
     .order-summary-mini .osm-total { font-weight: 800; border-top: 1px solid var(--line); padding-top: 8px; }
     .success-box { text-align: center; padding: 30px 10px 10px; }
-    .success-box .emoji { font-size: 54px; display: block; margin-bottom: 14px; }
+    .success-box .ic-lg { margin: 0 auto 14px; }
+    .cart-empty-icon { display: flex; justify-content: center; margin-bottom: 10px; }
+    .rv-write-btn { display: inline-flex; align-items: center; gap: 6px; }
+    .surprise-note strong { display: inline-flex; align-items: center; gap: 6px; }
+    .header-story svg { width: 14px; height: 14px; display: inline-block; vertical-align: -2px; margin-left: 2px; }
     .success-box h3 { font-size: 24px; margin-bottom: 10px; }
     .success-box p { color: var(--gray); font-size: 15px; margin-bottom: 22px; }
 
@@ -435,14 +442,20 @@
     .icon-btn {
       width: 44px; height: 44px; border-radius: 14px;
       border: 1px solid rgba(255,255,255,.8);
-      background: rgba(255,255,255,.68); font-size: 18px; display: grid; place-items: center;
+      background: rgba(255,255,255,.68); font-size: 0; display: grid; place-items: center;
       box-shadow: 0 4px 12px rgba(120,90,40,.14), inset 0 1px 0 rgba(255,255,255,.9);
       transition: transform .15s;
     }
     .icon-btn:active { transform: scale(.9); }
+    .icon-btn svg { width: 20px; height: 20px; display: block; color: var(--ink); }
+    .mi, .ic-sm, .ic-md, .ic-lg { flex-shrink: 0; display: block; }
+    .mi { width: 22px; height: 22px; color: #8A8272; }
+    .ic-sm { width: 18px; height: 18px; }
+    .ic-md { width: 28px; height: 28px; }
+    .ic-lg { width: 48px; height: 48px; color: var(--nut); }
     .menu-list { display: grid; gap: 6px; }
     .menu-list a, .menu-list button {
-      display: flex; align-items: center; gap: 4px;
+      display: flex; align-items: center; gap: 12px;
       background: var(--white); border: 1.5px solid var(--line); border-radius: 14px;
       padding: 15px 16px; font-size: 16px; font-weight: 800; color: var(--ink);
       text-decoration: none; text-align: left; width: 100%;
@@ -977,7 +990,8 @@
     .rv-previews{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .rv-prev{position:relative;width:72px;height:72px;border-radius:11px;overflow:hidden;background:#F0EBE0;display:grid;place-items:center}
     .rv-prev img,.rv-prev video{width:100%;height:100%;object-fit:cover}
-    .rv-prev-x{position:absolute;top:3px;right:3px;width:20px;height:20px;border:0;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:11px;cursor:pointer;line-height:1}
+    .rv-prev-x{position:absolute;top:3px;right:3px;width:20px;height:20px;border:0;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:0;cursor:pointer;display:grid;place-items:center}
+    .rv-prev-x svg{width:12px;height:12px;display:block;color:#fff}
     .toggle-line{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700}
     .toggle-line input{width:20px;height:20px;accent-color:var(--green);flex-shrink:0}
     .rv-consent{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;font-weight:600;color:#4A463C;line-height:1.5}
@@ -1333,7 +1347,8 @@
     .rv-previews { display: flex; gap: 8px; flex-wrap: wrap; }
     .rv-prev { position: relative; width: 68px; height: 68px; border-radius: 10px; overflow: hidden; background: var(--cream); display: grid; place-items: center; }
     .rv-prev img, .rv-prev video { width: 100%; height: 100%; object-fit: cover; }
-    .rv-prev-x { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(0,0,0,.55); color: #fff; font-size: 11px; cursor: pointer; }
+    .rv-prev-x { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(0,0,0,.55); color: #fff; font-size: 0; cursor: pointer; display: grid; place-items: center; }
+    .rv-prev-x svg { width: 12px; height: 12px; display: block; color: #fff; }
     .rv-note { font-size: 13px; font-weight: 700; color: var(--green); text-align: center; min-height: 16px; margin: 0; }
     .rv-consent { flex-direction: row !important; align-items: flex-start; gap: 8px !important; font-weight: 500 !important; font-size: 13px !important; color: var(--gray) !important; }
     .rv-consent input { margin-top: 2px; flex-shrink: 0; }
@@ -1482,13 +1497,13 @@
   <!-- ШАПКА -->
   <header class="header">
     <div class="header-side">
-      <button class="icon-btn" data-open-menu aria-label="Меню" aria-expanded="false">☰</button>
+      <button class="icon-btn" data-open-menu aria-label="Меню" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <a class="logo" href="index.html" aria-label="TURTI — на главную">
         <span class="logo-mark"><img src="images/turti-avatar.png" alt=""></span>
         <span><strong>TURTI</strong><small>урбеч с водяной мельницы</small></span>
       </a>
     </div>
-    <a class="header-story" href="#about">О нас <span aria-hidden="true">↗</span></a>
+    <a class="header-story" href="#about">О нас <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
   </header>
 
   <main>
@@ -1781,24 +1796,24 @@
   <div class="sheet" id="review-sheet"></div>
   <div class="sheet" id="menu-sheet">
     <div class="sheet-grip"></div>
-    <button class="sheet-close" data-close>✕</button>
+    <button class="sheet-close" data-close aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     <h3 style="font-size:22px;margin-bottom:14px">Меню</h3>
     <nav class="menu-list">
-      <a href="#top" data-close>🏠 Главная</a>
-      <button data-open-search type="button">🔍 Поиск</button>
-      <a href="#intro" data-close>🎁 Первое знакомство</a>
-      <a href="#story" data-close>🏔 О нас</a>
-      <a href="#hits" data-close>🔥 Хиты продаж</a>
-      <a href="#catalog" data-close>🫙 Все урбечи</a>
-      <a href="#sets" data-close>🎁 Коллекции TURTI</a>
-      <a href="reviews.html">⭐ Отзывы</a>
-      <button data-open-opt type="button">🏔 Опт — от 10 кг</button>
-      <button data-open-cart>🧺 Корзина <span class="cart-count" style="margin-left:6px">0</span></button>
+      <a href="#top" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.2 12 4.6l8 6.6"/><path d="M5.8 10.3V19a1.2 1.2 0 0 0 1.2 1.2h3.1v-4.6a1.2 1.2 0 0 1 1.2-1.2h1.4a1.2 1.2 0 0 1 1.2 1.2v4.6H17a1.2 1.2 0 0 0 1.2-1.2v-8.7"/></svg>Главная</a>
+      <button data-open-search type="button"><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Поиск</button>
+      <a href="#intro" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>Первое знакомство</a>
+      <a href="#story" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18M6 20l5-12 4 8 3-7 4 11"/></svg>О нас</a>
+      <a href="#hits" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c4-2.5 6-6 6-10a6 6 0 0 0-12 0c0 4 2 7.5 6 10z"/><path d="M12 22c-1.5-2-2-4-2-6 0-2 1-3.5 2-4.5 1 1 2 2.5 2 4.5 0 2-.5 4-2 6z"/></svg>Хиты продаж</a>
+      <a href="#catalog" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="8" width="12" height="12" rx="3"/><path d="M8.6 8V5.4h6.8V8"/><path d="M9.6 12.8h4.8M9.6 15.6h3"/></svg>Все урбечи</a>
+      <a href="#sets" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M4 12.6h16M12 9v11"/><path d="M12 9c-1.8 0-3.6-1-3.6-2.6C8.4 5 9.6 4.2 10.8 4.6 12 5 12 6.6 12 9zm0 0c1.8 0 3.6-1 3.6-2.6C15.6 5 14.4 4.2 13.2 4.6 12 5 12 6.6 12 9z"/></svg>Коллекции TURTI</a>
+      <a href="reviews.html"><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.8l2.1 4.3 4.7.7-3.4 3.3.8 4.7L12 14.3l-4.2 2.5.8-4.7-3.4-3.3 4.7-.7z"/></svg>Отзывы</a>
+      <button data-open-opt type="button"><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18.5 9 8l3.4 5.4L15 9l6 9.5"/><path d="M3 18.5h18"/></svg>Опт — от 10 кг</button>
+      <button data-open-cart><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Корзина <span class="cart-count" style="margin-left:6px">0</span></button>
     </nav>
   </div>
   <div class="sheet" id="search-sheet">
     <div class="sheet-grip"></div>
-    <button class="sheet-close" data-close>✕</button>
+    <button class="sheet-close" data-close aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     <h3 style="font-size:22px;margin-bottom:12px">Поиск</h3>
     <input class="search-input" id="search-input" type="search" placeholder="Например: фисташка, лён, кешью…" autocomplete="off">
     <div class="search-results" id="search-results"></div>
@@ -1807,6 +1822,30 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
+    /* ═══════════ ИКОНКИ (единый stroke-стиль) ═══════════ */
+    const IC = (() => {
+      const A = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
+      const svg = (cls, d) => `<svg class="${cls}" ${A}>${d}</svg>`;
+      const P = {
+        home: '<path d="M4 11.2 12 4.6l8 6.6"/><path d="M5.8 10.3V19a1.2 1.2 0 0 0 1.2 1.2h3.1v-4.6a1.2 1.2 0 0 1 1.2-1.2h1.4a1.2 1.2 0 0 1 1.2 1.2v4.6H17a1.2 1.2 0 0 0 1.2-1.2v-8.7"/>',
+        search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+        intro: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
+        mountain: '<path d="M3 20h18M6 20l5-12 4 8 3-7 4 11"/>',
+        flame: '<path d="M12 22c4-2.5 6-6 6-10a6 6 0 0 0-12 0c0 4 2 7.5 6 10z"/><path d="M12 22c-1.5-2-2-4-2-6 0-2 1-3.5 2-4.5 1 1 2 2.5 2 4.5 0 2-.5 4-2 6z"/>',
+        jar: '<rect x="6" y="8" width="12" height="12" rx="3"/><path d="M8.6 8V5.4h6.8V8"/><path d="M9.6 12.8h4.8M9.6 15.6h3"/>',
+        gift: '<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M4 12.6h16M12 9v11"/><path d="M12 9c-1.8 0-3.6-1-3.6-2.6C8.4 5 9.6 4.2 10.8 4.6 12 5 12 6.6 12 9zm0 0c1.8 0 3.6-1 3.6-2.6C15.6 5 14.4 4.2 13.2 4.6 12 5 12 6.6 12 9z"/>',
+        star: '<path d="M12 3.8l2.1 4.3 4.7.7-3.4 3.3.8 4.7L12 14.3l-4.2 2.5.8-4.7-3.4-3.3 4.7-.7z"/>',
+        chart: '<path d="M3 18.5 9 8l3.4 5.4L15 9l6 9.5"/><path d="M3 18.5h18"/>',
+        cart: '<path d="M6 8h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+        close: '<path d="M6 6l12 12M18 6 6 18"/>',
+        pen: '<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+        check: '<circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.5 2.5L16 9"/>',
+        utensils: '<path d="M8 3v8M8 11v10M12 3v18M16 3c1.5 0 2.5 1.2 2.5 3V11M16 11v10"/>',
+      };
+      return (name, cls) => svg(cls || "mi", P[name] || "");
+    })();
+    const CLOSE_BTN = `<button class="sheet-close" data-close aria-label="Закрыть">${IC("close", "ic-sm")}</button>`;
+
     /* ═══════════ ДАННЫЕ ═══════════ */
     const WA_NUMBER = "79282197962";
     const CART_KEY = "turti_cart_v1";
@@ -2136,7 +2175,7 @@
         <div class="pcard-body">
           <h3>${p.name}</h3>
           <p class="pcard-desc">${p.desc}</p>
-          ${p.eat ? `<p class="pcard-eat">🍽 ${p.eat}</p>` : ""}
+          ${p.eat ? `<p class="pcard-eat">${IC("utensils", "ic-sm")}<span>${p.eat}</span></p>` : ""}
           <div class="pcard-sizes"><span>250 г</span><span>500 г</span><span>1 кг</span></div>
           <div class="pcard-price">${money(p.prices[250])} <small>250 г</small></div>
           <div class="pcard-actions">
@@ -2200,7 +2239,7 @@
       const similar = Object.keys(PRODUCTS).filter(x => x !== id && PRODUCTS[x].group === p.group).slice(0, 3);
       $("#product-sheet").innerHTML = `
         <div class="sheet-grip"></div>
-        <button class="sheet-close" data-close>✕</button>
+        ${CLOSE_BTN}
         <div class="pm-overview">
         <div class="pm-visuals">
         <div class="pm-art${ph && ph[250] ? "" : " empty"}">${ph && ph[250] ? `<img id="pm-photo" class="pm-photo" src="${ph[250]}" alt="${p.name}">` : ""}</div>
@@ -2271,7 +2310,7 @@
       if (!c) return;
       $("#collection-sheet").innerHTML = `
         <div class="sheet-grip"></div>
-        <button class="sheet-close" data-close>✕</button>
+        ${CLOSE_BTN}
         <div class="pm-overview">
           <div class="col-box" style="min-height:200px;margin-bottom:0">${c.items.map(id => jarHTML(id, { w: 56, h: 78 })).join("")}</div>
           <div class="pm-purchase">
@@ -2330,7 +2369,7 @@
         const statsHtml = stats.count
           ? `<div class="pm-rv-stats"><span class="pm-rv-avg">${stats.average}</span><span class="pm-rv-stars">${rvStars(Math.round(stats.average))}</span><span class="pm-rv-count">${stats.count} ${plural(stats.count, "отзыв", "отзыва", "отзывов")}</span></div>`
           : "";
-        const writeBtn = hostId === "pm-rv" ? "" : `<button type="button" class="btn btn-outline btn-sm rv-write-btn" data-rv-open="${productId || ""}">✍️ Оставить отзыв${productId ? "" : ""}</button>`;
+        const writeBtn = hostId === "pm-rv" ? "" : `<button type="button" class="btn btn-outline btn-sm rv-write-btn" data-rv-open="${productId || ""}">${IC("pen", "ic-sm")} Оставить отзыв</button>`;
         host.innerHTML = statsHtml + (items.length
           ? `<div class="rv-list">${items.slice(0, productId ? 3 : 6).map(rvCard).join("")}</div>`
           : `<p class="rv-empty">${escHtml((d && d.message) || "Отзывов пока нет — станьте первым.")}</p>`
@@ -2353,7 +2392,7 @@
       const sheet = $("#review-sheet");
       sheet.innerHTML = `
         <div class="sheet-grip"></div>
-        <button class="sheet-close" data-close aria-label="Закрыть">✕</button>
+        ${CLOSE_BTN}
         <h3 style="font-size:22px;margin-bottom:14px">Оставить отзыв</h3>
         <form id="rv-form" class="rv-form">
           <input type="text" name="website" class="rv-hp" tabindex="-1" autocomplete="off">
@@ -2418,7 +2457,7 @@
           })
         }).then(r => r.json()).then(d => {
           if (!d.ok) { note.textContent = d.error || "Не получилось отправить"; btn.disabled = false; btn.textContent = "Отправить отзыв"; return; }
-          sheet.innerHTML = `<div class="sheet-grip"></div><button class="sheet-close" data-close aria-label="Закрыть">✕</button>
+          sheet.innerHTML = `<div class="sheet-grip"></div>${CLOSE_BTN}
             <div class="rv-done"><h3>Спасибо!</h3><p>Отзыв отправлен на проверку и появится на сайте после одобрения.</p></div>`;
         }).catch(() => {
           note.textContent = "Нет связи. Проверьте интернет и попробуйте снова.";
@@ -2441,7 +2480,7 @@
             const blob = await rvShrinkImage(file);
             const url = await rvUpload(blob, "photo.jpg");
             media.push({ type: "image", url });
-            box.innerHTML = `<img src="${url}" alt=""><button type="button" class="rv-prev-x">✕</button>`;
+            box.innerHTML = `<img src="${url}" alt=""><button type="button" class="rv-prev-x" aria-label="Удалить">${IC("close", "ic-sm")}</button>`;
             box.querySelector(".rv-prev-x").onclick = () => {
               const i = media.findIndex(m => m.url === url);
               if (i > -1) media.splice(i, 1);
@@ -2500,7 +2539,7 @@
       const lines = cartLines();
       $("#cart-sheet").innerHTML = `
         <div class="sheet-grip"></div>
-        <button class="sheet-close" data-close>✕</button>
+        ${CLOSE_BTN}
         <h3 style="font-size:24px;margin-bottom:14px">Корзина</h3>
         ${lines.length ? `
           <div class="cart-items">
@@ -2520,7 +2559,7 @@
           <p style="font-size:12.5px;color:var(--gray);text-align:center;margin-top:10px">Корзина сохраняется — ваш заказ не потеряется, даже если закроете сайт.</p>
         ` : `
           <div class="cart-empty">
-            <p style="font-size:38px;margin-bottom:10px">🧺</p>
+            <div class="cart-empty-icon">${IC("cart", "ic-lg")}</div>
             <p style="font-weight:800;font-size:17px;color:var(--ink);margin-bottom:6px">Пока пусто</p>
             <p>Выберите вкусы в каталоге — корзина сохранит ваш выбор.</p>
             <button class="btn btn-green" data-close style="margin-top:18px" onclick="location.hash='#catalog'">Перейти к урбечам</button>
@@ -2571,7 +2610,7 @@
       $("#checkout-sheet").innerHTML =
         '<div class="sheet-grip"></div>' +
         '<button type="button" class="sheet-back" data-back><span class="sb-arrow">\u2039</span>' + sheetBackLabel() + '</button>' +
-        '<button class="sheet-close" data-close aria-label="Закрыть">✕</button>' +
+        CLOSE_BTN +
         '<h3 class="co-h">Оформление заказа</h3>' +
 
         '<div class="co-sum" id="co-sum"></div>' +
@@ -2923,7 +2962,7 @@
       function drawSurprise() {
         var b = $("#co-surprise");
         b.hidden = !st.surprise;
-        if (st.surprise) b.innerHTML = '<div class="surprise-note"><strong>🎁 ' + st.surprise.title +
+        if (st.surprise) b.innerHTML = '<div class="surprise-note"><strong>' + IC("gift", "ic-sm") + ' ' + st.surprise.title +
           '</strong><span>Вложим в эту посылку</span></div>';
       }
 
@@ -3006,7 +3045,7 @@
 
         $("#checkout-sheet").innerHTML =
           '<div class="sheet-grip"></div>' +
-          '<button class="sheet-close" data-close aria-label="Закрыть">✕</button>' +
+          CLOSE_BTN +
           '<div class="success-box">' +
             '<div class="check-circle">✓</div>' +
             '<h3>Заказ ' + escHtml(d.orderId) + (d.paid ? ' оплачен' : ' принят') + '</h3>' +
@@ -3217,7 +3256,7 @@
     function openPartnerForm() {
       $("#checkout-sheet").innerHTML = `
         <div class="sheet-grip"></div>
-        <button class="sheet-close" data-close>✕</button>
+        ${CLOSE_BTN}
         <h3 style="font-size:24px;margin-bottom:6px">Заявка для бизнеса</h3>
         <p style="color:var(--gray);font-size:14px;margin-bottom:8px">Кофейни, магазины, опт, корпоративные подарки. Ответим в течение дня.</p>
         <form class="form-grid" id="partner-form">
@@ -3237,9 +3276,9 @@
           (fd.get("comment") ? "%0AКомментарий: " + fd.get("comment") : "");
         $("#checkout-sheet").innerHTML = `
           <div class="sheet-grip"></div>
-          <button class="sheet-close" data-close>✕</button>
+          ${CLOSE_BTN}
           <div class="success-box">
-            <span class="emoji">🤝</span>
+            ${IC("check", "ic-lg")}
             <h3>Спасибо! Заявка принята.</h3>
             <p>Мы скоро свяжемся с вами.</p>
             <a class="btn btn-green btn-block" target="_blank" rel="noopener" href="https://wa.me/${WA_NUMBER}?text=${txt}">Продублировать в WhatsApp</a>
@@ -3290,7 +3329,7 @@
       $("#pvz-map-sheet").innerHTML =
         '<div class="sheet-grip"></div>' +
         '<button type="button" class="sheet-back" data-back><span class="sb-arrow">\u2039</span>Назад к заказу</button>' +
-        '<button class="sheet-close" data-close aria-label="Закрыть">✕</button>' +
+        CLOSE_BTN +
         '<h3 class="pvz-title">' + title + '</h3>' +
         '<p class="pvz-sub">' + (city || "Укажите город") + ' — выберите удобную точку</p>' +
         '<div id="pvz-host" class="pvz-host"><div class="pvz-load"><span class="spin"></span>Ищем пункты выдачи…</div></div>' +
@@ -3445,7 +3484,7 @@
           if (!d.ok) return;
           renderCartSheet();
           $("#checkout-sheet").innerHTML =
-            '<div class="sheet-grip"></div><button class="sheet-close" data-close>✕</button>' +
+            '<div class="sheet-grip"></div>' + CLOSE_BTN +
             '<div class="success-box"><div class="check-circle">✓</div>' +
             '<h3>Заказ ' + escHtml(d.orderId) + (d.paid ? " оплачен" : "") + '</h3>' +
             '<p>' + escHtml(d.deliveryLabel || "") + ' · ' + escHtml(d.city || "") + '</p>' +
