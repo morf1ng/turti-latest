@@ -516,7 +516,10 @@ function offline() {
 }
 
 /* ─── ЗАКАЗЫ: работают и локально, и с сервера ─── */
-function renderOrders(list, sub, warn) {
+var postApiOn = false;
+
+function renderOrders(list, sub, warn, postApiConfigured) {
+  postApiOn = Boolean(postApiConfigured);
   var m = $("#main");
   var wait = list.filter(function (o) { return o.paid && o.status !== "shipped" && o.status !== "delivered"; }).length;
   var sec = list.filter(function (o) { return o.surpriseId && !o.surpriseUsed; }).length;
@@ -524,6 +527,9 @@ function renderOrders(list, sub, warn) {
   badge("c-ord", wait);
   m.innerHTML = head("Заказы", sub) +
     (warn || "") +
+    (list.some(function (o) { return o.deliveryProvider === "post"; }) && !postApiOn
+      ? '<div class="warnbox">Есть заказы через Почту России, но API не настроен. ' +
+        'Для автоотправки добавьте POST_ACCESS_TOKEN и POST_USER_KEY в Vercel.</div>' : "") +
     tiles([[list.length, "всего"], [wait, "собрать", wait ? "hi" : ""], [sec, "с секретом", sec ? "hot" : ""],
            [rub(list.reduce(function (s, o) { return s + (o.total || 0); }, 0)), "оборот"]]) +
     toolbar("Поиск: имя, телефон, город, № заказа") +
@@ -538,7 +544,7 @@ function renderOrders(list, sub, warn) {
 function drawOrders() {
   if (SERVER === true) {
     api("orders").then(function (d) {
-      renderOrders(d.items || [], "Данные с сервера", "");
+      renderOrders(d.items || [], "Данные с сервера", "", d.postApiConfigured);
     });
     return;
   }
@@ -589,8 +595,10 @@ function serverOrder(o) {
     '<div class="order-meta">' +
       '<div><b>' + esc(o.name || "—") + '</b> · ' + rub(o.total) + (o.paid ? ' · <span class="pill ok">Оплачен</span>' : ' · <span class="pill wait">Не оплачен</span>') + '</div>' +
       '<div>' + esc(o.phone || "") + (o.city ? " · " + esc(o.city) : "") + '</div>' +
-      (o.deliveryLabel || o.pvzCode || o.address
-        ? '<div>' + esc(o.deliveryLabel || "") + (o.pvzCode ? " · ПВЗ " + esc(o.pvzCode) : "") +
+      (o.deliveryLabel || o.pvzCode || o.address || o.postIndex
+        ? '<div>' + esc(o.deliveryLabel || "") +
+          (o.postIndex ? " · индекс " + esc(o.postIndex) : "") +
+          (o.pvzCode ? " · ПВЗ " + esc(o.pvzCode) : "") +
           (o.address ? "<br>" + esc(o.address) : "") + '</div>' : "") +
     '</div>' +
     quickContact(o) +
@@ -603,6 +611,9 @@ function serverOrder(o) {
       : '<div class="acts"><select data-f="status">' + opts + '</select>' +
           '<input type="text" data-f="tracking" placeholder="Трек-номер" value="' + esc(o.trackingNumber || "") + '">' +
           '<button class="btn line s" data-a="order-status">Сохранить</button>' +
+          (o.deliveryProvider === "post" && postApiOn && !o.labelNumber
+            ? '<button class="btn ok s" data-a="post-ship">В Почту России</button>' : "") +
+          (o.labelNumber ? '<span class="tag">Отправка #' + esc(o.labelNumber) + '</span>' : "") +
           (o.paid && o.paymentId ? '<button class="btn warn s" data-a="order-refund" data-full="1">Полный возврат</button>' : "") +
           (o.trackingUrl ? '<a class="btn line s" href="' + esc(o.trackingUrl) + '" target="_blank" rel="noopener">Открыть трек</a>' : "") +
           (o.utm && o.utm.source ? '<span class="tag">' + esc(o.utm.source) + '</span>' : "") +
@@ -765,7 +776,11 @@ function bind() {
     b.disabled = true;
     act(body).then(function (r) {
       if (!r.ok) { toast(r.error || "Не получилось", true); b.disabled = false; return; }
-      toast("Сохранено");
+      if (body.action === "post-ship") {
+        toast(r.barcode ? ("Трек: " + r.barcode) : (r.note || "Заказ создан в «Отправке»"));
+      } else {
+        toast("Сохранено");
+      }
       load();
     }).catch(function () { toast("Сервер недоступен", true); b.disabled = false; });
   }, { once: true });
