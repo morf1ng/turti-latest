@@ -1,5 +1,5 @@
 import { zoneForCity, ZONES } from "../../js/catalog.js";
-import { orderWeight, goodsTotal } from "../pricing.js";
+import { orderWeight, goodsTotal } from "../catalog-store.js";
 import { isMakhachkala } from "./util.js";
 import * as pickup from "./pickup.js";
 import * as yandex from "./yandex.js";
@@ -21,8 +21,8 @@ export async function resolveDelivery(body) {
     cityCode: body.cityCode || null,
     postIndex: body.postIndex || null,
     postal: body.postal || null,
-    weightKg: orderWeight(items),
-    goods: goodsTotal(items),
+    weightKg: await orderWeight(items),
+    goods: await goodsTotal(items),
     payMethod: body.payMethod || "online",
   };
 

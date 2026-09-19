@@ -12,6 +12,7 @@ import { storeGet, storeSet } from "../kv.js";
 import { getStoryVideo, setStoryVideo, clearStoryVideo } from "../story-video.js";
 import { validateVideoUpload, uploadBlob } from "../blob.js";
 import { IncomingForm } from "formidable";
+import { createPostShipment, postShipConfigured } from "../delivery/post-api.js";
 
 function trackingUrlFor(provider, num) {
   if (!num) return "";
@@ -48,7 +49,7 @@ export async function handle(req, res) {
 
     if (section === "orders") {
       const items = await listOrders(200);
-      return ok(res, { items });
+      return ok(res, { items, postApiConfigured: postShipConfigured() });
     }
 
     if (section === "reviews") {
@@ -170,6 +171,34 @@ export async function handle(req, res) {
       if (body.labelNumber != null) order.labelNumber = String(body.labelNumber).trim();
       await saveOrder(order);
       return ok(res, { id: order.id });
+    }
+
+    if (action === "post-ship") {
+      if (!postShipConfigured()) {
+        return fail(res, 503, "API Почты не настроен", {
+          hint: "Добавьте POST_ACCESS_TOKEN, POST_USER_KEY и POST_FROM_INDEX в переменные окружения",
+        });
+      }
+      const order = await getOrder(body.id);
+      if (!order) return fail(res, 404, "Заказ не найден");
+      const result = await createPostShipment(order);
+      if (!result.ok) return fail(res, 400, result.error);
+      if (result.postOrderId) order.labelNumber = String(result.postOrderId);
+      if (result.barcode) {
+        order.trackingNumber = result.barcode;
+        order.trackingUrl = trackingUrlFor("post", result.barcode);
+      }
+      order.shipmentStatus = result.barcode ? "post_shipped" : "post_backlog";
+      if (order.status === "paid" || order.status === "awaiting_payment") {
+        order.status = "processing";
+      }
+      await saveOrder(order);
+      return ok(res, {
+        id: order.id,
+        postOrderId: result.postOrderId,
+        barcode: result.barcode,
+        note: result.note,
+      });
     }
 
     if (action === "order-refund") {

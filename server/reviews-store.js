@@ -1,6 +1,6 @@
 import { storeGet, storeSet, storeListPush, storeDel } from "./kv.js";
 import { phoneHash, phoneTail } from "./phone.js";
-import { PRODUCTS, COLLECTIONS } from "../js/catalog.js";
+import { productLabel as catalogProductLabel } from "./catalog-store.js";
 import { findPaidOrdersByPhone } from "./orders.js";
 import { orderContainsProduct } from "./pricing.js";
 
@@ -10,14 +10,10 @@ export function newReviewId() {
   return "R" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 4).toUpperCase();
 }
 
-export function productLabel(productId) {
+export async function productLabel(productId) {
   if (!productId) return "";
-  if (productId.startsWith("col-")) {
-    const c = COLLECTIONS[productId];
-    return c ? "Набор «" + c.name + "»" : productId;
-  }
-  const p = PRODUCTS[productId];
-  return p ? p.name : productId;
+  const label = await catalogProductLabel(productId);
+  return label || productId;
 }
 
 export async function saveReview(review) {
@@ -57,7 +53,7 @@ export function reviewStats(items) {
   };
 }
 
-export function publicReview(r) {
+export async function publicReview(r) {
   const mediaPublic = process.env.MEDIA_PUBLIC !== "0";
   return {
     id: r.id,
@@ -65,7 +61,7 @@ export function publicReview(r) {
     text: r.text,
     rating: r.rating,
     date: r.createdAt,
-    flavor: r.flavor || productLabel(r.productId),
+    flavor: r.flavor || (await productLabel(r.productId)),
     productId: r.productId,
     media: mediaPublic ? (r.media || []).filter((m) => m.type === "image") : [],
     verified: Boolean(r.verified),
@@ -119,7 +115,7 @@ export async function updateReview(id, patch) {
   return r;
 }
 
-export function createReview(body, phoneNorm) {
+export async function createReview(body, phoneNorm) {
   const productId = String(body.productId || "").trim();
   return {
     id: newReviewId(),
@@ -129,7 +125,7 @@ export function createReview(body, phoneNorm) {
     text: String(body.text || "").trim().slice(0, 2000),
     rating: Math.min(5, Math.max(1, parseInt(body.rating) || 0)) || 0,
     productId,
-    flavor: productLabel(productId),
+    flavor: await productLabel(productId),
     phoneNorm,
     phoneTail: phoneTail(body.phone),
     showOnSite: body.showOnSite !== false,

@@ -30,6 +30,7 @@ export function formatOrderMessage(order) {
     `Итого: <b>${order.total} ₽</b>\n` +
     `${order.name}, ${order.phone}\n` +
     `${order.city} · ${order.deliveryLabel || order.method}\n` +
+    (order.postIndex ? `Индекс: ${order.postIndex}\n` : "") +
     (order.address ? order.address + "\n" : "")
   );
 }

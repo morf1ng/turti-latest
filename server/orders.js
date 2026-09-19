@@ -1,5 +1,5 @@
 import { storeGet, storeSet, storeListPush } from "./kv.js";
-import { buildLines, calcTotals } from "./pricing.js";
+import { calcTotals } from "./pricing.js";
 
 const LIST_KEY = "orders:list";
 
@@ -34,11 +34,11 @@ export async function findPaidOrdersByPhone(phoneNorm) {
   );
 }
 
-export function createOrderDraft(payload, deliveryOption) {
+export async function createOrderDraft(payload, deliveryOption, preTotals = null) {
   const id = newOrderId();
   const payMethod = payload.payMethod === "cod" ? "cod" : "online";
   const deliveryCost = deliveryOption?.quoteOnRequest ? 0 : deliveryOption?.cost ?? 0;
-  const totals = calcTotals({
+  const totals = preTotals || await calcTotals({
     items: payload.items,
     deliveryCost,
     payMethod,
