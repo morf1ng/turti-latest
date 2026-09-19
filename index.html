@@ -3387,22 +3387,30 @@
 </script>
 
   <script>
-    fetch("/api/media").then(r => r.json()).then(d => {
-      if (!d.ok || !d.storyVideo) return;
-      document.querySelectorAll("[data-story-film]").forEach(host => {
-        const cover = host.innerHTML;
-        const video = document.createElement("video");
-        video.controls = true; video.playsInline = true; video.preload = "none";
-        video.poster = "images/about-hero.jpg"; video.src = d.storyVideo;
-        video.setAttribute("aria-label", "Как мы делаем урбеч — видео TURTI");
-        video.addEventListener("error", () => {
-          host.innerHTML = cover;
-          const sm = host.querySelector("small");
-          if (sm) sm.textContent = "Видео временно недоступно";
+    (function () {
+      function mountStoryVideo(url) {
+        if (!url) return;
+        document.querySelectorAll("[data-story-film]").forEach(function (host) {
+          var cover = host.innerHTML;
+          var video = document.createElement("video");
+          video.controls = true;
+          video.playsInline = true;
+          video.preload = "metadata";
+          video.poster = "images/about-hero.jpg";
+          video.src = url;
+          video.setAttribute("aria-label", "Как мы делаем урбеч — видео TURTI");
+          video.addEventListener("error", function () {
+            host.innerHTML = cover;
+            var sm = host.querySelector("small");
+            if (sm) sm.textContent = "Видео временно недоступно";
+          });
+          host.replaceChildren(video);
         });
-        host.replaceChildren(video);
-      });
-    }).catch(() => {});
+      }
+      fetch("/api/media?kind=story").then(function (r) { return r.json(); }).then(function (d) {
+        if (d.ok && d.url) mountStoryVideo(d.url);
+      }).catch(function () {});
+    })();
   </script>
 </body>
 </html>

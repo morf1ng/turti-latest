@@ -9,6 +9,9 @@ import {
 } from "../reviews-store.js";
 import { createRefund, yookassaConfigured } from "../yookassa.js";
 import { storeGet, storeSet } from "../kv.js";
+import { getStoryVideo, setStoryVideo, clearStoryVideo } from "../story-video.js";
+import { validateVideoUpload, uploadBlob } from "../blob.js";
+import { IncomingForm } from "formidable";
 
 function trackingUrlFor(provider, num) {
   if (!num) return "";
@@ -78,7 +81,56 @@ export async function handle(req, res) {
       });
     }
 
+    if (section === "media") {
+      const storyVideo = await getStoryVideo();
+      return ok(res, {
+        storyVideo,
+        blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      });
+    }
+
     return fail(res, 400, "Неизвестный раздел");
+  }
+
+  if (req.method === "POST" && String(req.query.section || "") === "story-video") {
+    try {
+      const files = await new Promise((resolve, reject) => {
+        const form = new IncomingForm({ maxFileSize: 500 * 1024 * 1024, multiples: false });
+        form.parse(req, (err, _fields, parsed) => {
+          if (err) reject(err);
+          else resolve(parsed);
+        });
+      });
+      const raw = files.file;
+      const file = Array.isArray(raw) ? raw[0] : raw;
+      if (!file) return fail(res, 400, "Файл не передан");
+
+      const check = validateVideoUpload({
+        type: file.mimetype,
+        size: file.size,
+        name: file.originalFilename || file.name,
+      });
+      if (!check.ok) return fail(res, 400, check.error);
+
+      const fs = await import("fs/promises");
+      const buffer = await fs.readFile(file.filepath || file.path);
+      const uploaded = await uploadBlob(
+        file.originalFilename || file.name || "story.mov",
+        buffer,
+        file.mimetype || "video/quicktime",
+        "site/story"
+      );
+      if (!uploaded.ok) return fail(res, 503, uploaded.error);
+
+      await setStoryVideo({
+        url: uploaded.url,
+        contentType: file.mimetype || "video/quicktime",
+        name: file.originalFilename || file.name || "",
+      });
+      return ok(res, { url: uploaded.url });
+    } catch (e) {
+      return fail(res, 500, e.message || "Видео не загрузилось");
+    }
   }
 
   if (req.method !== "POST") return methodNotAllowed(res, ["GET", "POST"]);
@@ -145,6 +197,21 @@ export async function handle(req, res) {
       if (amount >= Number(order.total)) order.status = "cancelled";
       await saveOrder(order);
       return ok(res, { refundId: refund.id, status: refund.status });
+    }
+
+    if (action === "story-video-save") {
+      if (!body.url) return fail(res, 400, "Нет ссылки на видео");
+      await setStoryVideo({
+        url: String(body.url),
+        contentType: body.contentType || "",
+        name: body.name || "",
+      });
+      return ok(res, { url: body.url });
+    }
+
+    if (action === "story-video-remove") {
+      await clearStoryVideo();
+      return ok(res, { removed: true });
     }
 
     if (action === "surprise-use") {
