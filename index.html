@@ -3387,17 +3387,22 @@
 </script>
 
   <script>
-    // Set this to the supplied video file when it is ready, e.g. media/turti-story.mp4.
-    const STORY_VIDEO_SRC = "";
-    if (STORY_VIDEO_SRC) document.querySelectorAll("[data-story-film]").forEach(host => {
-      const cover = host.innerHTML;
-      const video = document.createElement("video");
-      video.controls = true; video.playsInline = true; video.preload = "none";
-      video.poster = "images/about-hero.jpg"; video.src = STORY_VIDEO_SRC;
-      video.setAttribute("aria-label", "Как мы делаем урбеч — видео TURTI");
-      video.addEventListener("error", () => { host.innerHTML = cover; host.querySelector("small").textContent = "Видео временно недоступно"; });
-      host.replaceChildren(video);
-    });
+    fetch("/api/media").then(r => r.json()).then(d => {
+      if (!d.ok || !d.storyVideo) return;
+      document.querySelectorAll("[data-story-film]").forEach(host => {
+        const cover = host.innerHTML;
+        const video = document.createElement("video");
+        video.controls = true; video.playsInline = true; video.preload = "none";
+        video.poster = "images/about-hero.jpg"; video.src = d.storyVideo;
+        video.setAttribute("aria-label", "Как мы делаем урбеч — видео TURTI");
+        video.addEventListener("error", () => {
+          host.innerHTML = cover;
+          const sm = host.querySelector("small");
+          if (sm) sm.textContent = "Видео временно недоступно";
+        });
+        host.replaceChildren(video);
+      });
+    }).catch(() => {});
   </script>
 </body>
 </html>

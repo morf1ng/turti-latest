@@ -9,6 +9,7 @@ const ROUTES = {
   cities: () => import("../server/routes/cities.js").then((m) => m.handle),
   "cron-reminders": () => import("../server/routes/cron-reminders.js").then((m) => m.handle),
   delivery: () => import("../server/routes/delivery.js").then((m) => m.handle),
+  media: () => import("../server/routes/media.js").then((m) => m.handle),
   order: () => import("../server/routes/order.js").then((m) => m.handle),
   pay: () => import("../server/routes/pay.js").then((m) => m.handle),
   "pay-webhook": () => import("../server/routes/pay-webhook.js").then((m) => m.handle),

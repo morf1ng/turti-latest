@@ -143,6 +143,12 @@ tr:last-child td{border-bottom:0}
   padding:13px 15px;font-size:13.5px;color:#7A4E06;margin-bottom:20px;font-weight:500;line-height:1.55}
 .warnbox.err{background:#FBEBEA;border-color:#E8B4B0;color:#8B2E26}
 .loading{padding:40px;text-align:center;color:var(--faint)}
+.vprev{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#111;margin:14px 0}
+.vprev video{width:100%;max-height:320px;display:block;background:#111}
+.upload-zone{border:1.5px dashed var(--line);border-radius:var(--r);padding:22px 18px;background:var(--panel);margin-top:12px}
+.upload-zone input[type=file]{width:100%;font:500 14px 'Inter',sans-serif;margin-bottom:12px}
+.upload-zone p{font-size:13px;color:var(--soft);line-height:1.55;margin-bottom:12px}
+.upload-status{font-size:13.5px;color:var(--soft);margin-top:10px;min-height:20px}
 
 .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
 .toolbar .search{flex:1;min-width:160px;max-width:340px;padding:10px 14px;font-size:15px;border-radius:10px}
@@ -229,6 +235,10 @@ tr:last-child td{border-bottom:0}
       <button data-p="push">
         <svg viewBox="0 0 24 24"><path d="M18 15v-4a6 6 0 1 0-12 0v4l-1.5 2.5h15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
         Напоминания
+      </button>
+      <button data-p="media">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z"/></svg>
+        Видео
       </button>
     </nav>
     <div class="side-foot">
@@ -486,6 +496,7 @@ function load() {
   if (page !== "orders" && page !== "reviews") searchQ = "";
 
   if (page === "orders") return drawOrders();
+  if (page === "media") return drawMedia();
 
   if (SERVER !== true) return m.innerHTML = head(titleOf(page), "") + offline();
 
@@ -501,7 +512,7 @@ function load() {
 
 function titleOf(p) {
   return { orders: "Заказы", reviews: "Отзывы", feedback: "Обратная связь", surprises: "Секретные комплименты",
-           qr: "QR и подарочные наборы", push: "Напоминания" }[p];
+           qr: "QR и подарочные наборы", push: "Напоминания", media: "Видео на сайте" }[p];
 }
 
 function head(t, sub) {
@@ -704,6 +715,68 @@ function drawQr(d) {
     '<div class="rec" style="margin-top:18px"><strong>Разные QR под разные каналы</strong>' +
       '<p class="sub" style="margin-top:7px">Добавьте метку к ссылке — статистика разделится сама:<br>' +
       '<code>/qr/gift?t=korobka-01</code> · <code>/qr/gift?t=degustaciya</code> · <code>/qr/gift?t=bloger-ivan</code></p></div>';
+}
+
+/* ─── ВИДЕО НА САЙТЕ ─── */
+function drawMedia() {
+  if (SERVER !== true) {
+    $("#main").innerHTML = head("Видео на сайте", "") + offline();
+    return;
+  }
+  fetch("/api/media").then(function (r) { return r.json(); }).then(function (d) {
+    var has = d.ok && d.storyVideo;
+    $("#main").innerHTML = head("Видео на сайте", "Блок «Как мы делаем урбеч» на главной и в разделе «О нас»") +
+      (has
+        ? '<div class="rec live"><div class="rec-top"><strong>Сейчас на сайте</strong><span class="when">' +
+          (d.storyVideoUpdatedAt ? when(d.storyVideoUpdatedAt) : "") + '</span></div>' +
+          '<p class="sub">' + esc(d.storyVideoName || "Видео") + '</p>' +
+          '<div class="vprev"><video src="' + esc(d.storyVideo) + '" controls playsinline preload="metadata"></video></div>' +
+          '<div class="acts"><button class="btn danger s" type="button" id="rm-video">Убрать с сайта</button></div></div>'
+        : '<div class="note"><b>Видео ещё не загружено</b>На сайте показывается заглушка «Скоро видео».</div>') +
+      '<div class="rec"><strong>Загрузить новое видео</strong>' +
+        '<div class="upload-zone">' +
+          '<p>Форматы: <strong>MOV</strong>, MP4, WebM · до 100 МБ.<br>iPhone снимает в MOV — подходит.</p>' +
+          '<input type="file" id="video-file" accept=".mov,.mp4,.webm,video/quicktime,video/mp4,video/webm">' +
+          '<button class="btn ok" type="button" id="upload-video">Загрузить на сайт</button>' +
+          '<p class="upload-status" id="video-status"></p>' +
+        '</div></div>';
+
+    var up = $("#upload-video");
+    if (up) up.onclick = function () {
+      var input = $("#video-file");
+      var status = $("#video-status");
+      var file = input && input.files && input.files[0];
+      if (!file) { status.textContent = "Выберите файл."; return; }
+      up.disabled = true;
+      status.textContent = "Загружаем… это может занять минуту.";
+      var fd = new FormData();
+      fd.append("file", file);
+      fetch("/api/media", { method: "POST", headers: { "x-admin-key": PASSWORD }, body: fd })
+        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          if (!r.ok) { status.textContent = r.error || "Не получилось"; up.disabled = false; return; }
+          toast("Видео загружено");
+          drawMedia();
+        })
+        .catch(function () { status.textContent = "Сервер недоступен"; up.disabled = false; });
+    };
+
+    var rm = $("#rm-video");
+    if (rm) rm.onclick = function () {
+      if (!confirm("Убрать видео с сайта?")) return;
+      rm.disabled = true;
+      fetch("/api/media", { method: "DELETE", headers: { "x-admin-key": PASSWORD } })
+        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          if (!r.ok) { toast(r.error || "Не получилось", true); rm.disabled = false; return; }
+          toast("Видео убрано");
+          drawMedia();
+        })
+        .catch(function () { toast("Сервер недоступен", true); rm.disabled = false; });
+    };
+  }).catch(function () {
+    $("#main").innerHTML = head("Видео на сайте", "") + '<div class="note"><b>Не удалось загрузить данные</b></div>';
+  });
 }
 
 /* ─── PUSH ─── */
