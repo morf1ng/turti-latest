@@ -14,13 +14,14 @@ export function validateUpload(file) {
   return { ok: true };
 }
 
-export async function uploadBlob(filename, buffer, contentType) {
+export async function uploadBlob(filename, buffer, contentType, folder = "reviews") {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
   if (!token) {
     return { ok: false, error: "Хранилище файлов не настроено (BLOB_READ_WRITE_TOKEN)." };
   }
   const { put } = await import("@vercel/blob");
-  const blob = await put(`reviews/${Date.now()}-${filename}`, buffer, {
+  const safe = String(filename || "photo.jpg").replace(/[^\w.\-]+/g, "-");
+  const blob = await put(`${folder}/${Date.now()}-${safe}`, buffer, {
     access: "public",
     contentType,
     token,

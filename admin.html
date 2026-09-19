@@ -173,6 +173,30 @@ tr:last-child td{border-bottom:0}
 .head-row p{color:var(--soft);font-size:14.5px}
 .empty-filter{padding:28px 20px;text-align:center;color:var(--soft);border:1px dashed var(--line);border-radius:var(--r);margin-top:4px}
 
+/* каталог урбечей */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:22px}
+.cat-card{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.cat-card:hover{border-color:#bbb;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.cat-card.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.cat-thumb{height:120px;background:var(--panel);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cat-thumb img{max-width:100%;max-height:100%;object-fit:contain}
+.cat-thumb.empty{color:var(--faint);font-size:12px}
+.cat-body{padding:11px 12px 13px}
+.cat-body strong{display:block;font-size:14.5px;margin-bottom:4px}
+.cat-body span{font-size:12.5px;color:var(--soft)}
+.cat-edit{border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:18px}
+.cat-edit h2{font-size:18px;font-weight:600;margin-bottom:14px}
+.cat-form{display:grid;gap:12px}
+.cat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.cat-row{grid-template-columns:1fr}}
+.cat-form label{display:grid;gap:5px;font-size:12.5px;font-weight:600;color:var(--soft)}
+.cat-form input,.cat-form textarea,.cat-form select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font:500 14px 'Inter',sans-serif;color:var(--ink)}
+.cat-form textarea{min-height:72px;resize:vertical}
+.photo-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.photo-slot{border:1px dashed var(--line);border-radius:10px;padding:10px;text-align:center;min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.photo-slot img{max-width:100%;max-height:80px;object-fit:contain;border-radius:6px}
+.photo-slot label{font-size:11px;color:var(--soft)}
+
 /* ═══════════════ ТЕЛЕФОН ═══════════════ */
 @media (max-width:860px){
   .shell.on{grid-template-columns:1fr}
@@ -230,6 +254,10 @@ tr:last-child td{border-bottom:0}
         <svg viewBox="0 0 24 24"><path d="M18 15v-4a6 6 0 1 0-12 0v4l-1.5 2.5h15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
         Напоминания
       </button>
+      <button data-p="catalog">
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>
+        Урбечи
+      </button>
     </nav>
     <div class="side-foot">
       <a href="index.html">← На сайт</a>
@@ -280,6 +308,8 @@ var reviewFilter = "all";
 var searchQ = "";
 var toastTimer;
 var SERVER_DETAIL = "";
+var catalogData = null;
+var catalogEditId = null;
 
 function toast(msg, isErr) {
   var el = $("#toast"); if (!el) return;
@@ -486,6 +516,7 @@ function load() {
   if (page !== "orders" && page !== "reviews") searchQ = "";
 
   if (page === "orders") return drawOrders();
+  if (page === "catalog") return drawCatalog();
 
   if (SERVER !== true) return m.innerHTML = head(titleOf(page), "") + offline();
 
@@ -501,7 +532,7 @@ function load() {
 
 function titleOf(p) {
   return { orders: "Заказы", reviews: "Отзывы", feedback: "Обратная связь", surprises: "Секретные комплименты",
-           qr: "QR и подарочные наборы", push: "Напоминания" }[p];
+           qr: "QR и подарочные наборы", push: "Напоминания", catalog: "Каталог урбечей" }[p];
 }
 
 function head(t, sub) {
@@ -741,6 +772,212 @@ function drawPush(d) {
       .then(function (r) { out.textContent = r.ok ? "Отправлено. Проверьте телефон." : "Не вышло: " + (r.error || "ошибка"); })
       .catch(function () { out.textContent = "Сервер недоступен."; });
   };
+}
+
+/* ─── КАТАЛОГ УРБЕЧЕЙ ─── */
+function catalogApi(method, body) {
+  return fetch("/api/catalog", {
+    method: method || "GET",
+    headers: { "x-admin-key": PASSWORD, "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined
+  }).then(function (r) { return r.json(); });
+}
+
+function uploadProductPhoto(file) {
+  var fd = new FormData();
+  fd.append("file", file);
+  return fetch("/api/upload?folder=products", {
+    method: "POST",
+    headers: { "x-admin-key": PASSWORD },
+    body: fd
+  }).then(function (r) { return r.json(); });
+}
+
+function catalogProductIds(data) {
+  return Object.keys(data.products || {}).filter(function (id) { return !data.products[id].hidden; });
+}
+
+function catalogCard(id, p, photos) {
+  var ph = photos && photos[250];
+  return '<article class="cat-card' + (catalogEditId === id ? " on" : "") + '" data-cat-id="' + esc(id) + '">' +
+    '<div class="cat-thumb' + (ph ? "" : " empty") + '">' +
+      (ph ? '<img src="' + esc(ph) + '" alt="">' : "Нет фото") +
+    '</div><div class="cat-body"><strong>' + esc(p.name) + '</strong>' +
+    '<span>' + rub(p.prices[250]) + ' · ' + esc(id) + '</span></div></article>';
+}
+
+function catalogEditForm(id, p, photos, data) {
+  photos = photos || {};
+  var isNew = !p;
+  p = p || { id: "", name: "", color: "#C9A96E", group: "nut", ing: "", plus: "", desc: "", eat: "",
+    prices: { 250: 0, 500: 0, 1000: 0 }, hit: false, badge: "", hidden: false };
+  var intensity = (data.intensity && data.intensity[id]) || "";
+  var slug = (data.slugs && data.slugs[id]) || id;
+  function photoSlot(size) {
+    var url = photos[size] || "";
+    return '<div class="photo-slot" data-photo-size="' + size + '">' +
+      (url ? '<img src="' + esc(url) + '" alt="">' : '<span class="tag">Пусто</span>') +
+      '<span>' + size + ' г</span>' +
+      '<input type="file" accept="image/jpeg,image/png,image/webp" data-upload-size="' + size + '">' +
+      (url ? '<button type="button" class="btn warn s" data-photo-clear="' + size + '">Убрать</button>' : "") +
+    '</div>';
+  }
+  return '<div class="cat-edit" id="cat-edit">' +
+    '<h2>' + (isNew ? "Новый урбеч" : "Редактирование: " + esc(p.name)) + '</h2>' +
+    '<form class="cat-form" id="cat-form">' +
+      '<div class="cat-row">' +
+        '<label>ID (латиница, не меняется)<input name="id" value="' + esc(p.id || id || "") + '"' + (isNew ? "" : " readonly") + ' placeholder="almond"></label>' +
+        '<label>Название<input name="name" value="' + esc(p.name) + '" required></label>' +
+      '</div>' +
+      '<div class="cat-row">' +
+        '<label>Цвет банки<input name="color" type="color" value="' + esc(p.color || "#C9A96E") + '"></label>' +
+        '<label>Группа<select name="group"><option value="nut"' + (p.group === "nut" ? " selected" : "") + '>Орех</option>' +
+          '<option value="seed"' + (p.group === "seed" ? " selected" : "") + '>Семена</option></select></label>' +
+      '</div>' +
+      '<label>Состав<input name="ing" value="' + esc(p.ing) + '"></label>' +
+      '<label>Кратко о вкусе<input name="plus" value="' + esc(p.plus) + '"></label>' +
+      '<label>Описание<textarea name="desc">' + esc(p.desc) + '</textarea></label>' +
+      '<label>С чем есть<textarea name="eat">' + esc(p.eat) + '</textarea></label>' +
+      '<div class="cat-row">' +
+        '<label>Цена 250 г<input name="price250" type="number" min="1" value="' + (p.prices && p.prices[250] || "") + '"></label>' +
+        '<label>Цена 500 г<input name="price500" type="number" min="1" value="' + (p.prices && p.prices[500] || "") + '"></label>' +
+        '<label>Цена 1 кг<input name="price1000" type="number" min="1" value="' + (p.prices && p.prices[1000] || "") + '"></label>' +
+      '</div>' +
+      '<div class="cat-row">' +
+        '<label>Бейдж<input name="badge" value="' + esc(p.badge || "") + '" placeholder="Хит №1"></label>' +
+        '<label>Интенсивность<input name="intensity" value="' + esc(intensity) + '" placeholder="Мягкий"></label>' +
+        '<label>URL-слаг<input name="slug" value="' + esc(slug) + '"></label>' +
+      '</div>' +
+      '<div class="cat-row">' +
+        '<label><input type="checkbox" name="hit"' + (p.hit ? " checked" : "") + '> Показывать в хитах</label>' +
+        '<label><input type="checkbox" name="hidden"' + (p.hidden ? " checked" : "") + '> Скрыть с сайта</label>' +
+      '</div>' +
+      '<div><strong style="font-size:13px">Фотографии банок</strong><p class="sub" style="margin:4px 0 10px">Без фото на сайте будет пустая карточка. JPEG, PNG или WebP до 5 МБ.</p>' +
+        '<div class="photo-row">' + photoSlot(250) + photoSlot(500) + photoSlot(1000) + '</div></div>' +
+      '<div class="acts">' +
+        '<button type="submit" class="btn ok">Сохранить</button>' +
+        (isNew ? '<button type="button" class="btn line" data-cat-cancel>Отмена</button>' :
+          '<button type="button" class="btn danger" data-cat-delete>Удалить</button>') +
+      '</div>' +
+    '</form></div>';
+}
+
+function renderCatalogPage() {
+  var d = catalogData;
+  if (!d) return;
+  var ids = catalogProductIds(d);
+  var nuts = (d.catNuts || []).filter(function (id) { return d.products[id]; });
+  var seeds = (d.catSeeds || []).filter(function (id) { return d.products[id]; });
+  var editHtml = catalogEditId === "__new__"
+    ? catalogEditForm("__new__", null, {}, d)
+    : (catalogEditId && d.products[catalogEditId]
+      ? catalogEditForm(catalogEditId, d.products[catalogEditId], d.photos[catalogEditId], d) : "");
+  $("#main").innerHTML = head("Каталог урбечей", "Все вкусы уже загружены — меняйте цены, тексты и фото") +
+    tiles([[ids.length, "вкусов"], [Object.keys(d.photos || {}).filter(function (k) { return d.photos[k] && d.photos[k][250]; }).length, "с фото 250 г"]]) +
+    '<div class="acts" style="margin-bottom:16px"><button class="btn ok s" id="cat-new">+ Добавить вкус</button></div>' +
+    editHtml +
+    '<h2 style="font-size:16px;font-weight:600;margin:18px 0 10px">Ореховые</h2>' +
+    '<div class="cat-grid">' + nuts.map(function (id) {
+      return catalogCard(id, d.products[id], d.photos[id]); }).join("") + '</div>' +
+    '<h2 style="font-size:16px;font-weight:600;margin:18px 0 10px">Из семян</h2>' +
+    '<div class="cat-grid">' + seeds.map(function (id) {
+      return catalogCard(id, d.products[id], d.photos[id]); }).join("") + '</div>';
+  bindCatalog();
+}
+
+function bindCatalog() {
+  var main = $("#main");
+  var newBtn = $("#cat-new");
+  if (newBtn) newBtn.onclick = function () { catalogEditId = "__new__"; renderCatalogPage(); };
+  main.querySelectorAll("[data-cat-id]").forEach(function (card) {
+    card.onclick = function () { catalogEditId = card.getAttribute("data-cat-id"); renderCatalogPage(); };
+  });
+  var cancel = main.querySelector("[data-cat-cancel]");
+  if (cancel) cancel.onclick = function () { catalogEditId = null; renderCatalogPage(); };
+  var del = main.querySelector("[data-cat-delete]");
+  if (del) del.onclick = function () {
+    if (!confirm("Удалить «" + ((catalogData.products[catalogEditId] && catalogData.products[catalogEditId].name) || catalogEditId) + "»?")) return;
+    catalogApi("POST", { action: "delete-product", id: catalogEditId }).then(function (r) {
+      if (!r.ok) { toast(r.error || "Не сохранилось", true); return; }
+      catalogData = r.catalog; catalogEditId = null; toast("Удалено"); renderCatalogPage();
+    });
+  };
+  main.querySelectorAll("[data-photo-clear]").forEach(function (btn) {
+    btn.onclick = function () {
+      var size = btn.getAttribute("data-photo-clear");
+      var photos = {}; photos[size] = "";
+      catalogApi("POST", { action: "save-photos", id: catalogEditId, photos: photos }).then(function (r) {
+        if (!r.ok) { toast(r.error, true); return; }
+        catalogData = r.catalog; renderCatalogPage();
+      });
+    };
+  });
+  main.querySelectorAll("[data-upload-size]").forEach(function (input) {
+    input.onchange = function () {
+      var file = input.files && input.files[0];
+      if (!file || catalogEditId === "__new__") { toast("Сначала сохраните товар", true); return; }
+      var size = input.getAttribute("data-upload-size");
+      uploadProductPhoto(file).then(function (r) {
+        if (!r.ok) { toast(r.error || "Фото не загрузилось", true); return; }
+        var photos = {}; photos[size] = r.url;
+        return catalogApi("POST", { action: "save-photos", id: catalogEditId, photos: photos });
+      }).then(function (r) {
+        if (!r || !r.ok) return;
+        catalogData = r.catalog; toast("Фото загружено"); renderCatalogPage();
+      });
+    };
+  });
+  var form = $("#cat-form");
+  if (form) form.onsubmit = function (e) {
+    e.preventDefault();
+    var fd = new FormData(form);
+    var pid = String(fd.get("id") || "").trim();
+    var product = {
+      id: pid,
+      name: fd.get("name"),
+      color: fd.get("color"),
+      group: fd.get("group"),
+      ing: fd.get("ing"),
+      plus: fd.get("plus"),
+      desc: fd.get("desc"),
+      eat: fd.get("eat"),
+      prices: { 250: Number(fd.get("price250")), 500: Number(fd.get("price500")), 1000: Number(fd.get("price1000")) },
+      hit: fd.get("hit") === "on",
+      hidden: fd.get("hidden") === "on",
+      badge: fd.get("badge"),
+      intensity: fd.get("intensity"),
+      slug: fd.get("slug")
+    };
+    catalogApi("POST", {
+      action: "save-product",
+      isNew: catalogEditId === "__new__",
+      product: product
+    }).then(function (r) {
+      if (!r.ok) { toast(r.error || "Не сохранилось", true); return; }
+      catalogData = r.catalog;
+      catalogEditId = pid;
+      toast("Сохранено");
+      renderCatalogPage();
+    });
+  };
+}
+
+function drawCatalog() {
+  var m = $("#main");
+  if (SERVER !== true) {
+    m.innerHTML = head("Каталог урбечей", "") + serverStatusWarn() +
+      '<div class="note"><b>Нужен сервер</b>Редактирование каталога работает только через Vercel — данные хранятся в KV.</div>';
+    return;
+  }
+  m.innerHTML = '<div class="loading">Загружаем каталог…</div>';
+  catalogApi("GET").then(function (d) {
+    if (!d.ok) { m.innerHTML = head("Каталог", "") + '<div class="note"><b>' + esc(d.error) + '</b></div>'; return; }
+    catalogData = d.catalog;
+    catalogEditId = null;
+    renderCatalogPage();
+  }).catch(function () {
+    m.innerHTML = head("Каталог", "") + '<div class="note"><b>Сервер недоступен</b></div>';
+  });
 }
 
 /* ═══════════ мелочи ═══════════ */

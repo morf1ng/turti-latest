@@ -6,6 +6,7 @@ import { fail } from "../server/http.js";
 
 const ROUTES = {
   admin: () => import("../server/routes/admin.js").then((m) => m.handle),
+  catalog: () => import("../server/routes/catalog.js").then((m) => m.handle),
   cities: () => import("../server/routes/cities.js").then((m) => m.handle),
   "cron-reminders": () => import("../server/routes/cron-reminders.js").then((m) => m.handle),
   delivery: () => import("../server/routes/delivery.js").then((m) => m.handle),

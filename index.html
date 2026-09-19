@@ -747,6 +747,9 @@
     #catalog .sec-head .eyebrow{ font-size:13.5px; letter-spacing:.14em; }
     .grid-sub{ grid-column:1/-1; font:800 14.5px 'Unbounded','Manrope',sans-serif; letter-spacing:.02em; color:#17140F; text-transform:uppercase; padding:18px 2px 4px; }
     .pcard-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#fff; z-index:4; }
+    .pcard-art.empty{ background:#F3F0EA; }
+    .pcard-empty{ width:100%; height:100%; min-height:inherit; }
+    .pm-art.empty{ background:#F3F0EA; min-height:190px; border-radius:16px; }
     .pcard-badge{ z-index:6; }
     .catalog-grid .pcard-art{ min-height:196px; }
     .hits-scroll .pcard .pcard-art{ min-height:196px; }
@@ -1849,7 +1852,7 @@
     }
     const money = v => new Intl.NumberFormat("ru-RU").format(v) + " ₽";
 
-    const PRODUCTS = {
+    let PRODUCTS = {
       "flax-black":     { name: "Чёрный лён",             color: "#33302A", group: "seed", ing: "чёрный лён",     plus: "Насыщенный вкус · Заметная горчинка · Густая текстура", desc: "Насыщенный семенной вкус с заметной горчинкой и густой, слегка зернистой текстурой.", eat: "С мёдом, в кашу или смузи.", prices: { 250: 200, 500: 270, 1000: 480 } },
       "flax-seeds":     { name: "Чёрный лён с семечками", color: "#4A4136", group: "seed", ing: "чёрный лён и семечки подсолнечника", plus: "Округлый семенной вкус · Ореховая нота", desc: "Льняная основа с мягкой ореховой нотой семечек — вкус округлее, чем у чистого чёрного льна.", eat: "С тостами, творогом или кашей.", prices: { 250: 240, 500: 380, 1000: 700 } },
       "flax-white":     { name: "Белый лён",              color: "#E2D3B3", group: "seed", ing: "белый лён",      plus: "Деликатный вкус · Светлая густая паста", desc: "Более мягкий и деликатный, чем чёрный лён, с лёгкой ореховой нотой.", eat: "В йогурт, кашу или смузи.", prices: { 250: 240, 500: 380, 1000: 700 } },
@@ -1872,9 +1875,9 @@
     /* Настоящие отзывы: {name, city, photo, flavor, text} */
     const REAL_REVIEWS = [];
 
-    const HITS = ["hazelnut-cocoa","almond","peanut","pistachio","cashew"];
+    let HITS = ["hazelnut-cocoa","almond","peanut","pistachio","cashew"];
 
-    const COLLECTIONS = {
+    let COLLECTIONS = {
       "col-intro":  { name: "Первое знакомство", items: ["almond","peanut","hazelnut-cocoa"], price: 1190 },
       "col-nuts":   { name: "Ореховая коллекция",items: ["almond","peanut","cashew","three-nuts"], price: 1490 },
       "col-fav-v2": { name: "Любимые вкусы", items: ["almond","almond-cocoa","cashew"], price: 1390 },
@@ -2021,22 +2024,54 @@
 
     /* ═══ РЕНДЕР КАРТОЧЕК ═══ */
     /* SEO-слаги для будущих отдельных страниц товаров */
-    const SLUGS = {"flax-black":"urbech-chernyi-len","flax-seeds":"urbech-chernyi-len-semechki","flax-white":"urbech-belyi-len","flax-mix":"urbech-assorti-len","peanut":"urbech-arahis","pistachio":"urbech-fistashka","almond":"urbech-mindal","cashew":"urbech-keshyu","almond-cashew":"urbech-mindal-keshyu","three-nuts":"urbech-tri-oreha","hazelnut":"urbech-funduk","hazelnut-cocoa":"urbech-funduk-kakao","almond-cocoa":"urbech-mindal-kakao","walnut":"urbech-greckiy-oreh","sesame":"urbech-kunzhut","hemp":"urbech-konoplya","thistle":"urbech-rastoropsha"};
-    const INTENSITY = {"almond":"Мягкий","cashew":"Мягкий","flax-white":"Мягкий","almond-cashew":"Мягкий","pistachio":"Средний","three-nuts":"Средний","peanut":"Средний","hemp":"Средний","flax-seeds":"Средний","flax-mix":"Средний","sesame":"Средний","hazelnut":"Насыщенный","hazelnut-cocoa":"Насыщенный","almond-cocoa":"Насыщенный","walnut":"Насыщенный","flax-black":"Насыщенный","thistle":"Насыщенный"};
-    const PHOTOS = {
+    let SLUGS = {"flax-black":"urbech-chernyi-len","flax-seeds":"urbech-chernyi-len-semechki","flax-white":"urbech-belyi-len","flax-mix":"urbech-assorti-len","peanut":"urbech-arahis","pistachio":"urbech-fistashka","almond":"urbech-mindal","cashew":"urbech-keshyu","almond-cashew":"urbech-mindal-keshyu","three-nuts":"urbech-tri-oreha","hazelnut":"urbech-funduk","hazelnut-cocoa":"urbech-funduk-kakao","almond-cocoa":"urbech-mindal-kakao","walnut":"urbech-greckiy-oreh","sesame":"urbech-kunzhut","hemp":"urbech-konoplya","thistle":"urbech-rastoropsha"};
+    let INTENSITY = {"almond":"Мягкий","cashew":"Мягкий","flax-white":"Мягкий","almond-cashew":"Мягкий","pistachio":"Средний","three-nuts":"Средний","peanut":"Средний","hemp":"Средний","flax-seeds":"Средний","flax-mix":"Средний","sesame":"Средний","hazelnut":"Насыщенный","hazelnut-cocoa":"Насыщенный","almond-cocoa":"Насыщенный","walnut":"Насыщенный","flax-black":"Насыщенный","thistle":"Насыщенный"};
+    let PHOTOS = {
       "almond":         { 250:"images/almond-250.png", 500:"images/almond-500.png", 1000:"images/almond-1000.png" },
       "hazelnut-cocoa": { 250:"images/hazelnut-cocoa-250.png", 500:"images/hazelnut-cocoa-500.png", 1000:"images/hazelnut-cocoa-1000.png" },
       "peanut":         { 250:"images/peanut-250.png", 500:"images/peanut-500.png", 1000:"images/peanut-1000.png" },
       "pistachio":      { 250:"images/pistachio-250.png", 500:"images/pistachio-500.png", 1000:"images/pistachio-1000.png" },
     };
+    let CAT_NUTS = ["hazelnut-cocoa","almond-cocoa","pistachio","almond","cashew","peanut","hazelnut","walnut","almond-cashew","three-nuts"];
+    let CAT_SEEDS = ["sesame","hemp","flax-black","flax-seeds","flax-white","flax-mix","thistle"];
+
+    function applyCatalogFromServer(c) {
+      if (!c) return;
+      if (c.products) PRODUCTS = c.products;
+      if (c.photos) PHOTOS = c.photos;
+      if (c.collections) COLLECTIONS = c.collections;
+      if (c.hits) HITS = c.hits;
+      if (c.catNuts) CAT_NUTS = c.catNuts;
+      if (c.catSeeds) CAT_SEEDS = c.catSeeds;
+      if (c.slugs) SLUGS = c.slugs;
+      if (c.intensity) INTENSITY = c.intensity;
+      Object.values(COLLECTIONS).forEach(col => {
+        col.oldPrice = col.items.reduce((s, pid) => s + (PRODUCTS[pid]?.prices?.[250] || 0), 0);
+        col.save = col.oldPrice - col.price;
+        col.jars = col.items.length;
+      });
+    }
+
+    async function loadCatalogFromServer() {
+      try {
+        const r = await fetch("/api/catalog");
+        const d = await r.json();
+        if (d.ok && d.catalog) applyCatalogFromServer(d.catalog);
+      } catch (e) { /* офлайн / файл — остаются встроенные данные */ }
+    }
+
     function productCard(id, badge) {
       const p = PRODUCTS[id];
+      if (!p || p.hidden) return "";
       const b = badge || p.badge;
+      const ph = PHOTOS[id] && PHOTOS[id][250];
+      const artInner = ph
+        ? `<img class="pcard-photo" src="${ph}" alt="${p.name}">`
+        : `<div class="pcard-empty" aria-hidden="true"></div>`;
       return `<article class="pcard" data-open-product="${id}">
-        <div class="pcard-art">
+        <div class="pcard-art${ph ? "" : " empty"}">
           ${b ? `<span class="pcard-badge">${b}</span>` : ""}
-          ${PHOTOS[id] ? `<img class="pcard-photo" src="${PHOTOS[id][250]}" alt="${p.name}" onerror="this.style.display='none'">` : ""}
-          ${jarHTML(id)}
+          ${artInner}
         </div>
         <div class="pcard-body">
           <h3>${p.name}</h3>
@@ -2051,14 +2086,18 @@
       </article>`;
     }
 
+    function renderProductGrids() {
     $("#hits-list").innerHTML = HITS.map(id => productCard(id)).join("");
     const hh = $("#hits-home"); if (hh) hh.innerHTML = HITS.map(id => productCard(id)).join("");
-    const CAT_NUTS = ["hazelnut-cocoa","almond-cocoa","pistachio","almond","cashew","peanut","hazelnut","walnut","almond-cashew","three-nuts"];
-    const CAT_SEEDS = ["sesame","hemp","flax-black","flax-seeds","flax-white","flax-mix","thistle"];
+    const countEl = document.querySelector(".hits-catalog-count");
+    if (countEl) {
+      const n = Object.keys(PRODUCTS).filter(id => !PRODUCTS[id].hidden).length;
+      countEl.textContent = n + " " + plural(n, "вкус", "вкуса", "вкусов");
+    }
     $("#catalog-list").innerHTML =
-      CAT_NUTS.map(id => productCard(id)).join("") +
+      CAT_NUTS.filter(id => PRODUCTS[id] && !PRODUCTS[id].hidden).map(id => productCard(id)).join("") +
       `<div class="grid-sub">Урбечи из семян</div>` +
-      CAT_SEEDS.map(id => productCard(id)).join("");
+      CAT_SEEDS.filter(id => PRODUCTS[id] && !PRODUCTS[id].hidden).map(id => productCard(id)).join("");
 
     const collList = $("#collections-list");
     if (collList) collList.innerHTML = Object.entries(COLLECTIONS).map(([cid, c]) => `
@@ -2085,7 +2124,10 @@
         </div>
       </article>`).join("");
 
-    $("#collections-home").innerHTML = collList.innerHTML;
+    if (collList) $("#collections-home").innerHTML = collList.innerHTML;
+    }
+
+    loadCatalogFromServer().then(renderProductGrids);
 
     /* ═══ КАРТОЧКА ТОВАРА ═══ */
     let pmSize = 250;
@@ -2101,7 +2143,7 @@
         <button class="sheet-close" data-close>✕</button>
         <div class="pm-overview">
         <div class="pm-visuals">
-        <div class="pm-art">${ph ? `<img id="pm-photo" class="pm-photo" src="${ph[250]}" alt="${p.name}" onerror="this.style.display='none'">` : ""}${jarHTML(id, { w: 96, h: 130 })}</div>
+        <div class="pm-art${ph && ph[250] ? "" : " empty"}">${ph && ph[250] ? `<img id="pm-photo" class="pm-photo" src="${ph[250]}" alt="${p.name}">` : ""}</div>
         <div class="pm-gallery">${[["main","Фото банки"],["open","Открытая банка"],["spoon","Текстура на ложке"],["hand","Банка в руке"],["food","С завтраком"],["video","Короткое видео"]].map(g => `<div class="gslot"><span>${g[1]}</span><img src="images/${id}-${g[0]}.jpg" alt="" onerror="this.remove()"></div>`).join("")}</div>
         </div>
         <div class="pm-purchase"><span class="pm-eyebrow">TURTI · Каменный помол</span>
@@ -2148,7 +2190,6 @@
       renderProductReviews(id);
       $("#product-sheet").scrollTop = 0;
 
-      const jarEl = $("#product-sheet .pm-art .jar");
       $("#pm-sizes").addEventListener("click", e => {
         const btn = e.target.closest(".size-btn");
         if (!btn) return;
@@ -2156,8 +2197,8 @@
         btn.classList.add("active");
         pmSize = +btn.dataset.size;
         $("#pm-price").textContent = money(p.prices[pmSize]);
-        if (ph) { const im = $("#pm-photo"); if (im) { im.src = ph[pmSize]; im.style.display = ""; } }
-        else if (jarEl) { const [w, h] = jarSizes[pmSize]; jarEl.style.width = w + "px"; jarEl.style.height = h + "px"; }
+        const im = $("#pm-photo");
+        if (im && ph && ph[pmSize]) im.src = ph[pmSize];
       });
       const doAdd = () => { addToCart(id + "|" + pmSize); closeSheets(); };
       const doBuy = () => openCheckout([{ key: id + "|" + pmSize, qty: 1 }], "buynow");

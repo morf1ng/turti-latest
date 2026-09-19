@@ -11,22 +11,22 @@ import {
   markReviewDuplicate,
   listReviews,
 } from "../reviews-store.js";
-import { PRODUCTS, COLLECTIONS } from "../../js/catalog.js";
+import { isKnownProduct } from "../catalog-store.js";
 
-function validProductId(id) {
+async function validProductId(id) {
   if (!id) return true;
-  return Boolean(PRODUCTS[id] || COLLECTIONS[id]);
+  return isKnownProduct(id);
 }
 
 export async function handle(req, res) {
   if (req.method === "GET") {
     const productId = String(req.query.product || "").trim();
-    if (productId && !validProductId(productId)) {
+    if (productId && !(await validProductId(productId))) {
       return fail(res, 400, "Неизвестный товар");
     }
     const items = productId ? await listApprovedForProduct(productId) : [];
     const all = productId ? items : (await listReviews(100)).filter((r) => r.status === "approved" && r.showOnSite);
-    const publicItems = (productId ? items : all).map(publicReview);
+    const publicItems = await Promise.all((productId ? items : all).map(publicReview));
     const stats = reviewStats(publicItems);
     return ok(res, {
       items: publicItems,
@@ -49,7 +49,7 @@ export async function handle(req, res) {
 
     const productId = String(body.productId || "").trim();
     if (!productId) return fail(res, 400, "Выберите товар или набор");
-    if (!validProductId(productId)) return fail(res, 400, "Неизвестный товар");
+    if (!(await validProductId(productId))) return fail(res, 400, "Неизвестный товар");
 
     const text = String(body.text || "").trim();
     if (text.length < 10) return fail(res, 400, "Отзыв слишком короткий");
@@ -65,7 +65,7 @@ export async function handle(req, res) {
       .slice(0, 3)
       .map((m) => ({ type: "image", url: m.url }));
 
-    const review = createReview({ ...body, media }, phoneNorm);
+    const review = await createReview({ ...body, media }, phoneNorm);
     await saveReview(review);
     await markReviewDuplicate(phoneNorm, productId, review.id);
 

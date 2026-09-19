@@ -1,6 +1,7 @@
 import { normalizePhone } from "./phone.js";
 import { resolveDelivery, findOption } from "./delivery/engine.js";
 import { createOrderDraft } from "./orders.js";
+import { calcTotals } from "./pricing.js";
 
 export async function validateAndBuildOrder(body) {
   const items = body.items;
@@ -46,9 +47,16 @@ export async function validateAndBuildOrder(body) {
     return { ok: false, error: "Укажите адрес доставки" };
   }
 
-  const order = createOrderDraft(
+  const builtTotals = await calcTotals({
+    items,
+    deliveryCost: option?.quoteOnRequest ? 0 : option?.cost ?? 0,
+    payMethod: body.payMethod === "cod" ? "cod" : "online",
+  });
+
+  const order = await createOrderDraft(
     { ...body, phoneNorm },
-    option
+    option,
+    builtTotals
   );
   order.zone = delivery.zone;
   order.zoneName = delivery.zoneName;
