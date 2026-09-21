@@ -256,16 +256,15 @@
     .partner-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 18px 0 22px; }
     .partner-chips span { background: var(--cream); border: 1px solid var(--line); border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 700; }
 
-    /* ═══ НИЖНИЙ ДОК — стекло, как в iOS ═══ */
+    /* ═══ НИЖНИЙ ДОК ═══ */
     .dock {
-      position: fixed; z-index: 66; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-      background: rgba(253,250,243,.78);
-      border: 1px solid rgba(255,255,255,.7);
-      border-radius: 32px; padding: 10px 22px;
-      display: flex; justify-content: space-between; align-items: center;
-      backdrop-filter: blur(24px) saturate(1.7);
-      -webkit-backdrop-filter: blur(24px) saturate(1.7);
-      box-shadow: 0 16px 40px rgba(30,25,15,.22), inset 0 1px 0 rgba(255,255,255,.8);
+      position: fixed; z-index: 100; left: 12px; right: 12px;
+      bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+      background: #FDFAF3;
+      border: 1px solid var(--line);
+      border-radius: 20px; padding: 8px 10px;
+      display: flex; justify-content: space-around; align-items: center;
+      box-shadow: none;
     }
     .dock a, .dock > button {
       display: grid; justify-items: center; gap: 3px;
@@ -330,10 +329,11 @@
       background: var(--cream); border-radius: 32px 32px 0 0;
       box-shadow: 0 -18px 50px rgba(60,40,10,.25);
       max-height: 92svh; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      transform: translateY(105%); transition: transform .32s cubic-bezier(.3,1,.4,1);
+      transform: translateY(110vh); visibility: hidden; pointer-events: none;
+      transition: transform .32s cubic-bezier(.3,1,.4,1), visibility .32s;
       padding: 14px 18px calc(24px + env(safe-area-inset-bottom));
     }
-    .sheet.show { transform: none; }
+    .sheet.show { transform: none; visibility: visible; pointer-events: auto; }
     .sheet-grip { width: 44px; height: 5px; border-radius: 99px; background: #D8CFBC; margin: 4px auto 14px; }
     .sheet-close {
       position: absolute; top: 14px; right: 14px; width: 38px; height: 38px;
@@ -593,8 +593,8 @@
       .intro-card { display: grid; grid-template-columns: 1fr 1fr; }
       .intro-box { min-height: 100%; }
       .two-btns { grid-template-columns: 1fr 1fr; }
-      .sheet { left: 50%; right: auto; width: 520px; transform: translateX(-50%) translateY(105%); border-radius: 26px; bottom: 20px; }
-      .sheet.show { transform: translateX(-50%); }
+      .sheet { left: 50%; right: auto; width: 520px; transform: translateX(-50%) translateY(110vh); border-radius: 26px; bottom: 20px; }
+      .sheet.show { transform: translateX(-50%); visibility: visible; pointer-events: auto; }
       .cart-bar { left: 50%; right: auto; transform: translateX(-50%) translateY(300%); width: 520px; }
       .cart-bar.show { transform: translateX(-50%); }
       .dock { left: 50%; right: auto; transform: translateX(-50%); width: 520px; }
@@ -716,18 +716,13 @@
     .catalog-grid .pcard-actions .btn{ min-height:36px; font-size:12px; padding:7px 10px; }
     .pcard-body h3{ font-family:'Unbounded','Manrope',sans-serif; font-weight:700; letter-spacing:-.02em; }
     .pcard-price{ font-family:'Unbounded','Manrope',sans-serif; }
-    .dock{ background:rgba(253,250,243,.97); box-shadow:0 -6px 24px rgba(30,20,10,.16); }
     /* ═══ ПРАВКИ: fab, коллекции, размеры ═══ */
     .col-badge{ display:none !important; }
     .catalog-grid .pcard-art{ min-height:104px; }
     .catalog-grid .pcard-art .jar{ width:50px; height:70px; }
     .dock svg.di{ width:24px; height:24px; }
     .dock a, .dock > button{ font-size:9px; }
-    /* ═══ ЗАМЕТНЫЙ НИЖНИЙ ДОК + ЯРКАЯ КНОПКА ═══ */
-    .dock{ background:linear-gradient(180deg,#FFFDF7,#F2EBDB); border-top:2px solid rgba(198,54,43,.55); box-shadow:0 -8px 26px rgba(30,20,10,.18); }
-    .dock a, .dock > button{ position:relative; }
-    .dock .dock-active{ color:var(--green); }
-    .dock .dock-active::before{ content:""; position:absolute; top:1px; left:50%; transform:translateX(-50%); width:22px; height:3px; border-radius:3px; background:var(--green); }
+    /* ═══ ЯРКАЯ КНОПКА «ВСЕ ВКУСЫ» ═══ */
     .allflav{ width:100%; min-height:54px; border-radius:16px; color:#fff; font-weight:800; font-size:16px;
       background:linear-gradient(180deg,#E0574C,#C6362B); box-shadow:0 12px 26px rgba(198,54,43,.34); }
     .allflav:hover{ filter:brightness(1.05); }
@@ -813,7 +808,7 @@
     .pm-desc, .intro-info > p, .col-flavors{ font-weight:600; color:#453F35; }
     .pm-block p, details.pm-acc p{ font-weight:600; }
     .brandmark{ width:76px; height:76px; display:block; object-fit:cover; border-radius:20px; margin:2px 0 14px; border:2px solid rgba(255,255,255,.78); box-shadow:0 12px 30px rgba(0,0,0,.32); }
-    .dock{ left:50%; right:auto; transform:translateX(-50%); width:calc(100% - 22px); max-width:430px; bottom:10px; padding:9px 4px; border-radius:24px; background:rgba(253,250,243,.97); border:1px solid rgba(255,255,255,.75); box-shadow:0 10px 30px rgba(30,20,10,.18); justify-content:space-around; }
+    .dock{ left:50%; right:auto; transform:translateX(-50%); width:calc(100% - 22px); max-width:430px; bottom:calc(8px + env(safe-area-inset-bottom,0px)); padding:8px 4px; border-radius:20px; background:#FDFAF3; border:1px solid var(--line); box-shadow:none; justify-content:space-around; }
     .dock a, .dock > button{ color:#A39A85; font-size:9.5px; gap:3px; padding:2px 6px; }
     .dock svg.di{ width:23px; height:23px; }
     .dock .dock-active{ color:var(--green); }
