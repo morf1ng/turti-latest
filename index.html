@@ -334,6 +334,15 @@
       padding: 14px 18px calc(24px + env(safe-area-inset-bottom));
     }
     .sheet.show { transform: none; visibility: visible; pointer-events: auto; }
+    /* меню и поиск — над нижней панелью, без наложения */
+    #menu-sheet.sheet,
+    #search-sheet.sheet {
+      bottom: calc(var(--dock-h) + 14px + env(safe-area-inset-bottom, 0px));
+      max-height: calc(100svh - var(--dock-h) - env(safe-area-inset-bottom, 0px) - 28px);
+      border-radius: 24px;
+      z-index: 95;
+      padding-bottom: 18px;
+    }
     .sheet-grip { width: 44px; height: 5px; border-radius: 99px; background: #D8CFBC; margin: 4px auto 14px; }
     .sheet-close {
       position: absolute; top: 14px; right: 14px; width: 38px; height: 38px;
@@ -595,6 +604,10 @@
       .two-btns { grid-template-columns: 1fr 1fr; }
       .sheet { left: 50%; right: auto; width: 520px; transform: translateX(-50%) translateY(110vh); border-radius: 26px; bottom: 20px; }
       .sheet.show { transform: translateX(-50%); visibility: visible; pointer-events: auto; }
+      #menu-sheet.sheet, #search-sheet.sheet {
+        bottom: calc(var(--dock-h) + 24px + env(safe-area-inset-bottom, 0px));
+        max-height: calc(100svh - var(--dock-h) - env(safe-area-inset-bottom, 0px) - 48px);
+      }
       .cart-bar { left: 50%; right: auto; transform: translateX(-50%) translateY(300%); width: 520px; }
       .cart-bar.show { transform: translateX(-50%); }
       .dock { left: 50%; right: auto; transform: translateX(-50%); width: 520px; }
