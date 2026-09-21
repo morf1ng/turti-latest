@@ -37,11 +37,12 @@ export async function validateAndBuildOrder(body) {
   }
 
   const needsMap = Boolean(option.needsMap);
-  if (needsMap && !body.pvzCode) {
+  const postIndex = String(body.postIndex || body.pvzCode || "").trim();
+  if (needsMap && !body.pvzCode && !(method === "post" && /^\d{6}$/.test(postIndex))) {
     return { ok: false, error: "Выберите пункт выдачи на карте" };
   }
-  if (method === "post" && !/^\d{6}$/.test(String(body.postIndex || "").trim())) {
-    return { ok: false, error: "Для Почты России нужен индекс из 6 цифр" };
+  if (method === "post" && !/^\d{6}$/.test(postIndex)) {
+    return { ok: false, error: "Для Почты России выберите отделение на карте или укажите индекс" };
   }
   if (!needsMap && method !== "pickup" && method !== "post" && !String(body.address || "").trim()) {
     return { ok: false, error: "Укажите адрес доставки" };

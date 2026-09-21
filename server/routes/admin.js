@@ -1,6 +1,13 @@
 ﻿import { ok, fail, methodNotAllowed, readJson } from "../http.js";
 import { requireAdmin } from "../auth.js";
-import { listOrders, getOrder, saveOrder } from "../orders.js";
+import {
+  listOrders,
+  listDeletedOrders,
+  getOrder,
+  saveOrder,
+  deleteOrder,
+  restoreOrder,
+} from "../orders.js";
 import {
   listReviews,
   getReview,
@@ -50,6 +57,11 @@ export async function handle(req, res) {
     if (section === "orders") {
       const items = await listOrders(200);
       return ok(res, { items, postApiConfigured: postShipConfigured() });
+    }
+
+    if (section === "orders-deleted") {
+      const items = await listDeletedOrders(200);
+      return ok(res, { items });
     }
 
     if (section === "reviews") {
@@ -156,6 +168,18 @@ export async function handle(req, res) {
       const done = await deleteReview(body.id);
       if (!done) return fail(res, 404, "Отзыв не найден");
       return ok(res, { deleted: body.id });
+    }
+
+    if (action === "order-delete") {
+      const order = await deleteOrder(body.id);
+      if (!order) return fail(res, 404, "Заказ не найден");
+      return ok(res, { id: order.id, deleted: true });
+    }
+
+    if (action === "order-restore") {
+      const order = await restoreOrder(body.id);
+      if (!order) return fail(res, 404, "Заказ не найден в удалённых");
+      return ok(res, { id: order.id, restored: true });
     }
 
     if (action === "order-status") {

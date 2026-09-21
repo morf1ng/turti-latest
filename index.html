@@ -26,9 +26,26 @@
       --line: #E9E2D3;
       --white: #ffffff;
       --dock-h: 72px;
+      --overlay-z: 110;
+      --sheet-z: 120;
     }
 
-    html { scroll-behavior: smooth; }
+    /* тонкий скролл в цветах сайта (на десктопе) */
+    html { scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: #D8CFBC var(--cream); }
+    *::-webkit-scrollbar { width: 5px; height: 5px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: #D8CFBC; border-radius: 99px; }
+    *::-webkit-scrollbar-thumb:hover { background: #C89B6A; }
+
+    /* в шторках и выпадающих списках — без полоски, листается пальцем */
+    .sheet, .pvz-list, .co-sug, .rv-filters {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .sheet::-webkit-scrollbar,
+    .pvz-list::-webkit-scrollbar,
+    .co-sug::-webkit-scrollbar,
+    .rv-filters::-webkit-scrollbar { display: none; }
     body {
       font-family: 'Manrope', sans-serif; background: var(--cream); color: var(--ink);
       -webkit-font-smoothing: antialiased; font-size: 16px; line-height: 1.65;
@@ -320,27 +337,37 @@
 
     /* ═══ ШТОРКИ / МОДАЛКИ ═══ */
     .overlay {
-      position: fixed; inset: 0; z-index: 80; background: rgba(20,16,10,.55);
+      position: fixed; inset: 0; z-index: var(--overlay-z); background: rgba(20,16,10,.55);
       opacity: 0; visibility: hidden; transition: .25s;
     }
     .overlay.show { opacity: 1; visibility: visible; }
     .sheet {
-      position: fixed; z-index: 90; left: 0; right: 0; bottom: 0;
+      position: fixed; z-index: var(--sheet-z); left: 0; right: 0; bottom: 0;
       background: var(--cream); border-radius: 32px 32px 0 0;
       box-shadow: 0 -18px 50px rgba(60,40,10,.25);
-      max-height: 92svh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      max-height: 96svh; overflow-y: auto; -webkit-overflow-scrolling: touch;
       transform: translateY(110vh); visibility: hidden; pointer-events: none;
       transition: transform .32s cubic-bezier(.3,1,.4,1), visibility .32s;
       padding: 14px 18px calc(24px + env(safe-area-inset-bottom));
     }
     .sheet.show { transform: none; visibility: visible; pointer-events: auto; }
-    /* меню и поиск — над нижней панелью, без наложения */
+    /* оформление, корзина, карта — поверх нижней навигации */
+    #checkout-sheet.sheet,
+    #cart-sheet.sheet,
+    #product-sheet.sheet,
+    #collection-sheet.sheet,
+    #pvz-map-sheet.sheet,
+    #opt-sheet.sheet,
+    #review-sheet.sheet {
+      z-index: calc(var(--sheet-z) + 1);
+    }
+    /* меню и поиск — над доком, но с отступом снизу */
     #menu-sheet.sheet,
     #search-sheet.sheet {
       bottom: calc(var(--dock-h) + 14px + env(safe-area-inset-bottom, 0px));
       max-height: calc(100svh - var(--dock-h) - env(safe-area-inset-bottom, 0px) - 28px);
       border-radius: 24px;
-      z-index: 95;
+      z-index: var(--sheet-z);
       padding-bottom: 18px;
     }
     .sheet-grip { width: 44px; height: 5px; border-radius: 99px; background: #D8CFBC; margin: 4px auto 14px; }
@@ -416,7 +443,7 @@
     .success-box p { color: var(--gray); font-size: 15px; margin-bottom: 22px; }
 
     .toast {
-      position: fixed; z-index: 120; bottom: calc(var(--dock-h) + 16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(16px);
+      position: fixed; z-index: 130; bottom: calc(var(--dock-h) + 16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(16px);
       background: var(--ink); color: #fff; padding: 12px 22px; border-radius: 999px;
       font-size: 14px; font-weight: 700; opacity: 0; transition: .25s; pointer-events: none; white-space: nowrap;
     }
@@ -1041,6 +1068,9 @@
     .pvz-card strong{display:block;font-size:12.5px;color:var(--green);margin-bottom:4px}
     .pvz-card p{font-weight:700;font-size:14.5px;margin-bottom:6px}
     .pvz-card small{display:block;font-size:12px;color:var(--gray);font-weight:600;margin-bottom:10px}
+    .co-map-inline{min-height:280px;margin-top:8px}
+    .co-map-inline .pvz-canvas{height:280px;min-height:280px}
+    .co-map-expand{margin-top:8px}
 
     @media (max-width:767px){
       .pvz-canvas{height:62vh}
@@ -1823,11 +1853,15 @@
     };
 
     const DELIVERY_METHODS = {
-      pickup:  { label: "Самовывоз в Махачкале",   days: "в день заказа", onlyZone: "z1" },
-      ozon:    { label: "Ozon — пункт выдачи",     days: "2–7 дней" },
-      pvz:     { label: "СДЭК — пункт выдачи",     days: "2–7 дней" },
-      post:    { label: "Почта России",            days: "5–14 дней", note: "до отделения" }
+      pickup:  { label: "Самовывоз в Махачкале",   days: "в день заказа", cost: 0, note: "бесплатно, адрес сообщим после заказа" },
+      ozon:    { label: "Ozon — пункт выдачи",     days: "2–7 дней", provider: "ozon", map: true },
+      pvz:     { label: "СДЭК — пункт выдачи",     days: "2–7 дней", provider: "cdek", map: true },
+      post:    { label: "Почта России",            days: "5–14 дней", provider: "post", map: true, note: "до отделения" }
     };
+
+    function isMakhachkala(city) {
+      return String(city || "").toLowerCase().includes("махачкала");
+    }
 
     /* вес заказа в кг */
     function orderWeight(lines) {
@@ -2522,7 +2556,8 @@
             '<div class="co-body">' +
               '<span class="co-lab" id="where-lab">Где забрать</span>' +
               '<div id="co-map-wrap" hidden>' +
-                '<button type="button" class="btn btn-outline btn-block" id="co-map-btn">Выбрать пункт на карте</button>' +
+                '<div id="co-map-host" class="pvz-host co-map-inline"></div>' +
+                '<button type="button" class="btn btn-outline btn-block co-map-expand" id="co-map-expand" hidden>Открыть карту на весь экран</button>' +
                 '<div class="co-picked" id="co-picked" hidden></div>' +
               '</div>' +
               '<label class="co-lab-in" id="co-addr-wrap" hidden>' +
@@ -2678,9 +2713,24 @@
           drawWays(); drawPays(); afterWay();
         })
         .catch(function () {
-          st.options = [];
-          $ways.innerHTML = '<div class="pvz-err"><p><strong>Сервер доставки недоступен</strong></p><p>Оформление заработает после публикации сайта. Или <a href="' + TELEGRAM_URL + '" target="_blank" rel="noopener">напишите нам в Telegram</a>.</p></div>';
-          $go.textContent = "Доставка недоступна";
+          var zone = zoneForCity(st.city);
+          st.options = Object.keys(DELIVERY_METHODS).filter(function (k) {
+            if (k === "pickup") return isMakhachkala(st.city);
+            return true;
+          }).map(function (k) {
+            var m = DELIVERY_METHODS[k];
+            var r = deliveryCost(zone, k, weight, goods);
+            return {
+              method: k, label: m.label, days: m.days, note: m.note || "",
+              cost: k === "pickup" ? 0 : r.cost, estimated: k !== "pickup",
+              needsMap: Boolean(m.map), provider: m.provider || (k === "ozon" ? "ozon" : k === "post" ? "post" : "cdek")
+            };
+          });
+          st.zone = zone;
+          if (zone) { $zone.hidden = false; $zone.textContent = "Зона: " + (ZONES[zone] ? ZONES[zone].name : zone); }
+          $("#co-est").hidden = false;
+          if (!st.options.some(function (o) { return o.method === st.method; })) st.method = st.options[0] ? st.options[0].method : null;
+          drawWays(); drawPays(); afterWay();
         });
       }
 
@@ -2693,6 +2743,12 @@
 
       function drawWays() {
         var small = isSmallPlace();
+
+        if (isMakhachkala(st.city)) {
+          st.options.sort(function (a, b) {
+            return (a.method === "pickup" ? -1 : 0) - (b.method === "pickup" ? -1 : 0);
+          });
+        }
 
         /* для села поднимаем Почту наверх списка */
         if (small) {
@@ -2736,6 +2792,57 @@
         }).join("");
       }
 
+      function deliveryProvider(o) {
+        if (o && o.provider) return o.provider;
+        if (st.method === "ozon") return "ozon";
+        if (st.method === "post") return "post";
+        return "cdek";
+      }
+
+      function onPickPoint(pt) {
+        st.picked = pt;
+        $("#co-addr").value = pt.address || "";
+        if (st.method === "post") {
+          st.postIndex = pt.code || "";
+          var idx = $("#co-index");
+          if (idx) idx.value = st.postIndex;
+        }
+        showPicked();
+        refreshGo();
+        toast("Пункт выбран ✓");
+      }
+
+      function mountCheckoutMap() {
+        var o = st.options.filter(function (x) { return x.method === st.method; })[0] || {};
+        var host = $("#co-map-host");
+        var expand = $("#co-map-expand");
+        if (!host || !o.needsMap) return;
+        var provider = deliveryProvider(o);
+        renderPickupPoints({
+          host: host,
+          city: st.city,
+          provider: provider,
+          cityCode: st.cityCode,
+          postIndex: st.postIndex,
+          onPick: onPickPoint,
+          onFail: function () {
+            if (st.method === "post") {
+              $("#co-index-wrap").hidden = false;
+              $("#co-index").required = true;
+            }
+          }
+        });
+        if (expand) {
+          expand.hidden = false;
+          expand.onclick = function () {
+            openPvzMap(st.city, provider, function (pt) {
+              onPickPoint(pt);
+              openSheet("checkout-sheet");
+            }, st.cityCode, st.postIndex);
+          };
+        }
+      }
+
       /* ─── 3 · где забрать ─── */
       function afterWay() {
         var o = st.options.filter(function (x) { return x.method === st.method; })[0] || {};
@@ -2744,13 +2851,16 @@
         $("#step-where").hidden = pickup;
         $("#co-map-wrap").hidden = !map;
         $("#co-addr-wrap").hidden = map || pickup || post;
-        $("#co-index-wrap").hidden = !post;
-        $("#co-index").required = post;
-        $("#co-addr").required = !map && !pickup;
-        $("#where-lab").textContent = map ? "Где забрать" : "Куда привезти";
+        $("#co-index-wrap").hidden = map;
+        $("#co-index").required = post && !map;
+        $("#co-addr").required = !map && !pickup && !post;
+        $("#where-lab").textContent = map ? "Выберите пункт на карте" : (post ? "Индекс отделения" : "Куда привезти");
 
         if (!map) { st.picked = null; $("#co-picked").hidden = true; }
-        else if (st.picked) showPicked();
+        else {
+          if (st.picked) showPicked();
+          mountCheckoutMap();
+        }
 
         $("#step-who").hidden = false;
         bindPostRecalc();
@@ -2768,9 +2878,10 @@
         if (!$city.value.trim() || !st.city) return "Укажите город";
         if (!st.options.length) return "Считаем доставку…";
         if (!st.method) return "Выберите способ доставки";
-        if (map && !st.picked) return "Выберите пункт выдачи";
+        var postIdx = String((st.picked && st.picked.code) || (f.postIndex && f.postIndex.value) || st.postIndex || "").trim();
+        if (map && !pickup && !st.picked && !(post && /^\d{6}$/.test(postIdx))) return "Выберите пункт на карте";
         if (!map && !pickup && !post && !(f.address && f.address.value.trim())) return "Впишите адрес";
-        if (post && !/^\d{6}$/.test(String((f.postIndex && f.postIndex.value) || st.postIndex || "").trim())) return "Впишите индекс из 6 цифр";
+        if (post && !/^\d{6}$/.test(postIdx)) return "Выберите отделение на карте или впишите индекс";
         if (!f.name.value.trim()) return "Впишите имя";
         if (String(f.phone.value).replace(/\D/g, "").length < 10) return "Впишите телефон";
         if (!f.consent.checked) return "Нужно согласие с офертой";
@@ -2792,7 +2903,7 @@
         b.hidden = false;
         b.innerHTML = '<div class="co-picked-in"><span><strong>Вы выбрали</strong><br>' +
           escHtml(st.picked.address) + '</span><button type="button" class="co-chg" id="co-chg">Изменить</button></div>';
-        $("#co-chg").onclick = function () { $("#co-map-btn").click(); };
+        $("#co-chg").onclick = function () { mountCheckoutMap(); };
       }
 
       var postRecalcTmr = null;
@@ -2822,17 +2933,6 @@
         var b = e.target.closest("[data-p]"); if (!b) return;
         st.pay = b.dataset.p;
         drawPays(); afterWay();
-      });
-
-      $("#co-map-btn").addEventListener("click", function () {
-        var o = st.options.filter(function (x) { return x.method === st.method; })[0] || {};
-        openPvzMap(st.city, o.provider === "ozon" ? "ozon" : "cdek", function (pt) {
-          st.picked = pt;
-          $("#co-addr").value = pt.address;
-          openSheet("checkout-sheet");
-          afterWay();
-          toast("Пункт выдачи выбран ✓");
-        });
       });
 
       /* ─── секретный комплимент по телефону ─── */
@@ -2879,7 +2979,7 @@
           city: st.city, cityCode: st.cityCode,
           address: st.picked ? st.picked.address : (fd.get("address") || ""),
           pvzCode: st.picked ? st.picked.code : "",
-          postIndex: fd.get("postIndex") || st.postIndex || "",
+          postIndex: (st.picked && st.picked.code) || fd.get("postIndex") || st.postIndex || "",
           method: st.method, payMethod: st.pay,
           consent: Boolean(fd.get("consent")),
           surpriseId: st.surprise ? st.surprise.id : "",
@@ -3209,50 +3309,60 @@
       return ymapsReady;
     }
 
-    /** provider: "cdek" | "ozon" */
-    function openPvzMap(city, provider, onPick) {
-      var isOzon = provider === "ozon";
-      var title = isOzon ? "Пункт выдачи Ozon" : "Пункт выдачи СДЭК";
+    function providerTitle(provider) {
+      if (provider === "ozon") return "Ozon";
+      if (provider === "post") return "Почта России";
+      return "СДЭК";
+    }
 
-      $("#pvz-map-sheet").className = "sheet sheet-has-back";
-      $("#pvz-map-sheet").innerHTML =
-        '<div class="sheet-grip"></div>' +
-        '<button type="button" class="sheet-back" data-back><span class="sb-arrow">\u2039</span>Назад к заказу</button>' +
-        '<button class="sheet-close" data-close aria-label="Закрыть">✕</button>' +
-        '<h3 class="pvz-title">' + title + '</h3>' +
-        '<p class="pvz-sub">' + (city || "Укажите город") + ' — выберите удобную точку</p>' +
-        '<div id="pvz-host" class="pvz-host"><div class="pvz-load"><span class="spin"></span>Ищем пункты выдачи…</div></div>' +
-        '<div id="pvz-info"></div>';
-      openSheet("pvz-map-sheet");
+    function fetchPickupPoints(city, provider, cityCode, postIndex) {
+      var url = "/api/pvz?provider=" + encodeURIComponent(provider) +
+        "&city=" + encodeURIComponent(city) +
+        (cityCode ? "&cityCode=" + encodeURIComponent(cityCode) : "") +
+        (postIndex ? "&postIndex=" + encodeURIComponent(postIndex) : "");
+      return fetch(url).then(function (r) { return r.json(); });
+    }
 
-      var host = $("#pvz-host"), info = $("#pvz-info");
+    /** Карта или список пунктов: СДЭК, Ozon, Почта России */
+    function renderPickupPoints(opts) {
+      var host = opts.host;
+      var info = opts.info || null;
+      var provider = opts.provider || "cdek";
+      var onPick = opts.onPick;
+      var onFail = opts.onFail || function () {};
 
-      fetch("/api/pvz?provider=" + provider + "&city=" + encodeURIComponent(city))
-        .then(function (r) { return r.json(); })
+      if (!host) return;
+      host.innerHTML = '<div class="pvz-load"><span class="spin"></span>Ищем пункты…</div>';
+
+      fetchPickupPoints(opts.city, provider, opts.cityCode, opts.postIndex)
         .then(function (d) {
           if (!d.ok) throw new Error(d.error || "Пункты не получены");
           var pts = d.points || [];
-          if (!pts.length) throw new Error("В этом населённом пункте пунктов выдачи не нашлось.");
+          if (!pts.length) throw new Error("В этом населённом пункте пунктов не нашлось.");
           return loadYmaps()
             .then(function (ym) { drawMap(ym, pts); })
             .catch(function () { drawList(pts); });
         })
         .catch(function (e) {
+          onFail(e);
           host.innerHTML =
-            '<div class="pvz-err"><p><strong>' + escHtml(e.message) + '</strong></p>' +
-            '<p>Так бывает в небольших населённых пунктах. Ничего страшного: ' +
-            '<b>Почта России доходит туда, куда не возят курьерские службы</b> — ' +
-            'выберите её, и посылка придёт в отделение вашего села или райцентра.</p>' +
-            '<p>Всё, что вы уже заполнили, сохранится.</p>' +
-            '<button type="button" class="btn btn-green btn-block" data-back>Выбрать другую доставку</button>' +
+            '<div class="pvz-err"><p><strong>' + escHtml(e.message || "Пункты не загрузились") + '</strong></p>' +
+            (provider === "post"
+              ? '<p>Можно вписать индекс отделения вручную — поле появится ниже.</p>'
+              : '<p>Попробуйте другой способ доставки или напишите нам в Telegram.</p>') +
             '</div>';
         });
 
+      function pick(p) {
+        onPick({ code: p.code || "", address: p.address || p.name, provider: p.provider || provider });
+      }
+
       function drawMap(ymaps, pts) {
-        host.innerHTML = '<div id="pvz-canvas" class="pvz-canvas"></div>' +
+        var canvasId = "pvz-canvas-" + Date.now();
+        host.innerHTML = '<div id="' + canvasId + '" class="pvz-canvas"></div>' +
           '<button type="button" class="pvz-toggle" id="pvz-to-list">Показать списком</button>';
 
-        var map = new ymaps.Map("pvz-canvas", {
+        var map = new ymaps.Map(canvasId, {
           center: [pts.reduce(function (a, p) { return a + p.lat; }, 0) / pts.length,
                    pts.reduce(function (a, p) { return a + p.lon; }, 0) / pts.length],
           zoom: 11, controls: ["zoomControl", "geolocationControl"]
@@ -3260,8 +3370,10 @@
 
         var cl = new ymaps.Clusterer({ preset: "islands#redClusterIcons", gridSize: 64 });
         var marks = pts.map(function (p) {
+          var preset = provider === "post" ? "islands#blueDotIcon"
+            : (p.isPostamat ? "islands#darkOrangeIcon" : "islands#redDotIcon");
           var m = new ymaps.Placemark([p.lat, p.lon], { hintContent: p.address },
-            { preset: p.isPostamat ? "islands#darkOrangeIcon" : "islands#redDotIcon" });
+            { preset: preset });
           m.events.add("click", function () { showPoint(p); });
           return m;
         });
@@ -3269,7 +3381,7 @@
         map.geoObjects.add(cl);
         if (pts.length > 1) map.setBounds(cl.getBounds(), { checkZoomRange: true, zoomMargin: 40 });
 
-        $("#pvz-to-list").onclick = function () { drawList(pts); };
+        host.querySelector("#pvz-to-list").onclick = function () { drawList(pts); };
       }
 
       function drawList(pts) {
@@ -3286,8 +3398,9 @@
       }
 
       function showPoint(p) {
+        if (!info) { pick(p); return; }
         info.innerHTML =
-          '<div class="pvz-card"><strong>' + (p.provider === "ozon" ? "Ozon" : "СДЭК") +
+          '<div class="pvz-card"><strong>' + providerTitle(p.provider || provider) +
             (p.isPostamat ? " · постамат" : "") + '</strong>' +
           '<p>' + escHtml(p.address || p.name) + '</p>' +
           (p.worktime ? '<small>Режим работы: ' + escHtml(p.worktime) + '</small>' : "") +
@@ -3295,11 +3408,32 @@
         info.scrollIntoView({ behavior: "smooth", block: "nearest" });
         $("#pvz-ok").onclick = function () { pick(p); };
       }
+    }
 
-      function pick(p) {
-        onPick({ code: p.code || "", address: p.address || p.name, provider: p.provider });
-        closeSheets();
-      }
+    /** Полноэкранная карта — из оформления заказа */
+    function openPvzMap(city, provider, onPick, cityCode, postIndex) {
+      var title = "Пункт выдачи " + providerTitle(provider);
+
+      $("#pvz-map-sheet").className = "sheet sheet-has-back";
+      $("#pvz-map-sheet").innerHTML =
+        '<div class="sheet-grip"></div>' +
+        '<button type="button" class="sheet-back" data-back><span class="sb-arrow">\u2039</span>Назад к заказу</button>' +
+        '<button class="sheet-close" data-close aria-label="Закрыть">✕</button>' +
+        '<h3 class="pvz-title">' + title + '</h3>' +
+        '<p class="pvz-sub">' + (city || "Укажите город") + ' — выберите удобную точку</p>' +
+        '<div id="pvz-host" class="pvz-host"><div class="pvz-load"><span class="spin"></span>Ищем пункты выдачи…</div></div>' +
+        '<div id="pvz-info"></div>';
+      openSheet("pvz-map-sheet");
+
+      renderPickupPoints({
+        host: $("#pvz-host"),
+        info: $("#pvz-info"),
+        city: city,
+        provider: provider,
+        cityCode: cityCode,
+        postIndex: postIndex,
+        onPick: function (pt) { onPick(pt); closeSheets(); }
+      });
     }
 
     function escHtml(s) {

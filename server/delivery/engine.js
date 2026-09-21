@@ -28,7 +28,7 @@ function fallbackOption(method, ctx) {
   return optionBase(method, meta.label || fb.label, meta.provider || fb.provider, {
     days: meta.days || fb.days,
     cost: fb.cost,
-    estimated: true,
+    estimated: fb.estimated ?? true,
     needsMap: Boolean(meta.map),
     note: meta.note || (method === "post" ? "до отделения" : ""),
   });
@@ -110,9 +110,10 @@ export async function resolveDelivery(body) {
   };
 }
 
-export async function resolvePvz(provider, city, cityCode) {
+export async function resolvePvz(provider, city, cityCode, postIndex) {
   if (provider === "ozon") return ozon.getPoints(city);
   if (provider === "cdek") return cdek.getPoints(city, cityCode);
+  if (provider === "post") return post.getPoints(city, postIndex);
   return [];
 }
 

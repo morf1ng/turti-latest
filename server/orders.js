@@ -1,7 +1,8 @@
-import { storeGet, storeSet, storeListPush } from "./kv.js";
+import { storeGet, storeSet, storeListPush, storeListRemove } from "./kv.js";
 import { calcTotals } from "./pricing.js";
 
 const LIST_KEY = "orders:list";
+const DELETED_LIST_KEY = "orders:deleted:list";
 
 export function newOrderId() {
   return "T" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 5).toUpperCase();
@@ -22,9 +23,46 @@ export async function listOrders(limit = 200) {
   const orders = [];
   for (const id of ids.slice(0, limit)) {
     const o = await getOrder(id);
-    if (o) orders.push(o);
+    if (o && !o.deleted) orders.push(o);
   }
   return orders;
+}
+
+export async function listDeletedOrders(limit = 200) {
+  const ids = (await storeGet(DELETED_LIST_KEY)) || [];
+  const orders = [];
+  for (const id of ids.slice(0, limit)) {
+    const o = await getOrder(id);
+    if (o && o.deleted) orders.push(o);
+  }
+  return orders;
+}
+
+/** Убрать из списка — данные сохраняются, можно восстановить. */
+export async function deleteOrder(id) {
+  const order = await getOrder(id);
+  if (!order) return null;
+  if (order.deleted) return order;
+
+  order.deleted = true;
+  order.deletedAt = new Date().toISOString();
+  await storeSet(`order:${order.id}`, order);
+  await storeListRemove(LIST_KEY, (x) => x === order.id);
+  await storeListPush(DELETED_LIST_KEY, order.id, 2000);
+  return order;
+}
+
+/** Вернуть заказ из истории удалённых. */
+export async function restoreOrder(id) {
+  const order = await getOrder(id);
+  if (!order || !order.deleted) return null;
+
+  order.deleted = false;
+  order.restoredAt = new Date().toISOString();
+  await storeSet(`order:${order.id}`, order);
+  await storeListRemove(DELETED_LIST_KEY, (x) => x === order.id);
+  await storeListPush(LIST_KEY, order.id);
+  return order;
 }
 
 export async function findPaidOrdersByPhone(phoneNorm) {

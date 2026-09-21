@@ -309,7 +309,7 @@ var STATUS_RU = {
   paid: "Оплачен", processing: "Собираем", shipped: "Отправлен", delivered: "Доставлен",
   cancelled: "Отменён", payment_failed: "Оплата не прошла", done: "Выполнен"
 };
-var ORDER_FILTERS = [["all", "Все"], ["ship", "Собрать"], ["pay", "Ждут оплату"], ["done", "Отправленные"]];
+var ORDER_FILTERS = [["all", "Все"], ["ship", "Собрать"], ["pay", "Ждут оплату"], ["done", "Отправленные"], ["deleted", "Удалённые"]];
 var REVIEW_FILTERS = [["all", "Все"], ["pending", "На проверке"], ["approved", "Опубликованы"], ["rejected", "Отклонены"]];
 
 var SERVER = false;
@@ -561,6 +561,41 @@ function offline() {
 /* ─── ЗАКАЗЫ: работают и локально, и с сервера ─── */
 var postApiOn = false;
 
+function mapLocalOrder(o, i) {
+  return {
+    id: "local-" + (i + 1), name: o.name, phone: o.phone, city: o.city, pvzCode: o.pvz,
+    address: o.pvz, deliveryLabel: o.delivery || "", total: o.total, paid: o.status !== "new",
+    status: o.status === "done" ? "delivered" : (o.status || "new"), createdAt: o.date,
+    deletedAt: o._deletedAt || "",
+    lines: (o.items || []).map(function (l) { return { label: l.label, sub: "", qty: l.qty }; }),
+    _localIndex: i, _localRaw: o
+  };
+}
+
+function filterDeletedOrders(list) {
+  var q = searchQ.toLowerCase();
+  return list.filter(function (o) {
+    var hay = [o.id, o.name, o.phone, o.city, o.trackingNumber, o.pvzCode].join(" ").toLowerCase();
+    return !q || hay.indexOf(q) >= 0;
+  });
+}
+
+function renderDeletedOrders(list, sub, warn) {
+  var m = $("#main");
+  var shown = filterDeletedOrders(list);
+  m.innerHTML = head("Удалённые заказы", sub || "Можно восстановить в основной список") +
+    (warn || "") +
+    toolbar("Поиск: имя, телефон, город, № заказа") +
+    chips(ORDER_FILTERS, orderFilter, "of") +
+    (shown.length ? shown.map(function (o) { return serverOrder(o, true); }).join("") :
+      (list.length ? '<div class="empty-filter">По поиску ничего не найдено</div>' :
+        '<div class="note"><b>Удалённых заказов нет</b></div>'));
+  bindToolbar(function () { drawOrders(); });
+  bindChips("of", function (v) { orderFilter = v; }, function () { drawOrders(); });
+  bind();
+  bindLocalOrders();
+}
+
 function renderOrders(list, sub, warn, postApiConfigured) {
   postApiOn = Boolean(postApiConfigured);
   var m = $("#main");
@@ -577,14 +612,56 @@ function renderOrders(list, sub, warn, postApiConfigured) {
            [rub(list.reduce(function (s, o) { return s + (o.total || 0); }, 0)), "оборот"]]) +
     toolbar("Поиск: имя, телефон, город, № заказа") +
     chips(ORDER_FILTERS, orderFilter, "of") +
-    (shown.length ? shown.map(serverOrder).join("") :
+    (shown.length ? shown.map(function (o) { return serverOrder(o, false); }).join("") :
       (list.length ? '<div class="empty-filter">По фильтру ничего не найдено</div>' : '<div class="note"><b>Заказов пока нет</b></div>'));
-  bindToolbar(function () { renderOrders(list, sub, warn); });
-  bindChips("of", function (v) { orderFilter = v; }, function () { renderOrders(list, sub, warn); });
+  bindToolbar(function () { drawOrders(); });
+  bindChips("of", function (v) { orderFilter = v; }, function () { drawOrders(); });
   bind();
+  bindLocalOrders();
+}
+
+function bindLocalOrders() {
+  if (SERVER === true) return;
+  $("#main").addEventListener("click", function (e) {
+    var cp = e.target.closest("[data-copy]");
+    if (cp) { copyText(cp.getAttribute("data-copy")); return; }
+    var b = e.target.closest("[data-loc]"); if (!b) return;
+    var a = JSON.parse(localStorage.getItem("turti_orders") || "[]");
+    var i = Number(b.dataset.loc);
+    if (b.dataset.do === "del") {
+      if (!confirm("Удалить заказ из списка? Его можно восстановить в «Удалённые».")) return;
+      a[i]._deleted = true;
+      a[i]._deletedAt = new Date().toISOString();
+      toast("Заказ удалён");
+    } else if (b.dataset.do === "restore") {
+      delete a[i]._deleted;
+      delete a[i]._deletedAt;
+      toast("Заказ восстановлен");
+    } else {
+      a[i].status = "done";
+      toast("Отмечен выполненным");
+    }
+    localStorage.setItem("turti_orders", JSON.stringify(a));
+    drawOrders();
+  }, { once: true });
 }
 
 function drawOrders() {
+  if (orderFilter === "deleted") {
+    if (SERVER === true) {
+      api("orders-deleted").then(function (d) {
+        renderDeletedOrders(d.items || [], "Данные с сервера");
+      });
+      return;
+    }
+    var allDel = [];
+    try { allDel = JSON.parse(localStorage.getItem("turti_orders")) || []; } catch (e) { allDel = []; }
+    var warn = serverStatusWarn() || ('<div class="warnbox">Сервер не подключён — только заказы из этого браузера.</div>');
+    renderDeletedOrders(allDel.map(mapLocalOrder).filter(function (o) { return o._localRaw._deleted; }),
+      "Из браузера этого компьютера", warn);
+    return;
+  }
+
   if (SERVER === true) {
     api("orders").then(function (d) {
       renderOrders(d.items || [], "Данные с сервера", "", d.postApiConfigured);
@@ -596,30 +673,12 @@ function drawOrders() {
   try { all = JSON.parse(localStorage.getItem("turti_orders")) || []; } catch (e) { all = []; }
   var warn = serverStatusWarn() || ('<div class="warnbox">Сервер не подключён — показываем только заказы, ' +
     'сохранённые в этом браузере. После настройки Vercel заказы будут приходить на сервер.</div>');
-  renderOrders(all.map(function (o, i) {
-    return {
-      id: "local-" + (i + 1), name: o.name, phone: o.phone, city: o.city, pvzCode: o.pvz,
-      address: o.pvz, deliveryLabel: o.delivery || "", total: o.total, paid: o.status !== "new",
-      status: o.status === "done" ? "delivered" : (o.status || "new"), createdAt: o.date,
-      lines: (o.items || []).map(function (l) { return { label: l.label, sub: "", qty: l.qty }; }),
-      _localIndex: i, _localRaw: o
-    };
-  }), "Из браузера этого компьютера", warn);
-
-  $("#main").addEventListener("click", function (e) {
-    var cp = e.target.closest("[data-copy]");
-    if (cp) { copyText(cp.getAttribute("data-copy")); return; }
-    var b = e.target.closest("[data-loc]"); if (!b) return;
-    var a = JSON.parse(localStorage.getItem("turti_orders") || "[]");
-    var i = Number(b.dataset.loc);
-    if (b.dataset.do === "del") { if (!confirm("Удалить заказ?")) return; a.splice(i, 1); toast("Заказ удалён"); }
-    else { a[i].status = "done"; toast("Отмечен выполненным"); }
-    localStorage.setItem("turti_orders", JSON.stringify(a));
-    drawOrders();
-  }, { once: true });
+  renderOrders(all.filter(function (o) { return !o._deleted; }).map(mapLocalOrder),
+    "Из браузера этого компьютера", warn);
 }
 
-function serverOrder(o) {
+function serverOrder(o, deletedView) {
+  deletedView = !!deletedView;
   var items = (o.lines || []).map(function (l) {
     return esc(l.label) + (l.sub ? " " + esc(l.sub) : "") + " × " + l.qty;
   }).join("<br>");
@@ -628,7 +687,7 @@ function serverOrder(o) {
       return '<option value="' + s + '"' + (s === o.status ? " selected" : "") + '>' + esc(statusRu(s)) + '</option>';
     }).join("");
   var isLocal = o._localIndex != null;
-  return '<div class="rec ' + (o.paid ? "live" : "wait") + '" data-id="' + esc(o.id) + '">' +
+  return '<div class="rec ' + (deletedView ? "off" : (o.paid ? "live" : "wait")) + '" data-id="' + esc(o.id) + '">' +
     '<div class="rec-top"><div><strong>' + esc(o.id) + '</strong> ' + statusPill(o) + '</div>' +
       '<span class="when">' + (o.createdAt ? when(o.createdAt) : "") + '</span></div>' +
     (o.surpriseId && !o.surpriseUsed
@@ -646,7 +705,15 @@ function serverOrder(o) {
     '</div>' +
     quickContact(o) +
     '<div class="body">' + items + '</div>' +
-    (isLocal
+    (deletedView
+      ? '<div class="acts">' +
+          (o.deletedAt || o._localRaw && o._localRaw._deletedAt
+            ? '<span class="sub">Удалён ' + when(o.deletedAt || o._localRaw._deletedAt) + '</span>' : "") +
+          (isLocal
+            ? '<button class="btn ok s" data-loc="' + o._localIndex + '" data-do="restore">Восстановить</button>'
+            : '<button class="btn ok s" data-a="order-restore">Восстановить</button>') +
+        '</div>'
+      : isLocal
       ? '<div class="acts">' +
           (o.status !== "delivered" ? '<button class="btn ok s" data-loc="' + o._localIndex + '" data-do="done">Выполнен</button>' : "") +
           '<button class="btn danger s" data-loc="' + o._localIndex + '" data-do="del">Удалить</button>' +
@@ -660,6 +727,7 @@ function serverOrder(o) {
           (o.paid && o.paymentId ? '<button class="btn warn s" data-a="order-refund" data-full="1">Полный возврат</button>' : "") +
           (o.trackingUrl ? '<a class="btn line s" href="' + esc(o.trackingUrl) + '" target="_blank" rel="noopener">Открыть трек</a>' : "") +
           (o.utm && o.utm.source ? '<span class="tag">' + esc(o.utm.source) + '</span>' : "") +
+          '<button class="btn danger s" data-a="order-delete">Удалить</button>' +
         '</div>') +
   '</div>';
 }
@@ -1122,6 +1190,8 @@ function bind() {
       if (b.dataset.full && !confirm("Сделать полный возврат через ЮKassa?")) return;
     }
     if (b.dataset.a === "review-delete" && !confirm("Удалить отзыв навсегда?")) return;
+    if (b.dataset.a === "order-delete" && !confirm("Удалить заказ из списка? Его можно восстановить в «Удалённые».")) return;
+    if (b.dataset.a === "order-restore" && !confirm("Восстановить заказ в основной список?")) return;
     b.disabled = true;
     act(body).then(function (r) {
       if (!r.ok) { toast(r.error || "Не получилось", true); b.disabled = false; return; }
