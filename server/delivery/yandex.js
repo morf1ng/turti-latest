@@ -61,11 +61,5 @@ export async function getOptions(ctx) {
     ];
   }
 
-  return [
-    optionBase("yandex_courier", "Яндекс Доставка курьером", "yandex", {
-      days: "1–2 дня",
-      quoteOnRequest: true,
-      note: "Стоимость уточнит менеджер",
-    }),
-  ];
+  return [];
 }

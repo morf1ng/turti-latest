@@ -1,15 +1,61 @@
-import { zoneForCity, ZONES } from "../../js/catalog.js";
+import {
+  zoneForCity,
+  ZONES,
+  DELIVERY_METHODS,
+  fallbackDelivery,
+} from "../../js/catalog.js";
 import { orderWeight, goodsTotal } from "../catalog-store.js";
-import { isMakhachkala } from "./util.js";
+import { isMakhachkala, optionBase } from "./util.js";
 import * as pickup from "./pickup.js";
-import * as yandex from "./yandex.js";
-import * as turti from "./turti.js";
 import * as ozon from "./ozon.js";
 import * as cdek from "./cdek.js";
 import * as post from "./post.js";
 
-const LOCAL = [pickup, yandex, turti];
-const REMOTE = [ozon, cdek, post];
+/** Доступные способы на экране оформления */
+const ALLOWED = new Set(["pickup", "ozon", "pvz", "post"]);
+
+const REMOTE_ADAPTERS = [ozon, cdek, post];
+
+function displayOrder(city) {
+  return isMakhachkala(city)
+    ? ["pickup", "ozon", "pvz", "post"]
+    : ["ozon", "pvz", "post"];
+}
+
+function fallbackOption(method, ctx) {
+  const meta = DELIVERY_METHODS[method] || {};
+  const fb = fallbackDelivery(ctx.city, method, ctx.weightKg, ctx.goods);
+  return optionBase(method, meta.label || fb.label, meta.provider || fb.provider, {
+    days: meta.days || fb.days,
+    cost: fb.cost,
+    estimated: true,
+    needsMap: Boolean(meta.map),
+    note: meta.note || (method === "post" ? "до отделения" : ""),
+  });
+}
+
+function normalizeOption(option, ctx) {
+  if (!option || option.unavailable) return null;
+  if (option.quoteOnRequest || option.cost == null) {
+    return fallbackOption(option.method, ctx);
+  }
+  return option;
+}
+
+function mergeOptions(apiOptions, ctx) {
+  const byMethod = new Map();
+  for (const raw of apiOptions) {
+    if (!ALLOWED.has(raw.method)) continue;
+    const o = normalizeOption(raw, ctx);
+    if (o) byMethod.set(o.method, o);
+  }
+  for (const method of displayOrder(ctx.city)) {
+    if (!byMethod.has(method)) {
+      byMethod.set(method, fallbackOption(method, ctx));
+    }
+  }
+  return displayOrder(ctx.city).map((m) => byMethod.get(m)).filter(Boolean);
+}
 
 export async function resolveDelivery(body) {
   const items = body.items || [];
@@ -19,32 +65,25 @@ export async function resolveDelivery(body) {
   const ctx = {
     city,
     cityCode: body.cityCode || null,
-    postIndex: body.postIndex || null,
-    postal: body.postal || null,
+    postIndex: body.postIndex || body.postal || null,
+    postal: body.postal || body.postIndex || null,
     weightKg: await orderWeight(items),
     goods: await goodsTotal(items),
     payMethod: body.payMethod || "online",
   };
 
-  let options = [];
+  let apiOptions = [];
 
   if (isMakhachkala(city)) {
-    for (const adapter of LOCAL) {
-      const opts = await adapter.getOptions(ctx);
-      options.push(...opts);
-    }
-  } else {
-    /* Порядок на экране: Ozon → СДЭК → Почта. Показываем только то, что вернул API. */
-    for (const adapter of REMOTE) {
-      const opts = await adapter.getOptions(ctx);
-      for (const o of opts) {
-        if (!options.some((x) => x.method === o.method)) options.push(o);
-      }
-    }
+    apiOptions.push(...(await pickup.getOptions(ctx)));
   }
 
-  options = options.filter((o) => !o.unavailable);
+  for (const adapter of REMOTE_ADAPTERS) {
+    const opts = await adapter.getOptions(ctx);
+    apiOptions.push(...opts);
+  }
 
+  const options = mergeOptions(apiOptions, ctx);
   const zone = zoneForCity(city);
   const zoneName = ZONES[zone]?.name || "";
 

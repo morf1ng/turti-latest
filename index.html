@@ -1528,7 +1528,7 @@
       </div>
       <div class="pm-block"><h4>1. Выберите свой вкус</h4><p>Откройте понравившийся урбеч, выберите объём и добавьте банку или набор в корзину.</p></div>
       <div class="pm-block"><h4>2. Оформите заказ</h4><p>В корзине укажите город и контакты. Регистрация не нужна — только данные, необходимые для доставки.</p></div>
-      <div class="pm-block"><h4>3. Выберите удобную доставку</h4><p>Выберите подходящий вариант: пункт выдачи, курьер до двери или Почта России. Заказ можно получить там, где вам удобно.</p></div>
+      <div class="pm-block"><h4>3. Выберите удобную доставку</h4><p>Ozon, СДЭК, Почта России или самовывоз в Махачкале — стоимость считается автоматически при оформлении.</p></div>
       <div class="pm-block"><h4>4. Получите TURTI</h4><p>Срок зависит от города и выбранного способа. Мы заранее подтвердим стоимость и дату, бережно упакуем заказ и сообщим, когда он будет в пути.</p></div>
       <p class="del-note">Доставляем по России. Если подходящего варианта не окажется, напишите нам — подберём другой способ.</p>
     </section>
@@ -1543,7 +1543,7 @@
       <details class="faq"><summary>Почему сверху появляется масло?</summary><p>Небольшой слой масла после хранения — это нормально: у орехов и семян есть собственное масло. В тепле или после долгого простоя его может быть заметнее — просто перемешайте урбеч ложкой. Количество отделившегося масла само по себе не доказывает наличие добавок: это зависит от вкуса, температуры и помола. В TURTI дополнительные масла не добавляем.</p></details>
       <details class="faq"><summary>Как хранить?</summary><p>В тёмном прохладном месте. После вскрытия — плотно закрывать крышку.</p></details>
       <details class="faq"><summary>Сколько хранится после открытия?</summary><p>До 2 месяцев при правильном хранении.</p></details>
-      <details class="faq"><summary>Как происходит доставка?</summary><p>Укажите город и выберите удобный вариант: пункт выдачи, курьер до двери или Почта России. Срок зависит от города; стоимость и дату прибытия подтвердим до отправки.</p></details>
+      <details class="faq"><summary>Как происходит доставка?</summary><p>Укажите город и выберите Ozon, СДЭК, Почту России или самовывоз. Стоимость доставки покажется сразу в корзине — до оплаты.</p></details>
     </section>
 
     </div>
@@ -1807,10 +1807,9 @@
 
     const DELIVERY_METHODS = {
       pickup:  { label: "Самовывоз в Махачкале",   days: "в день заказа", onlyZone: "z1" },
-      pvz:     { label: "СДЭК — пункт выдачи",     days: "2–7 дней" },
-      courier: { label: "СДЭК — курьер до двери",  days: "2–7 дней" },
       ozon:    { label: "Ozon — пункт выдачи",     days: "2–7 дней" },
-      post:    { label: "Почта России",            days: "5–14 дней", note: "есть в любом селе" }
+      pvz:     { label: "СДЭК — пункт выдачи",     days: "2–7 дней" },
+      post:    { label: "Почта России",            days: "5–14 дней", note: "до отделения" }
     };
 
     /* вес заказа в кг */
@@ -2635,7 +2634,8 @@
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             items: lines.map(function (l) { return { key: l.key, qty: l.qty }; }),
-            city: st.city, cityCode: st.cityCode, payMethod: st.pay
+            city: st.city, cityCode: st.cityCode, payMethod: st.pay,
+            postIndex: ($("#co-index") && $("#co-index").value.trim()) || st.postIndex || ""
           })
         })
         .then(function (r) { return r.json(); })
@@ -2726,7 +2726,7 @@
 
         $("#step-where").hidden = pickup;
         $("#co-map-wrap").hidden = !map;
-        $("#co-addr-wrap").hidden = map || pickup;
+        $("#co-addr-wrap").hidden = map || pickup || post;
         $("#co-index-wrap").hidden = !post;
         $("#co-index").required = post;
         $("#co-addr").required = !map && !pickup;
@@ -2736,6 +2736,7 @@
         else if (st.picked) showPicked();
 
         $("#step-who").hidden = false;
+        bindPostRecalc();
         sum();
         refreshGo();
       }
@@ -2751,8 +2752,8 @@
         if (!st.options.length) return "Считаем доставку…";
         if (!st.method) return "Выберите способ доставки";
         if (map && !st.picked) return "Выберите пункт выдачи";
-        if (!map && !pickup && !(f.address && f.address.value.trim())) return "Впишите адрес";
-        if (post && !/^\d{6}$/.test(String((f.postIndex && f.postIndex.value) || "").trim())) return "Впишите индекс из 6 цифр";
+        if (!map && !pickup && !post && !(f.address && f.address.value.trim())) return "Впишите адрес";
+        if (post && !/^\d{6}$/.test(String((f.postIndex && f.postIndex.value) || st.postIndex || "").trim())) return "Впишите индекс из 6 цифр";
         if (!f.name.value.trim()) return "Впишите имя";
         if (String(f.phone.value).replace(/\D/g, "").length < 10) return "Впишите телефон";
         if (!f.consent.checked) return "Нужно согласие с офертой";
@@ -2777,12 +2778,27 @@
         $("#co-chg").onclick = function () { $("#co-map-btn").click(); };
       }
 
+      var postRecalcTmr = null;
+      function bindPostRecalc() {
+        var idx = $("#co-index");
+        if (!idx || idx._bound) return;
+        idx._bound = true;
+        idx.addEventListener("input", function () {
+          clearTimeout(postRecalcTmr);
+          if (st.method !== "post") return;
+          var v = idx.value.replace(/\D/g, "");
+          if (v.length !== 6) return;
+          postRecalcTmr = setTimeout(function () { st.postIndex = v; calc(); }, 400);
+        });
+      }
+
       $ways.addEventListener("click", function (e) {
         var b = e.target.closest("[data-w]"); if (!b) return;
         st.method = b.dataset.w;
         if (st.method === "pickup") st.pay = "online";
         st.picked = null;
         drawWays(); drawPays(); afterWay();
+        bindPostRecalc();
       });
 
       $pays.addEventListener("click", function (e) {
@@ -3334,20 +3350,49 @@
       var p = new URLSearchParams(location.search);
       var oid = p.get("order");
       if (!oid || p.get("paid") !== "check") return;
-      fetch("/api/track?id=" + encodeURIComponent(oid))
+
+      renderCartSheet();
+      $("#checkout-sheet").innerHTML =
+        '<div class="sheet-grip"></div><button class="sheet-close" data-close aria-label="Закрыть">✕</button>' +
+        '<div class="success-box"><div class="pvz-load"><span class="spin"></span>Проверяем оплату…</div></div>';
+      openSheet("checkout-sheet");
+
+      fetch("/api/track?id=" + encodeURIComponent(oid) + "&verify=1")
         .then(function (r) { return r.json(); })
         .then(function (d) {
-          if (!d.ok) return;
-          renderCartSheet();
+          if (!d.ok) {
+            $("#checkout-sheet").innerHTML =
+              '<div class="sheet-grip"></div><button class="sheet-close" data-close>✕</button>' +
+              '<div class="success-box"><h3>Заказ не найден</h3><p>' + escHtml(d.error || "Проверьте номер заказа") + '</p>' +
+              '<button class="btn btn-green btn-block" data-close style="margin-top:10px">В магазин</button></div>';
+            return;
+          }
+          var payMsg = d.paid
+            ? "Оплата прошла. Соберём посылку и сообщим о отправке."
+            : d.paymentFailed
+              ? "Оплата не прошла. Попробуйте оформить заказ снова или выберите оплату при получении."
+              : "Оплата ещё обрабатывается — обновите страницу через минуту или напишите нам.";
+          $("#checkout-sheet").innerHTML =
+            '<div class="sheet-grip"></div><button class="sheet-close" data-close aria-label="Закрыть">✕</button>' +
+            '<div class="success-box"><div class="check-circle">' + (d.paid ? "✓" : "…") + '</div>' +
+            '<h3>Заказ ' + escHtml(d.orderId) + (d.paid ? " оплачен" : d.paymentFailed ? "" : " принят") + '</h3>' +
+            '<p>' + payMsg + '</p>' +
+            '<div class="co-sum" style="text-align:left;margin:16px 0">' +
+              '<div class="co-total"><span>Итого</span><span>' + money(d.total || 0) + '</span></div>' +
+              '<div class="co-w">' + escHtml(d.deliveryLabel || "") + ' · ' + escHtml(d.city || "") + '</div>' +
+            '</div>' +
+            (d.trackingUrl ? '<a class="btn btn-outline btn-block" target="_blank" rel="noopener" href="' + escHtml(d.trackingUrl) + '">Отследить заказ</a>' : "") +
+            (!d.paid && !d.paymentFailed ? '<button type="button" class="btn btn-outline btn-block" id="co-retry-pay" style="margin-top:10px">Обновить статус оплаты</button>' : "") +
+            '<button class="btn btn-green btn-block" data-close style="margin-top:10px">В магазин</button></div>';
+          var retry = $("#co-retry-pay");
+          if (retry) retry.onclick = function () { location.reload(); };
+          history.replaceState(null, "", location.pathname + location.hash);
+        })
+        .catch(function () {
           $("#checkout-sheet").innerHTML =
             '<div class="sheet-grip"></div><button class="sheet-close" data-close>✕</button>' +
-            '<div class="success-box"><div class="check-circle">✓</div>' +
-            '<h3>Заказ ' + escHtml(d.orderId) + (d.paid ? " оплачен" : "") + '</h3>' +
-            '<p>' + escHtml(d.deliveryLabel || "") + ' · ' + escHtml(d.city || "") + '</p>' +
-            (d.trackingUrl ? '<a class="btn btn-outline btn-block" target="_blank" rel="noopener" href="' + escHtml(d.trackingUrl) + '">Отследить заказ</a>' : "") +
-            '<button class="btn btn-green btn-block" data-close style="margin-top:10px">В магазин</button></div>';
-          openSheet("checkout-sheet");
-          history.replaceState(null, "", location.pathname + location.hash);
+            '<div class="success-box"><h3>Не удалось проверить оплату</h3><p>Проверьте интернет и обновите страницу.</p>' +
+            '<button class="btn btn-green btn-block" onclick="location.reload()">Повторить</button></div>';
         });
     })();
 

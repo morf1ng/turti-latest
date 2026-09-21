@@ -65,29 +65,16 @@ export async function getOptions(ctx) {
 
   const free = freeDelivery(ctx.goods);
   const pvz = await calcTariff(token, { toCode: ctx.cityCode, weightKg: ctx.weightKg, tariffCode: 136 });
-  const courier = await calcTariff(token, { toCode: ctx.cityCode, weightKg: ctx.weightKg, tariffCode: 137 });
+  if (!pvz) return [];
 
-  const out = [];
-  if (pvz) {
-    out.push(
-      optionBase("pvz", "СДЭК — пункт выдачи", "cdek", {
-        days: pvz.days,
-        cost: free ? 0 : pvz.cost,
-        estimated: false,
-        needsMap: true,
-      })
-    );
-  }
-  if (courier) {
-    out.push(
-      optionBase("courier", "СДЭК — курьер до двери", "cdek", {
-        days: courier.days,
-        cost: free ? 0 : courier.cost,
-        estimated: false,
-      })
-    );
-  }
-  return out;
+  return [
+    optionBase("pvz", "СДЭК — пункт выдачи", "cdek", {
+      days: pvz.days,
+      cost: free ? 0 : pvz.cost,
+      estimated: false,
+      needsMap: true,
+    }),
+  ];
 }
 
 export async function getPoints(city, cityCode) {

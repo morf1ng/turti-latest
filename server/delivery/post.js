@@ -29,15 +29,8 @@ async function calcPost(ctx) {
 
 export async function getOptions(ctx) {
   const quote = await calcPost(ctx);
-  if (!quote) {
-    return [
-      optionBase("post", "Почта России", "post", {
-        days: "5–14 дней",
-        quoteOnRequest: true,
-        note: "Укажите индекс — или стоимость уточнит менеджер",
-      }),
-    ];
-  }
+  if (!quote) return [];
+
   const free = freeDelivery(ctx.goods);
   return [
     optionBase("post", "Почта России", "post", {

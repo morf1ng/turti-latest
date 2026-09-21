@@ -86,7 +86,7 @@ export const DELIVERY_METHODS = {
   pickup:  { label: "Самовывоз в Махачкале",  days: "в день заказа", onlyZone: "z1", provider: "self" },
   pvz:     { label: "СДЭК — пункт выдачи",    days: "2–7 дней",  provider: "cdek", map: true },
   courier: { label: "СДЭК — курьер до двери", days: "2–7 дней",  provider: "cdek" },
-  ozon:    { label: "Пункт выдачи Ozon",      days: "2–7 дней",  provider: "ozon", map: true, requiresKeys: true },
+  ozon:    { label: "Ozon — пункт выдачи",    days: "2–7 дней",  provider: "ozon", map: true, requiresKeys: true },
   post:    { label: "Почта России",           days: "5–14 дней", provider: "post", note: "есть в любом селе" }
 };
 
