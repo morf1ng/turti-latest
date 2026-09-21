@@ -38,6 +38,10 @@ function formatSchedule(data) {
   return parts.join(", ");
 }
 
+export function postMapAvailable() {
+  return Boolean(process.env.DADATA_TOKEN);
+}
+
 /** Отделения Почты — через DaData (нужен DADATA_TOKEN на сервере). */
 export async function getPoints(city, postIndex) {
   const token = process.env.DADATA_TOKEN;
@@ -84,14 +88,16 @@ export async function getOptions(ctx) {
   const free = freeDelivery(ctx.goods);
   const hasIndex = /^\d{6}$/.test(String(ctx.postIndex || ctx.postal || ""));
 
+  const mapReady = postMapAvailable();
+
   if (quote) {
     return [
       optionBase("post", "Почта России", "post", {
         days: quote.days,
         cost: free ? 0 : quote.cost,
         estimated: false,
-        needsMap: true,
-        note: "до отделения",
+        needsMap: mapReady,
+        note: mapReady ? "до отделения" : "укажите индекс отделения",
       }),
     ];
   }
@@ -102,8 +108,8 @@ export async function getOptions(ctx) {
       days: "5–14 дней",
       cost: free ? 0 : null,
       estimated: !hasIndex,
-      needsMap: true,
-      note: "до отделения",
+      needsMap: mapReady,
+      note: mapReady ? "до отделения" : "укажите индекс отделения",
     }),
   ];
 }

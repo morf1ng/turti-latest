@@ -1856,7 +1856,7 @@
       pickup:  { label: "Самовывоз в Махачкале",   days: "в день заказа", cost: 0, note: "бесплатно, адрес сообщим после заказа" },
       ozon:    { label: "Ozon — пункт выдачи",     days: "2–7 дней", provider: "ozon", map: true },
       pvz:     { label: "СДЭК — пункт выдачи",     days: "2–7 дней", provider: "cdek", map: true },
-      post:    { label: "Почта России",            days: "5–14 дней", provider: "post", map: true, note: "до отделения" }
+      post:    { label: "Почта России",            days: "5–14 дней", provider: "post", note: "укажите индекс отделения" }
     };
 
     function isMakhachkala(city) {
@@ -2563,9 +2563,10 @@
               '<label class="co-lab-in" id="co-addr-wrap" hidden>' +
                 '<input name="address" id="co-addr" placeholder="Улица, дом, квартира">' +
               '</label>' +
-              '<label class="co-lab-in" id="co-index-wrap" hidden>' +
-                '<input name="postIndex" id="co-index" inputmode="numeric" maxlength="6" placeholder="Индекс отделения">' +
+              '<label class="co-lab-in" id="co-index-wrap" hidden>Индекс отделения Почты России' +
+                '<input name="postIndex" id="co-index" inputmode="numeric" maxlength="6" placeholder="6 цифр, например 367000">' +
               '</label>' +
+              '<p class="co-any" id="co-post-hint" hidden>Индекс есть на сайте pochta.ru или на конверте. Посылка придёт в это отделение.</p>' +
             '</div>' +
           '</div>' +
 
@@ -2812,12 +2813,22 @@
         toast("Пункт выбран ✓");
       }
 
+      function showPostIndexOnly() {
+        $("#co-map-wrap").hidden = true;
+        $("#co-index-wrap").hidden = false;
+        $("#co-post-hint").hidden = false;
+        $("#co-index").required = true;
+        $("#where-lab").textContent = "Индекс отделения Почты России";
+        if (st.postIndex) $("#co-index").value = st.postIndex;
+      }
+
       function mountCheckoutMap() {
         var o = st.options.filter(function (x) { return x.method === st.method; })[0] || {};
         var host = $("#co-map-host");
         var expand = $("#co-map-expand");
         if (!host || !o.needsMap) return;
         var provider = deliveryProvider(o);
+        if (expand) expand.hidden = false;
         renderPickupPoints({
           host: host,
           city: st.city,
@@ -2826,14 +2837,11 @@
           postIndex: st.postIndex,
           onPick: onPickPoint,
           onFail: function () {
-            if (st.method === "post") {
-              $("#co-index-wrap").hidden = false;
-              $("#co-index").required = true;
-            }
+            if (expand) expand.hidden = true;
+            if (st.method === "post") showPostIndexOnly();
           }
         });
         if (expand) {
-          expand.hidden = false;
           expand.onclick = function () {
             openPvzMap(st.city, provider, function (pt) {
               onPickPoint(pt);
@@ -2849,15 +2857,24 @@
         var map = Boolean(o.needsMap), pickup = st.method === "pickup", post = st.method === "post";
 
         $("#step-where").hidden = pickup;
+        $("#co-post-hint").hidden = true;
         $("#co-map-wrap").hidden = !map;
         $("#co-addr-wrap").hidden = map || pickup || post;
-        $("#co-index-wrap").hidden = map;
+        $("#co-index-wrap").hidden = map || !post;
         $("#co-index").required = post && !map;
         $("#co-addr").required = !map && !pickup && !post;
-        $("#where-lab").textContent = map ? "Выберите пункт на карте" : (post ? "Индекс отделения" : "Куда привезти");
+        $("#where-lab").textContent = map
+          ? ("Выберите на карте · " + providerTitle(deliveryProvider(o)))
+          : (post ? "Индекс отделения Почты России" : "Куда привезти");
 
-        if (!map) { st.picked = null; $("#co-picked").hidden = true; }
-        else {
+        if (post && !map) {
+          st.picked = null;
+          $("#co-picked").hidden = true;
+          showPostIndexOnly();
+        } else if (!map) {
+          st.picked = null;
+          $("#co-picked").hidden = true;
+        } else {
           if (st.picked) showPicked();
           mountCheckoutMap();
         }
