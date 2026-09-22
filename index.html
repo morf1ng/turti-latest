@@ -7,7 +7,7 @@
   <!-- ПРОБНЫЙ ЗАПУСК: скрыто от поиска. Убрать эту строку, когда сайт готов к настоящему запуску. -->
   <meta name="robots" content="noindex, nofollow">
   <title>TURTI — дагестанский урбеч с водяной мельницы</title>
-  <link rel="icon" type="image/png" href="images/turti-avatar.png">
+  <link rel="icon" href="images/turti-logo-red.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Prata&family=Archivo+Black&family=Playfair+Display:wght@800&display=swap" rel="stylesheet">
@@ -85,15 +85,8 @@
       border-bottom: 1px solid rgba(255,255,255,.6);
       box-shadow: 0 1px 0 rgba(120,90,40,.08);
     }
-    .logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
-    .logo-mark {
-      width: 42px; height: 42px; border-radius: 13px;
-      background: linear-gradient(160deg, #E0574C 0%, #C6362B 55%, #7E1D16 100%);
-      display: grid; place-items: center;
-      box-shadow: 0 6px 14px rgba(15,95,136,.35), inset 0 1.5px 2px rgba(255,255,255,.5);
-      overflow: hidden;
-    }
-    .logo-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-mark { width: 42px; height: 42px; border-radius: 13px; object-fit: cover; box-shadow: 0 6px 14px rgba(126,29,22,.28); }
     .logo strong {
       font-family: 'Archivo Black', 'Manrope', sans-serif;
       font-size: 16.5px; letter-spacing: .07em;
@@ -101,7 +94,7 @@
       -webkit-background-clip: text; background-clip: text; color: transparent;
       text-shadow: 0 1px 0 rgba(255,255,255,.35);
     }
-    .logo small { display: block; font-size: 9.5px; color: var(--gray); font-weight: 700; letter-spacing: .07em; }
+    .logo small { display: none; }
     .cart-glass {
       position: relative;
       width: 44px; height: 44px; border-radius: 14px;
@@ -821,12 +814,26 @@
       font-size:13.5px; font-weight:800; color:var(--green); text-decoration:none;
     }
     .co-help:active{ background:#FFF7EC; }
-    details.faq{ background:var(--white); border:1.5px solid var(--line); border-radius:14px; padding:0 16px; margin-bottom:8px; }
-    details.faq summary{ cursor:pointer; font-weight:800; font-size:14.5px; padding:14px 0; list-style:none; }
-    details.faq summary::-webkit-details-marker{ display:none; }
-    details.faq summary::after{ content:"+"; float:right; color:var(--green); font-weight:800; }
-    details.faq[open] summary::after{ content:"−"; }
-    details.faq p{ color:var(--gray); font-weight:500; font-size:13.5px; padding-bottom:14px; line-height:1.55; }
+    details.faq{ background:var(--white); border:1.5px solid var(--line); border-radius:16px; padding:0 17px; margin-bottom:10px; box-shadow:0 7px 20px rgba(60,45,20,.06); transition:border-color .2s, box-shadow .2s; }
+    details.faq[open]{ border-color:rgba(198,54,43,.35); box-shadow:0 12px 28px rgba(60,45,20,.1); }
+    .catalog-divider{ margin:4px 18px 0; padding:30px 22px 26px; border-radius:24px; background:linear-gradient(145deg,#3A1A10,#8E2A1E 58%,#C6362B); color:#fff; text-align:center; box-shadow:0 16px 34px rgba(58,26,16,.2); }
+    .catalog-divider .eyebrow{ color:#F0BF86; margin-bottom:8px; }
+    .catalog-divider h3{ font-family:'Prata',serif; font-size:clamp(24px,6vw,34px); font-weight:400; line-height:1.2; margin-bottom:8px; }
+    .catalog-divider p{ color:rgba(255,246,238,.84); font-size:14px; line-height:1.55; max-width:480px; margin:0 auto; }
+    .delivery-flow{ display:grid; gap:10px; }
+    .delivery-step{ display:grid; grid-template-columns:38px 1fr; gap:12px; align-items:start; background:var(--white); border:1.5px solid var(--line); border-radius:18px; padding:15px 16px; box-shadow:0 7px 20px rgba(60,45,20,.06); }
+    .delivery-step b{ display:grid; place-items:center; width:34px; height:34px; border-radius:50%; background:#FBE1DD; color:var(--green); font-size:14px; }
+    .delivery-step h4{ font-size:14px; margin-bottom:3px; }
+    .delivery-step p{ color:var(--gray); font-size:13.5px; line-height:1.5; }
+    .faq-list{ display:grid; gap:2px; }
+    .footer-brand{ font-family:'Archivo Black','Manrope',sans-serif; font-size:22px; letter-spacing:.12em; color:var(--green); margin-bottom:10px; }
+    footer { border-top: 1px solid var(--line); padding: 40px 20px 150px; text-align: center; }
+    footer p { color: var(--gray); font-size: 13.5px; margin-bottom: 6px; }
+    body{ font-weight:500; }
+    .sec-lead{ font-weight:600; color:#453F35; }
+    .pcard-desc{ font-weight:600; color:#4A463C; }
+    .pm-desc, .intro-info > p, .col-flavors{ font-weight:600; color:#453F35; }
+    .pm-block p, details.pm-acc p{ font-weight:600; }
     .pm-gallery{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
     .gslot{ position:relative; height:84px; border:1.5px dashed var(--line); border-radius:12px; background:var(--white); display:grid; place-items:center; overflow:hidden; }
     .gslot span{ font-size:10.5px; font-weight:700; color:var(--gray); text-align:center; padding:0 6px; }
@@ -848,7 +855,7 @@
     .pm-desc, .intro-info > p, .col-flavors{ font-weight:600; color:#453F35; }
     .pm-block p, details.pm-acc p{ font-weight:600; }
     .brandmark{ width:76px; height:76px; display:block; object-fit:cover; border-radius:20px; margin:2px 0 14px; border:2px solid rgba(255,255,255,.78); box-shadow:0 12px 30px rgba(0,0,0,.32); }
-    .dock{ left:50%; right:auto; transform:translateX(-50%); width:calc(100% - 22px); max-width:430px; bottom:calc(8px + env(safe-area-inset-bottom,0px)); padding:8px 4px; border-radius:20px; background:#FDFAF3; border:1px solid var(--line); box-shadow:none; justify-content:space-around; }
+    .dock{ left:50%; right:auto; transform:translateX(-50%); width:calc(100% - 22px); max-width:430px; bottom:10px; padding:9px 4px; border-radius:24px; background:rgba(253,250,243,.97); border:1px solid rgba(255,255,255,.75); box-shadow:0 10px 30px rgba(30,20,10,.18); justify-content:space-around; }
     .dock a, .dock > button{ color:#A39A85; font-size:9.5px; gap:3px; padding:2px 6px; }
     .dock svg.di{ width:23px; height:23px; }
     .dock .dock-active{ color:var(--green); }
@@ -987,6 +994,27 @@
     .surprise-note span{font-size:12.5px;font-weight:700;color:#8A6A22}
 
     /* ═══════════════ ОФОРМЛЕНИЕ ЗАКАЗА ПО ШАГАМ ═══════════════ */
+    .co-guide{background:linear-gradient(135deg,#FFF7F1,#FFF0E8);border:1.5px solid #F0C9B7;border-radius:16px;padding:12px 14px;margin:-4px 0 16px;color:#6B3D2D;font-size:13px;font-weight:700;line-height:1.45}
+    .co-guide strong{display:block;color:var(--green);font-size:14px;margin-bottom:2px}
+    .co-next{width:100%;margin-top:10px;min-height:46px;border:0;border-radius:13px;background:var(--green);color:#fff;font:800 14px 'Manrope',sans-serif;cursor:pointer;box-shadow:0 7px 18px rgba(198,54,43,.22)}
+    .co-next:disabled{opacity:.42;cursor:not-allowed;box-shadow:none}
+    .co-city-next{margin-top:10px}
+    .co-way{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px}
+    #checkout-sheet [hidden]{display:none!important}
+    #checkout-sheet .co-step::before{display:none}
+    #checkout-sheet .co-step{padding:16px 0 12px}
+    #checkout-sheet .co-way{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px}
+    #checkout-sheet .co-way-p{font-size:13px}
+    #checkout-sheet .co-guide{background:none;border:0;padding:0;margin:0 0 10px;color:var(--gray)}
+    #checkout-sheet .co-progress{display:block;width:100%;height:5px;accent-color:var(--green);margin-top:8px}
+    #checkout-sheet .co-step-title{outline:none}
+    #checkout-sheet .co-back-step{background:none;border:0;color:var(--green);font:800 14px 'Manrope',sans-serif;min-height:44px;padding:8px 0}
+    .co-way-i{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#FFF1E8;font-size:17px}
+    #checkout-sheet #co-ways .co-way{grid-template-columns:48px minmax(0,1fr);gap:8px 10px}
+    #checkout-sheet #co-ways .co-way-i{width:48px;height:36px;grid-row:1 / 3;background:#fff;border:1px solid var(--line);border-radius:9px}
+    #checkout-sheet #co-ways .co-way-i svg{display:block;width:40px;height:28px}
+    #checkout-sheet #co-ways .co-way-p{grid-column:2;font-size:12px;white-space:normal}
+    #checkout-sheet #co-ways .co-way-t{min-width:0}
     .co-h{font-family:'Unbounded','Manrope',sans-serif;font-weight:700;font-size:clamp(20px,5vw,25px);letter-spacing:-.025em;margin-bottom:14px}
 
     .co-sum{background:var(--cream);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:18px;font-size:14px}
@@ -1213,19 +1241,9 @@
     }
     
     /* ═══ БРЕНД TURTI — запоминаемость ═══ */
-    .logo-mark {
-      box-shadow: 0 10px 24px rgba(198,54,43,.48), inset 0 1.5px 2px rgba(255,255,255,.5) !important;
-      width: 46px;
-      height: 46px;
-    }
     .logo strong {
-      font-size: 18px;
-      letter-spacing: .12em;
-    }
-    .hero-kicker {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: .16em;
+      font-size: 16.5px;
+      letter-spacing: .07em;
     }
 
     /* ═══ КРАСИВЫЙ АКЦЕНТ НА СЛОВАХ (не красный, тёплый ореховый) ═══ */
@@ -1342,6 +1360,16 @@
     .st-title{ font-family:'Prata',serif; font-weight:400; font-size:clamp(26px,6.6vw,35px); line-height:1.2; color:var(--green-dark, #9E271F); margin-bottom:13px; }
     .st-rule{ width:54px; height:3px; background:var(--nut); border-radius:2px; margin:0 0 24px; }
     .st-cards{ display:grid; gap:13px; }
+    .story-single{ display:block; }
+    .story-single .st-card{ padding:28px 22px 25px; }
+    .story-icon{ width:82px; height:82px; margin:0 auto 18px; filter:drop-shadow(0 10px 18px rgba(158,39,31,.24)); }
+    .story-icon svg{ display:block; width:100%; height:100%; }
+    .story-single .st-card h4{ text-align:center; font-size:22px; margin-bottom:13px; }
+    .story-single .st-card p{ text-align:left; }
+    .story-single .st-facts-inline{ margin:24px 0 0; }
+    .story-single .st-facts-inline .st-fact{ padding:14px 8px; }
+    .story-single .st-facts-inline .st-fact b{ font-size:26px; }
+    .story-single .st-facts-inline .st-fact span{ font-size:10.5px; }
     .st-card{
       position:relative; overflow:hidden; background:var(--white); border:1px solid var(--line);
       border-radius:22px; padding:25px 22px 23px; box-shadow:0 16px 40px rgba(90,45,20,.08);
@@ -1455,6 +1483,27 @@
     .hits-catalog-arrow { font-size:23px; line-height:1; }
     @media(max-width:480px) { .hits-catalog-link { width:100%; } }
     .col-purpose { color:var(--green); font-size:13px; font-weight:700; margin:8px 0 10px; }
+
+    /* На телефоне главная ведёт коротко к наборам: подробные разделы остаются в меню. */
+    @media(max-width:767px) {
+      [data-screen-view="home"] .home-story,
+      [data-screen-view="home"] #hits-main,
+      [data-screen-view="home"] .catalog-divider,
+      [data-screen-view="home"] #delivery,
+      [data-screen-view="home"] #faq,
+      [data-screen-view="home"] #reviews { display:none; }
+      [data-screen-view="home"] .home-sets { margin-top:22px; }
+      #collections-home .col-purpose,
+      #collections-home .col-flavors,
+      #collections-home .col-weight,
+      #collections-home .col-reviews,
+      #collections-home .price-old { display:none; }
+      #collections-home .col-info { padding:14px 16px 16px; }
+      #collections-home .col-foot { margin-bottom:10px; }
+      #collections-home .home-custom-card .col-box { min-height:130px; }
+      #collections-home .home-custom-card .col-info { padding-top:16px; }
+      footer{ padding-bottom:170px; }
+    }
     @media(min-width:768px) { #collections-home .col-card:last-child:nth-child(odd) { grid-column:1 / -1; width:calc((100% - 24px) / 2); justify-self:center; } }
   </style>
   <!-- Open Graph -->
@@ -1477,13 +1526,13 @@
   <!-- ШАПКА -->
   <header class="header">
     <div class="header-side">
-      <button class="icon-btn" data-open-menu aria-label="Меню"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <button class="icon-btn" data-open-menu aria-label="Меню">☰</button>
       <a class="logo" href="index.html" aria-label="TURTI — на главную">
-        <span class="logo-mark"><img src="images/turti-avatar.png" alt=""></span>
-        <span><strong>TURTI</strong><small>урбеч с водяной мельницы</small></span>
+        <img class="logo-mark" src="images/turti-logo-red.svg" alt="Логотип TURTI">
+        <span><strong>TURTI</strong></span>
       </a>
     </div>
-    <a class="header-story" href="#about">О нас <span aria-hidden="true">↗</span></a>
+    <a class="header-story" href="#story">О нас <span aria-hidden="true">↗</span></a>
   </header>
 
   <main>
@@ -1512,14 +1561,12 @@
           <path d="M0 742 L300 700 L620 746 L920 705 L1200 745 L1200 800 L0 800 Z" fill="#3E4E2C"/>
         </svg>
       </div>
-      <img class="hero-img" src="images/hero.jpg" alt="TURTI — горы Кавказа"
-           onerror="var t=['images/hero.jpeg','images/hero.png','images/hero.JPG'];this.onerror=()=>{if(t.length)this.src=t.shift();else{this.onerror=null;this.style.display='none'}};this.src=t.shift();">
+      <img class="hero-img" src="images/hero.png" alt="TURTI — водяная мельница и горы Дагестана"
+           onerror="var t=['images/hero.jpg','images/hero.jpeg','images/hero.webp','images/hero.JPG'];this.onerror=()=>{if(t.length)this.src=t.shift();else{this.onerror=null;this.style.display='none'}};this.src=t.shift();">
       <div class="hero-shade"></div>
       <div class="hero-content">
-        <img class="brandmark" src="images/turti-avatar.png" alt="TURTI">
-        <span class="hero-kicker"><svg viewBox="0 0 20 14" fill="currentColor" aria-hidden="true"><path d="M1 13L6.5 4L10 9.5L13 5L19 13H1Z"/></svg>Ботлихский район · Дагестан</span>
         <h1 class="hero-title">25 лет каменного помола<br>Вкус <span class="accent" style="color:#E8C99A">без спешки</span></h1>
-        <p class="hero-intro">Урбеч из орехов и семян с водяной мельницы в Дагестане.</p>
+        <p class="hero-intro">Урбеч из орехов и семян из Дагестана.</p>
         <div class="hero-btns">
           <a class="btn btn-gold" href="#catalog">Выбрать вкус</a>
           <a class="btn btn-white" href="#about">Наша история</a>
@@ -1552,45 +1599,54 @@
       </div>
     </section>
 
+    <section class="catalog-divider" aria-label="Раздел заказа">
+      <span class="eyebrow">Следующий шаг</span>
+      <h3>Как заказать TURTI</h3>
+      <p>Выбрали вкус — теперь осталось оформить доставку.</p>
+    </section>
+
+    <section class="section order-section" style="padding-top:34px" id="delivery">
+      <div class="sec-head">
+        <span class="eyebrow">Доставка и оплата</span>
+        <h2 class="sec-title">Просто и понятно</h2>
+      </div>
+      <div class="delivery-flow">
+        <article class="delivery-step"><b>1</b><div><h4>Выберите свой вкус</h4><p>Откройте понравившийся урбеч, выберите объём и добавьте банку или набор в корзину.</p></div></article>
+        <article class="delivery-step"><b>2</b><div><h4>Оформите заказ</h4><p>В корзине укажите город и контакты. Регистрация не нужна — только то, что нужно для доставки.</p></div></article>
+        <article class="delivery-step"><b>3</b><div><h4>Выберите удобный пункт</h4><p>Ozon, СДЭК, Почта или самовывоз в Махачкале — стоимость считается автоматически при оформлении.</p></div></article>
+        <article class="delivery-step"><b>4</b><div><h4>Получите TURTI</h4><p>Мы подтвердим срок и стоимость доставки, бережно упакуем заказ и сообщим, когда его можно будет забрать.</p></div></article>
+      </div>
+      <p class="del-note">Остались вопросы по доставке? Напишите нам в WhatsApp — поможем выбрать лучший вариант.</p>
+    </section>
+
+    <section class="section faq-section" style="padding-top:28px" id="faq">
+      <div class="sec-head">
+        <span class="eyebrow">Ответы рядом</span>
+        <h2 class="sec-title">Частые вопросы</h2>
+        <p class="sec-lead">Коротко о вкусе, хранении и доставке.</p>
+      </div>
+      <div class="faq-list">
+        <details class="faq"><summary>Что такое урбеч?</summary><p>Густая паста из орехов или семян, перетёртых каменными жерновами. Только сам орех и его собственное масло.</p></details>
+        <details class="faq"><summary>Какой вкус выбрать первым?</summary><p>Чаще всего начинают с миндального, арахисового или фундука с какао-бобами — набор «Первое знакомство» собран как раз из них.</p></details>
+        <details class="faq"><summary>Почему сверху появляется масло?</summary><p>Небольшой слой масла после хранения — это нормально: у орехов и семян есть собственное масло. В тепле или после долгого простоя его может быть заметнее — просто перемешайте урбеч ложкой. Количество отделившегося масла само по себе не доказывает наличие добавок: это зависит от вкуса, температуры и помола. В TURTI дополнительные масла не добавляем.</p></details>
+        <details class="faq"><summary>Как хранить?</summary><p>В тёмном прохладном месте. После вскрытия — плотно закрывать крышку.</p></details>
+        <details class="faq"><summary>Сколько хранится после открытия?</summary><p>До 2 месяцев при правильном хранении.</p></details>
+        <details class="faq"><summary>Как происходит доставка?</summary><p>Укажите город и выберите Ozon, СДЭК, Почту России или самовывоз. Стоимость доставки покажется сразу в корзине — до оплаты.</p></details>
+      </div>
+    </section>
+
     <section class="section home-sets" id="intro">
       <div class="sec-head"><span class="eyebrow">Несколько вкусов в одной коробке</span><h2 class="sec-title">Для знакомства и в подарок</h2><p class="sec-lead">Попробуйте сочетание вкусов или выберите набор для близких.</p></div>
       <div class="collections" id="collections-home"></div>
     </section>
 
-
-
-    <section class="section" style="padding-top:0" id="reviews">
+    <section class="section" id="reviews">
       <div class="sec-head">
         <span class="eyebrow">Отзывы</span>
         <h2 class="sec-title">Что говорят покупатели</h2>
       </div>
       <div id="home-rv"></div>
       <a class="btn btn-outline btn-block" href="reviews.html" style="margin-top:14px">Читать и оставить отзыв</a>
-    </section>
-
-    <section class="section" style="padding-top:0" id="delivery">
-      <div class="sec-head">
-        <span class="eyebrow">Доставка и оплата</span>
-        <h2 class="sec-title">Как заказать TURTI</h2>
-      </div>
-      <div class="pm-block"><h4>1. Выберите свой вкус</h4><p>Откройте понравившийся урбеч, выберите объём и добавьте банку или набор в корзину.</p></div>
-      <div class="pm-block"><h4>2. Оформите заказ</h4><p>В корзине укажите город и контакты. Регистрация не нужна — только данные, необходимые для доставки.</p></div>
-      <div class="pm-block"><h4>3. Выберите удобную доставку</h4><p>Ozon, СДЭК, Почта России или самовывоз в Махачкале — стоимость считается автоматически при оформлении.</p></div>
-      <div class="pm-block"><h4>4. Получите TURTI</h4><p>Срок зависит от города и выбранного способа. Мы заранее подтвердим стоимость и дату, бережно упакуем заказ и сообщим, когда он будет в пути.</p></div>
-      <p class="del-note">Доставляем по России. Если подходящего варианта не окажется, напишите нам — подберём другой способ.</p>
-    </section>
-
-    <section class="section" style="padding-top:0" id="faq">
-      <div class="sec-head">
-        <span class="eyebrow">Вопросы</span>
-        <h2 class="sec-title">Частые вопросы</h2>
-      </div>
-      <details class="faq"><summary>Что такое урбеч?</summary><p>Густая паста из орехов или семян, перетёртых каменными жерновами. Только сам орех и его собственное масло.</p></details>
-      <details class="faq"><summary>Какой вкус выбрать первым?</summary><p>Чаще всего начинают с миндального, арахисового или фундука с какао-бобами — набор «Первое знакомство» собран как раз из них.</p></details>
-      <details class="faq"><summary>Почему сверху появляется масло?</summary><p>Небольшой слой масла после хранения — это нормально: у орехов и семян есть собственное масло. В тепле или после долгого простоя его может быть заметнее — просто перемешайте урбеч ложкой. Количество отделившегося масла само по себе не доказывает наличие добавок: это зависит от вкуса, температуры и помола. В TURTI дополнительные масла не добавляем.</p></details>
-      <details class="faq"><summary>Как хранить?</summary><p>В тёмном прохладном месте. После вскрытия — плотно закрывать крышку.</p></details>
-      <details class="faq"><summary>Сколько хранится после открытия?</summary><p>До 2 месяцев при правильном хранении.</p></details>
-      <details class="faq"><summary>Как происходит доставка?</summary><p>Укажите город и выберите Ozon, СДЭК, Почту России или самовывоз. Стоимость доставки покажется сразу в корзине — до оплаты.</p></details>
     </section>
 
     </div>
@@ -1653,31 +1709,28 @@
         <div class="story-film-caption"><span class="film-symbol" aria-hidden="true">▷</span><span><strong>Как мы делаем урбеч</strong><small>Скоро видео · 3 минуты</small></span></div>
       </div>
 
-        <div class="st-cards">
-          <div class="st-card">
-            <span class="st-n">О Д И Н</span>
-            <h4>Мельница на горной реке</h4>
-            <p>Ботлихский район Дагестана, берег реки. Водяная мельница, никакого электричества: вода крутит колесо, колесо крутит каменные жернова, жернова перетирают орех.</p>
-            <p>Скорость задаёт река. Ускорить её нельзя — да никто и не пробовал.</p>
-          </div>
-          <div class="st-card">
-            <span class="st-n">Д В А</span>
-            <h4>25 лет у одних жерновов</h4>
-            <p>У этих камней 25 лет стоит один и тот же мастер — человек, который встал сюда задолго до того, как слово «урбеч» стало модным.</p>
-            <p>Такой опыт не покупается и не передаётся за неделю: он слышит по звуку камня, когда пора останавливать, и знает каждый орех на ощупь. <strong>Этого не заменит ни один аппарат.</strong></p>
-          </div>
-          <div class="st-card">
-            <span class="st-n">Т Р И</span>
-            <h4>Вкус, который ни с чем не сравнится</h4>
-            <p>Орех, перетёртый камнем на медленном ходу, не спутаешь ни с чем. Камень не перегревает и не сжигает аромат — настоящий природный вкус остаётся <strong>живым</strong>.</p>
-            <p>Рецепт мы не придумывали и не улучшали. Он был до нас, и это лучшее, что можно про него сказать.</p>
-          </div>
-        </div>
-
-        <div class="st-facts">
-          <div class="st-fact"><b>25</b><span>лет мельнице</span></div>
-          <div class="st-fact"><b>17</b><span>вкусов</span></div>
-          <div class="st-fact"><b>0</b><span>консервантов<br>и красителей</span></div>
+        <div class="st-cards story-single">
+          <article class="st-card">
+            <div class="story-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="34" fill="url(#storyIconBg)"/>
+                <path d="M40 19v42M19 40h42M25.2 25.2l29.6 29.6M54.8 25.2 25.2 54.8" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".88"/>
+                <circle cx="40" cy="40" r="9" fill="#fff"/>
+                <path d="M40 30c-4-7-11-9-14-5 0 6 5 11 14 15 9-4 14-9 14-15-3-4-10-2-14 5Z" fill="#F7D39C"/>
+                <defs><linearGradient id="storyIconBg" x1="16" y1="12" x2="65" y2="69" gradientUnits="userSpaceOnUse"><stop stop-color="#E0574C"/><stop offset="1" stop-color="#9E271F"/></linearGradient></defs>
+              </svg>
+            </div>
+            <h4>Мельница. Камень. Холодный помол.</h4>
+            <p><strong>Каменный помол.</strong> В Ботлихском районе Дагестана орехи и семена бережно перетираются каменными жерновами на водяной мельнице — медленно, без лишней спешки. Сырьё не перегревается, поэтому сохраняются естественные вкус, аромат и собственное масло.</p>
+            <p>Каждая партия требует внимания к помолу и вкусу. Вода приводит жернова в движение — эту работу передавали от поколения к поколению, а мы продолжаем её сегодня и делаем здесь TURTI.</p>
+            <p><strong>25 лет у одних жерновов.</strong> У этих камней 25 лет стоит один и тот же мастер — человек, который встал сюда задолго до того, как слово «урбеч» стало модным. <strong>Этого не заменит ни один аппарат.</strong></p>
+            <p><strong>Вкус, который ни с чем не сравнится.</strong> Орех, перетёртый камнем на медленном ходу, не спутаешь ни с чем. Камень не перегревает и не сжигает аромат — настоящий природный вкус остаётся <strong>живым</strong>.</p>
+            <div class="st-facts st-facts-inline">
+              <div class="st-fact"><b>25</b><span>лет каменного помола</span></div>
+              <div class="st-fact"><b>17</b><span>вкусов TURTI</span></div>
+              <div class="st-fact"><b>0</b><span>консервантов</span></div>
+            </div>
+          </article>
         </div>
 
         <p class="st-closing"><span class="st-txt">TURTI — это не про орехи. Это про то, что хороший вкус стоит 25 лет чьей-то работы.</span></p>
@@ -1693,53 +1746,17 @@
   </main>
 
   <!-- ФУТЕР -->
-  <footer class="site-foot" id="contacts">
-    <div class="foot-inner">
-      <div class="foot-brand">
-        <a class="logo" href="index.html">
-          <span class="logo-mark"><img src="images/turti-avatar.png" alt="TURTI"></span>
-          <span><strong>TURTI</strong><small>урбеч с водяной мельницы</small></span>
-        </a>
-        <p>Натуральный дагестанский урбеч. Медленный каменный помол на водяной мельнице в горах Ботлиха.</p>
-      </div>
-      <div class="foot-col">
-        <h4>Каталог</h4>
-        <ul>
-          <li><a href="#catalog">Все урбечи</a></li>
-          <li><a href="#hits">Хиты продаж</a></li>
-          <li><a href="#sets">Наборы и подарки</a></li>
-          <li><a href="#intro">Первое знакомство</a></li>
-          <li><button type="button" class="foot-link" data-open-opt>Опт</button></li>
-        </ul>
-      </div>
-      <div class="foot-col">
-        <h4>Покупателям</h4>
-        <ul>
-          <li><a href="legal/delivery.html">Доставка и оплата</a></li>
-          <li><a href="legal/returns.html">Возврат</a></li>
-          <li><a href="#faq">Частые вопросы</a></li>
-          <li><a href="legal/oferta.html">Публичная оферта</a></li>
-          <li><a href="legal/privacy.html">Конфиденциальность</a></li>
-          <li><a href="legal/consent.html">Согласие на обработку ПД</a></li>
-        </ul>
-      </div>
-      <div class="foot-col foot-contact">
-        <h4>Контакты</h4>
-        <p class="foot-phone"><a href="tel:+79282197962" style="color:inherit;text-decoration:none">+7 928 219-79-62</a></p>
-        <p class="foot-place">Производство: село Рахата, Ботлихский район, Республика Дагестан</p>
-        <a class="footer-wa" href="https://wa.me/79282197962?text=Здравствуйте!%20Пишу%20с%20сайта%20TURTI" target="_blank" rel="noopener">Написать в WhatsApp</a>
-        <p class="foot-place" style="margin-top:12px;margin-bottom:0"><a href="legal/contacts.html" style="color:#F5B889;font-weight:700;text-decoration:none">Реквизиты продавца →</a></p>
-      </div>
-    </div>
-    <div class="foot-bottom">
-      <p>© 2026 TURTI · Сделано в горах Кавказа</p>
-      <nav class="foot-legal" aria-label="Юридические документы">
-        <a href="legal/contacts.html">Контакты</a>
-        <a href="legal/oferta.html">Оферта</a>
-        <a href="legal/delivery.html">Доставка</a>
-        <a href="legal/returns.html">Возврат</a>
+  <footer id="contacts">
+    <div class="footer-brand">TURTI</div>
+    <p><strong>Остались вопросы?</strong><br>Напишите нам в WhatsApp.</p>
+    <a class="footer-wa" href="https://wa.me/79282197962?text=Здравствуйте!%20Пишу%20с%20сайта%20TURTI" target="_blank" rel="noopener">💬 +7 928 219-79-62 · WhatsApp</a>
+      <nav class="foot-legal-mini" aria-label="Юридические документы" style="margin-top:18px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 14px">
+        <a href="legal/oferta.html" style="font-size:12px;color:var(--gray);text-decoration:none">Оферта</a>
+        <a href="legal/delivery.html" style="font-size:12px;color:var(--gray);text-decoration:none">Доставка</a>
+        <a href="legal/returns.html" style="font-size:12px;color:var(--gray);text-decoration:none">Возврат</a>
+        <a href="legal/privacy.html" style="font-size:12px;color:var(--gray);text-decoration:none">Конфиденциальность</a>
+        <a href="legal/contacts.html" style="font-size:12px;color:var(--gray);text-decoration:none">Реквизиты</a>
       </nav>
-    </div>
   </footer>
 
   <a class="whatsapp-float" href="https://wa.me/79282197962?text=Здравствуйте!%20Пишу%20с%20сайта%20TURTI" target="_blank" rel="noopener" aria-label="Написать TURTI в WhatsApp">
@@ -2516,18 +2533,21 @@
       var weight = orderWeight(lines);
 
       var st = { city: "", zone: null, method: null, pay: "online", picked: null, options: [], surprise: null };
+      var activeStage = "city", deliveryRequest = 0;
 
       $("#checkout-sheet").innerHTML =
         '<div class="sheet-grip"></div>' +
         '<button type="button" class="sheet-back" data-back><span class="sb-arrow">\u2039</span>' + sheetBackLabel() + '</button>' +
         '<button class="sheet-close" data-close aria-label="Закрыть">✕</button>' +
         '<h3 class="co-h">Оформление заказа</h3>' +
+        '<div class="co-guide"><span id="co-progress-text" role="status">Шаг 1 из 5</span><progress class="co-progress" id="co-progress" value="1" max="5" aria-label="Оформление заказа"></progress></div>' +
+        '<button type="button" class="co-back-step" id="co-prev" hidden>← Назад</button>' +
 
         '<div class="co-sum" id="co-sum"></div>' +
 
         '<form id="order-form" novalidate>' +
 
-          '<div class="co-step">' +
+          '<div class="co-step" id="step-city">' +
             '<span class="co-num">1</span>' +
             '<div class="co-body">' +
               '<label class="co-lab">Куда доставить' +
@@ -2597,10 +2617,46 @@
         '</form>';
 
       $("#checkout-sheet").className = "sheet sheet-has-back";
+      $("#step-city .co-body").insertAdjacentHTML("beforeend", '<button type="button" class="co-next co-city-next" id="co-city-next" disabled>Продолжить</button>');
+      $("#co-ways").insertAdjacentHTML("afterend", '<button type="button" class="co-next" id="co-del-next" disabled>Дальше: выбрать место получения</button>');
+      $("#step-where .co-body").insertAdjacentHTML("beforeend", '<button type="button" class="co-next" id="co-where-next" hidden>Продолжить</button>');
+      $("#co-pays").insertAdjacentHTML("afterend", '<button type="button" class="co-next" id="co-pay-next">Дальше: данные получателя</button>');
       openSheet("checkout-sheet");
 
       var $city = $("#co-city"), $sug = $("#co-sug"), $zone = $("#co-zone");
       var $ways = $("#co-ways"), $pays = $("#co-pays"), $go = $("#co-go"), $note = $("#co-note");
+
+      function stageOrder() { return st.method === "pickup" ? ["city","del","pay","who"] : ["city","del","where","pay","who"]; }
+      function showStage(stage) {
+        activeStage = stage;
+        ["city","del","where","pay","who"].forEach(function (id) {
+          $("#step-" + id).hidden = id !== stage;
+        });
+        var order = stageOrder(), position = order.indexOf(stage) + 1;
+        $("#co-progress-text").textContent = "Шаг " + position + " из " + order.length;
+        $("#co-progress").max = order.length;
+        $("#co-progress").value = position;
+        $("#co-prev").hidden = stage === "city";
+        $("#co-sum").hidden = stage !== "who";
+        $go.hidden = stage !== "who";
+        $note.textContent = "";
+        $("#checkout-sheet").scrollTop = 0;
+        var heading = $("#step-" + stage + " .co-lab") || $("#step-" + stage + " .co-body");
+        if (heading) { heading.tabIndex = -1; heading.classList.add("co-step-title"); heading.focus({ preventScroll: true }); }
+        refreshGo();
+      }
+      $("#co-prev").addEventListener("click", function () {
+        var order = stageOrder(), prev = order[Math.max(0, order.indexOf(activeStage) - 1)];
+        if (prev === "city") deliveryRequest++;
+        showStage(prev);
+      });
+      $("#order-form").addEventListener("keydown", function (e) {
+        if (e.key !== "Enter" || e.target.tagName !== "INPUT" || activeStage === "who") return;
+        e.preventDefault();
+        var ids = { city: "co-city-next", del: "co-del-next", where: "co-where-next", pay: "co-pay-next" };
+        var button = $("#" + ids[activeStage]);
+        if (button && !button.disabled) button.click();
+      });
 
       /* ─── сводка ─── */
       function sum() {
@@ -2624,11 +2680,16 @@
       /* Если город стёрли или переписали — всё, что ниже, теряет смысл.
          Прячем шаги 2–5 и запрещаем отправку, пока город не подтверждён. */
       function resetBelowCity() {
+        deliveryRequest++;
+        st.cityCode = null; st.postIndex = "";
+        $("#co-addr").value = ""; $("#co-index").value = "";
         st.zone = null; st.method = null; st.picked = null; st.options = [];
         $("#step-del").hidden = true;
         $("#step-where").hidden = true;
         $("#step-pay").hidden = true;
         $("#step-who").hidden = true;
+        $("#co-city-next").disabled = true;
+        $("#co-del-next").disabled = true;
         $zone.hidden = true;
         $("#co-est").hidden = true;
         $ways.innerHTML = "";
@@ -2636,6 +2697,7 @@
         $("#co-picked").hidden = true;
         $go.disabled = true;
         $go.textContent = "Укажите город";
+        showStage("city");
         sum();
       }
 
@@ -2644,6 +2706,7 @@
         clearTimeout(tmr);
         /* город изменили — предыдущий расчёт больше не действителен */
         if (q !== st.city) resetBelowCity();
+        $("#co-city-next").disabled = q.length < 2;
         if (q.length < 2) { $sug.hidden = true; return; }
         tmr = setTimeout(function () {
           fetch("/api/cities?q=" + encodeURIComponent(q))
@@ -2666,20 +2729,32 @@
         var c = $sug._items[Number(b.dataset.i)];
         $city.value = c.city; st.city = c.city; st.cityCode = c.code || null; st.postIndex = c.postal || "";
         $sug.hidden = true;
-        calc();
+        $("#co-city-next").disabled = false;
       });
 
       $city.addEventListener("blur", function () {
         setTimeout(function () { $sug.hidden = true; }, 150);
         var v = $city.value.trim();
         if (v.length < 2) { st.city = ""; resetBelowCity(); return; }
-        if (v !== st.city) { st.city = v; calc(); }
+        if (v !== st.city) { st.city = v; }
+        $("#co-city-next").disabled = v.length < 2;
+      });
+
+      $("#co-city-next").addEventListener("click", function () {
+        var v = $city.value.trim();
+        if (v.length < 2) { toast("Введите город, село или аул"); return; }
+        st.city = v;
+        $sug.hidden = true;
+        calc();
       });
 
       /* ─── 2 · способы доставки с сервера ─── */
       function calc() {
         if (!st.city) return;
-        $("#step-del").hidden = false;
+        var request = ++deliveryRequest;
+        st.options = []; st.method = null; st.picked = null;
+        $("#co-del-next").disabled = true;
+        showStage("del");
         $ways.innerHTML = '<div class="pvz-load"><span class="spin"></span>Считаем доставку…</div>';
         $go.disabled = true; $go.textContent = "Считаем доставку…";
 
@@ -2693,6 +2768,7 @@
         })
         .then(function (r) { return r.json(); })
         .then(function (d) {
+          if (request !== deliveryRequest) return;
           if (!d.ok) throw new Error(d.error || "не вышло");
           st.options = d.options || [];
           st.cityCode = d.cityCode || st.cityCode;
@@ -2711,9 +2787,12 @@
             return;
           }
           if (!st.options.some(function (o) { return o.method === st.method; })) st.method = st.options[0].method;
-          drawWays(); drawPays(); afterWay();
+          drawWays();
+          $("#co-del-next").disabled = !st.method;
+          $("#co-del-next").textContent = st.method === "pickup" ? "Дальше: выбрать оплату" : "Дальше: выбрать место получения";
         })
         .catch(function () {
+          if (request !== deliveryRequest) return;
           var zone = zoneForCity(st.city);
           st.options = Object.keys(DELIVERY_METHODS).filter(function (k) {
             if (k === "pickup") return isMakhachkala(st.city);
@@ -2731,7 +2810,9 @@
           if (zone) { $zone.hidden = false; $zone.textContent = "Зона: " + (ZONES[zone] ? ZONES[zone].name : zone); }
           $("#co-est").hidden = false;
           if (!st.options.some(function (o) { return o.method === st.method; })) st.method = st.options[0] ? st.options[0].method : null;
-          drawWays(); drawPays(); afterWay();
+          drawWays();
+          $("#co-del-next").disabled = !st.method;
+          $("#co-del-next").textContent = st.method === "pickup" ? "Дальше: выбрать оплату" : "Дальше: выбрать место получения";
         });
       }
 
@@ -2772,22 +2853,34 @@
           $ways.parentNode.insertBefore(p, $ways);
         }
 
+        var ozonLogo = '<svg viewBox="0 0 100 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" stroke="#005BFF" stroke-width="6" stroke-linejoin="round"><ellipse cx="14" cy="18" rx="10" ry="11"/><path d="M30 7h19L30 29h20"/><ellipse cx="64" cy="18" rx="10" ry="11"/><path d="M81 30V7l15 22V6"/></g></svg>';
+        var cdekLogo = '<svg viewBox="0 0 104 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="translate(8 0) skewX(-12)" fill="none" stroke="#1AB248" stroke-width="5" stroke-linejoin="round"><path d="M22 8H7v20h15M30 8h10q10 0 10 10t-10 10H30ZM74 8H58v20h16M58 18h13M84 6v24M100 7 85 18l15 11"/></g></svg>';
+        var pickupIcon = '<svg viewBox="0 0 40 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 13v15h22V13M6 13l3-9h22l3 9Z" fill="#FFF1E8" stroke="#C6362B" stroke-width="2"/><path d="M17 28V18h7v10M12 4l-1 9m8-9v9m8-9 2 9" fill="none" stroke="#C6362B" stroke-width="2"/></svg>';
+        var wayMeta = {
+          pickup: { icon: pickupIcon, sub: "Махачкала · в день заказа" },
+          pvz: { icon: cdekLogo, sub: "Пункт выдачи на карте" },
+          courier: { icon: cdekLogo, sub: "Курьер до двери" },
+          ozon: { icon: ozonLogo, sub: "Пункт Ozon на карте" },
+          post: { icon: "✉️", sub: "До отделения · 5–14 дней" }
+        };
         $ways.innerHTML = st.options.map(function (o) {
+          var meta = wayMeta[o.method] || null;
           return '<button type="button" class="co-way' + (o.method === st.method ? " on" : "") + '" data-w="' + o.method + '">' +
+            '<span class="co-way-i" aria-hidden="true">' + (meta ? meta.icon : "📦") + '</span>' +
             '<span class="co-way-t">' + escHtml(o.label) +
-              '<small>' + escHtml(o.days || "") + (o.note ? " · " + escHtml(o.note) : "") + '</small></span>' +
+              '<small>' + escHtml((meta ? meta.sub : (o.days || "")) + (o.note ? " · " + o.note : "")) + '</small></span>' +
             '<span class="co-way-p">' + (o.quoteOnRequest ? "уточнит менеджер" : o.cost === 0 ? "бесплатно" : o.cost == null ? "—" : money(o.cost)) + (o.estimated ? "*" : "") + '</span>' +
           '</button>';
         }).join("");
       }
 
       function drawPays() {
-        $("#step-pay").hidden = false;
         $pays.innerHTML = Object.keys(PAYMENT_METHODS).map(function (k) {
           if (k === "cod" && st.method === "pickup") return "";
           var m = PAYMENT_METHODS[k];
           var fee = k === "cod" ? "+" + money(Math.ceil(goods * COD_FEE_PERCENT / 100)) : "";
           return '<button type="button" class="co-way' + (k === st.pay ? " on" : "") + '" data-p="' + k + '">' +
+            '<span class="co-way-i">' + (k === "online" ? "💳" : "💵") + '</span>' +
             '<span class="co-way-t">' + m.label + '<small>' + m.note + '</small></span>' +
             '<span class="co-way-p">' + (fee || "—") + '</span></button>';
         }).join("");
@@ -2809,6 +2902,7 @@
           if (idx) idx.value = st.postIndex;
         }
         showPicked();
+        if ($("#co-where-next")) { $("#co-where-next").hidden = false; $("#co-where-next").disabled = !whereReady(); }
         refreshGo();
         toast("Пункт выбран ✓");
       }
@@ -2851,12 +2945,38 @@
         }
       }
 
+      function whereReady() {
+        var o = st.options.filter(function (x) { return x.method === st.method; })[0] || {};
+        var map = Boolean(o.needsMap), pickup = st.method === "pickup", post = st.method === "post";
+        var f = $("#order-form");
+        var postIdx = String((st.picked && st.picked.code) || (f.postIndex && f.postIndex.value) || st.postIndex || "").trim();
+        if (pickup) return true;
+        if (map) return Boolean(st.picked) || (post && /^\d{6}$/.test(postIdx));
+        if (post) return /^\d{6}$/.test(postIdx);
+        return Boolean(f.address && f.address.value.trim());
+      }
+
+      function showPaymentStep() {
+        if (!whereReady()) {
+          toast(st.method === "post" ? "Укажите индекс отделения" : "Выберите пункт на карте или впишите адрес");
+          return;
+        }
+        drawPays();
+        showStage("pay");
+        sum();
+      }
+
+      function showWhoStep() {
+        showStage("who");
+        sum();
+        refreshGo();
+      }
+
       /* ─── 3 · где забрать ─── */
       function afterWay() {
         var o = st.options.filter(function (x) { return x.method === st.method; })[0] || {};
         var map = Boolean(o.needsMap), pickup = st.method === "pickup", post = st.method === "post";
 
-        $("#step-where").hidden = pickup;
         $("#co-post-hint").hidden = true;
         $("#co-map-wrap").hidden = !map;
         $("#co-addr-wrap").hidden = map || pickup || post;
@@ -2866,6 +2986,8 @@
         $("#where-lab").textContent = map
           ? ("Выберите на карте · " + providerTitle(deliveryProvider(o)))
           : (post ? "Индекс отделения Почты России" : "Куда привезти");
+        $("#co-where-next").hidden = pickup;
+        $("#co-where-next").disabled = !whereReady();
 
         if (post && !map) {
           st.picked = null;
@@ -2879,8 +3001,8 @@
           mountCheckoutMap();
         }
 
-        $("#step-who").hidden = false;
         bindPostRecalc();
+        if (!pickup) showStage("where");
         sum();
         refreshGo();
       }
@@ -2907,13 +3029,20 @@
 
       function refreshGo() {
         var miss = whatsMissing();
-        $go.disabled = Boolean(miss);
+        $go.disabled = activeStage !== "who" || Boolean(miss);
+        $go.hidden = activeStage !== "who";
         $go.textContent = miss || (st.pay === "cod" ? "Оформить заказ" : "Оплатить заказ");
+        if ($("#co-where-next") && activeStage === "where") $("#co-where-next").disabled = !whereReady();
       }
 
       /* пересчитываем доступность кнопки на любое изменение формы */
       $("#order-form").addEventListener("input", refreshGo);
       $("#order-form").addEventListener("change", refreshGo);
+      $("#co-addr").addEventListener("input", function () { if ($("#co-where-next")) $("#co-where-next").disabled = !whereReady(); });
+      $("#co-index").addEventListener("input", function () {
+        if ($("#co-where-next")) $("#co-where-next").disabled = !whereReady();
+        refreshGo();
+      });
 
       function showPicked() {
         var b = $("#co-picked");
@@ -2942,15 +3071,29 @@
         st.method = b.dataset.w;
         if (st.method === "pickup") st.pay = "online";
         st.picked = null;
-        drawWays(); drawPays(); afterWay();
-        bindPostRecalc();
+        $("#co-addr").value = "";
+        $("#co-picked").hidden = true;
+        drawWays();
+        sum();
+        $("#co-del-next").disabled = false;
+        $("#co-del-next").textContent = st.method === "pickup" ? "Дальше: выбрать оплату" : "Дальше: выбрать место получения";
       });
 
       $pays.addEventListener("click", function (e) {
         var b = e.target.closest("[data-p]"); if (!b) return;
         st.pay = b.dataset.p;
-        drawPays(); afterWay();
+        drawPays();
+        sum();
+        refreshGo();
       });
+
+      $("#co-del-next").addEventListener("click", function () {
+        if (!st.method) { toast("Сначала выберите способ доставки"); return; }
+        if (st.method === "pickup") { drawPays(); showStage("pay"); sum(); }
+        else afterWay();
+      });
+      $("#co-where-next").addEventListener("click", showPaymentStep);
+      $("#co-pay-next").addEventListener("click", showWhoStep);
 
       /* ─── секретный комплимент по телефону ─── */
       (function () {
@@ -2979,6 +3122,7 @@
       /* ─── отправка ─── */
       $("#order-form").addEventListener("submit", function (e) {
         e.preventDefault();
+        if (activeStage !== "who") return;
         /* ничего не отправляем, пока не заполнено всё нужное */
         var miss = whatsMissing();
         if (miss) { toast(miss); refreshGo(); return; }
@@ -2986,7 +3130,9 @@
         /* город в поле мог поменяться после расчёта — сверяем */
         if ($city.value.trim() !== st.city) {
           toast("Город изменился — пересчитываем доставку");
-          st.city = $city.value.trim(); calc(); return;
+          st.city = $city.value.trim();
+          calc();
+          return;
         }
 
         var fd = new FormData(e.target);
@@ -3083,6 +3229,7 @@
       }
 
       sum();
+      showStage("city");
     }
 
     /* ═══ ГЛОБАЛЬНЫЕ КЛИКИ ═══ */
