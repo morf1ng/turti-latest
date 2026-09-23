@@ -30,27 +30,56 @@ export function validateVideoUpload(file) {
   return { ok: true };
 }
 
+function blobReadWriteToken() {
+  return String(process.env.BLOB_READ_WRITE_TOKEN || "").trim();
+}
+
+function isPemLikeToken(token) {
+  return /BEGIN\s+(PUBLIC|PRIVATE)\s+KEY/i.test(token) || /[\r\n]/.test(token);
+}
+
+function isValidReadWriteToken(token) {
+  return Boolean(token) && /^vercel_blob_/i.test(token);
+}
+
+/** OIDC на Vercel: BLOB_STORE_ID + VERCEL_OIDC_TOKEN (подставляется на деплое). */
+function oidcConfigured() {
+  const storeId = String(process.env.BLOB_STORE_ID || "").trim();
+  if (!storeId) return false;
+  if (process.env.VERCEL_OIDC_TOKEN) return true;
+  return Boolean(process.env.VERCEL);
+}
+
 export function blobTokenReady() {
-  const token = String(process.env.BLOB_READ_WRITE_TOKEN || "").trim();
-  if (!token) {
-    return {
-      ok: false,
-      error: "Blob не подключён. Vercel → Storage → Blob → Connect to Project → Redeploy.",
-    };
-  }
-  if (/BEGIN\s+(PUBLIC|PRIVATE)\s+KEY/i.test(token) || /[\r\n]/.test(token)) {
+  const token = blobReadWriteToken();
+
+  if (token && isPemLikeToken(token)) {
     return {
       ok: false,
       error: "BLOB_READ_WRITE_TOKEN — не ключ SSH/PGP. Удалите переменную и подключите Blob через Storage.",
     };
   }
-  if (!/^vercel_blob_/i.test(token)) {
+
+  if (oidcConfigured()) {
+    return { ok: true, auth: "oidc" };
+  }
+
+  if (isValidReadWriteToken(token)) {
+    return { ok: true, auth: "token", token };
+  }
+
+  if (token) {
     return {
       ok: false,
-      error: "BLOB_READ_WRITE_TOKEN должен начинаться с vercel_blob_. Скопируйте его из Vercel → Storage → Blob.",
+      error:
+        "BLOB_READ_WRITE_TOKEN неверный. Удалите его в Settings → Environment Variables. Storage → Blob → Connect to Project → Redeploy.",
     };
   }
-  return { ok: true, token };
+
+  return {
+    ok: false,
+    error: "Blob не подключён. Vercel → Storage → Blob → Connect to Project → Redeploy.",
+  };
 }
 
 function blobErrorMessage(err) {
@@ -67,11 +96,9 @@ export async function uploadBlob(filename, buffer, contentType, folder = "review
   try {
     const { put } = await import("@vercel/blob");
     const safe = String(filename || "photo.jpg").replace(/[^\w.\-]+/g, "-");
-    const blob = await put(`${folder}/${Date.now()}-${safe}`, buffer, {
-      access: "public",
-      contentType,
-      token: ready.token,
-    });
+    const putOpts = { access: "public", contentType };
+    if (ready.auth === "token") putOpts.token = ready.token;
+    const blob = await put(`${folder}/${Date.now()}-${safe}`, buffer, putOpts);
     return { ok: true, url: blob.url };
   } catch (e) {
     return { ok: false, error: blobErrorMessage(e) };
