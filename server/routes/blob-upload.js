@@ -1,6 +1,7 @@
 import { handleUpload } from "@vercel/blob/client";
 import { ok, fail, methodNotAllowed, readJson } from "../http.js";
 import { adminKeyFrom } from "../auth.js";
+import { blobTokenReady } from "../blob.js";
 import { setStoryVideo } from "../story-video.js";
 
 const VIDEO_TYPES = new Set([
@@ -18,8 +19,9 @@ function requireAdminUpload(req) {
   if (adminKeyFrom(req) !== expected) {
     return { ok: false, status: 401, error: "Доступ запрещён" };
   }
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return { ok: false, status: 503, error: "BLOB_READ_WRITE_TOKEN не задан", hint: "Подключите Blob в Vercel → Storage." };
+  const blob = blobTokenReady();
+  if (!blob.ok) {
+    return { ok: false, status: 503, error: blob.error, hint: "Подключите Blob в Vercel → Storage." };
   }
   return { ok: true };
 }

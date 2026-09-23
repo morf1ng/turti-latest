@@ -30,11 +30,24 @@ export function validateVideoUpload(file) {
   return { ok: true };
 }
 
-export async function uploadBlob(filename, buffer, contentType, folder = "reviews") {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
+export function blobTokenReady() {
+  const token = String(process.env.BLOB_READ_WRITE_TOKEN || "").trim();
   if (!token) {
     return { ok: false, error: "Хранилище файлов не настроено (BLOB_READ_WRITE_TOKEN)." };
   }
+  if (/BEGIN\s+(PUBLIC|PRIVATE)\s+KEY/i.test(token) || /[\r\n]/.test(token)) {
+    return {
+      ok: false,
+      error: "BLOB_READ_WRITE_TOKEN указан неверно. Vercel → Storage → Blob → скопируйте vercel_blob_…, не SSH/PGP-ключ.",
+    };
+  }
+  return { ok: true, token };
+}
+
+export async function uploadBlob(filename, buffer, contentType, folder = "reviews") {
+  const ready = blobTokenReady();
+  if (!ready.ok) return ready;
+  const token = ready.token;
   const { put } = await import("@vercel/blob");
   const safe = String(filename || "photo.jpg").replace(/[^\w.\-]+/g, "-");
   const blob = await put(`${folder}/${Date.now()}-${safe}`, buffer, {

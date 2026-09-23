@@ -892,39 +892,13 @@ function uploadStoryVideo(file) {
     });
   }
 
-  function uploadBlobClient() {
-    return import("https://esm.sh/@vercel/blob@0.27.3/client").then(function (mod) {
-      return mod.upload(file.name, file, {
-        access: "public",
-        handleUploadUrl: "/api/blob-upload",
-        headers: { "x-admin-key": PASSWORD },
-        contentType: type,
-        onUploadProgress: function (ev) {
-          if (prog && ev.total) {
-            var pct = Math.round((ev.loaded / ev.total) * 100);
-            prog.textContent = "Загрузка: " + pct + "%";
-          }
-        }
-      });
-    }).then(function (blob) {
-      return saveUrl(blob.url, blob.contentType || type);
-    });
-  }
-
-  if (file.size <= 4 * 1024 * 1024) {
-    uploadDirect().catch(function (e) {
-      if (prog) prog.textContent = "Пробуем прямую загрузку…";
-      return uploadBlobClient().catch(function (e2) {
-        if (prog) prog.textContent = e2.message || e.message || "Ошибка загрузки";
-        toast(prog.textContent, true);
-      });
-    });
-    return;
-  }
-
-  uploadBlobClient().catch(function (e) {
-    if (prog) prog.textContent = e.message || "Ошибка загрузки";
-    toast(prog.textContent, true);
+  uploadDirect().catch(function (e) {
+    var msg = String(e && e.message || e || "Ошибка загрузки");
+    if (msg.indexOf("invalid header value") >= 0 || msg.indexOf("PUBLIC KEY") >= 0) {
+      msg = "BLOB_READ_WRITE_TOKEN на Vercel указан неверно. Нужен токен vercel_blob_… из Storage → Blob.";
+    }
+    if (prog) prog.textContent = msg;
+    toast(msg, true);
   });
 }
 
@@ -1104,6 +1078,12 @@ function bindCatalog() {
       }).then(function (r) {
         if (!r || !r.ok) return;
         catalogData = r.catalog; toast("Фото загружено"); renderCatalogPage();
+      }).catch(function (e) {
+        var msg = String(e && e.message || e || "Фото не загрузилось");
+        if (msg.indexOf("invalid header value") >= 0 || msg.indexOf("PUBLIC KEY") >= 0) {
+          msg = "BLOB_READ_WRITE_TOKEN на Vercel указан неверно. Нужен токен vercel_blob_… из Storage → Blob.";
+        }
+        toast(msg, true);
       });
     };
   });
