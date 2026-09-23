@@ -833,7 +833,7 @@ function drawMedia(d) {
   var v = d.storyVideo || null;
   var has = v && v.url;
   $("#main").innerHTML = head("Видео на сайте", "Блок «Как мы делаем урбеч» на главной и в разделе «О нас»") +
-    (!d.blobConfigured ? '<div class="warnbox err"><b>Blob не подключён.</b> Vercel → Storage → Blob → подключите к проекту (BLOB_READ_WRITE_TOKEN).</div>' : "") +
+    (!d.blobConfigured ? '<div class="warnbox err"><b>Blob не подключён или токен неверный.</b> Vercel → Storage → Blob → <b>Connect to Project</b>. Если добавляли BLOB_READ_WRITE_TOKEN вручную — удалите и подключите store заново → Redeploy.</div>' : "") +
     (has
       ? '<div class="vid-box"><video controls playsinline preload="metadata" src="' + esc(v.url) + '"></video>' +
         '<p class="vid-meta">' + esc(v.name || "Видео") + (v.updatedAt ? " · " + when(v.updatedAt) : "") + '</p>' +
@@ -894,8 +894,8 @@ function uploadStoryVideo(file) {
 
   uploadDirect().catch(function (e) {
     var msg = String(e && e.message || e || "Ошибка загрузки");
-    if (msg.indexOf("invalid header value") >= 0 || msg.indexOf("PUBLIC KEY") >= 0) {
-      msg = "BLOB_READ_WRITE_TOKEN на Vercel указан неверно. Нужен токен vercel_blob_… из Storage → Blob.";
+    if (/invalid header value|PUBLIC KEY|access denied|valid token|vercel_blob/i.test(msg)) {
+      msg = "Blob на Vercel не настроен. Storage → Blob → Connect to Project → Redeploy.";
     }
     if (prog) prog.textContent = msg;
     toast(msg, true);
@@ -1080,8 +1080,8 @@ function bindCatalog() {
         catalogData = r.catalog; toast("Фото загружено"); renderCatalogPage();
       }).catch(function (e) {
         var msg = String(e && e.message || e || "Фото не загрузилось");
-        if (msg.indexOf("invalid header value") >= 0 || msg.indexOf("PUBLIC KEY") >= 0) {
-          msg = "BLOB_READ_WRITE_TOKEN на Vercel указан неверно. Нужен токен vercel_blob_… из Storage → Blob.";
+        if (/invalid header value|PUBLIC KEY|access denied|valid token|vercel_blob/i.test(msg)) {
+          msg = "Blob на Vercel не настроен. Storage → Blob → Connect to Project → Redeploy.";
         }
         toast(msg, true);
       });

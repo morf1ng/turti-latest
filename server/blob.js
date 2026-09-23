@@ -33,27 +33,47 @@ export function validateVideoUpload(file) {
 export function blobTokenReady() {
   const token = String(process.env.BLOB_READ_WRITE_TOKEN || "").trim();
   if (!token) {
-    return { ok: false, error: "Хранилище файлов не настроено (BLOB_READ_WRITE_TOKEN)." };
+    return {
+      ok: false,
+      error: "Blob не подключён. Vercel → Storage → Blob → Connect to Project → Redeploy.",
+    };
   }
   if (/BEGIN\s+(PUBLIC|PRIVATE)\s+KEY/i.test(token) || /[\r\n]/.test(token)) {
     return {
       ok: false,
-      error: "BLOB_READ_WRITE_TOKEN указан неверно. Vercel → Storage → Blob → скопируйте vercel_blob_…, не SSH/PGP-ключ.",
+      error: "BLOB_READ_WRITE_TOKEN — не ключ SSH/PGP. Удалите переменную и подключите Blob через Storage.",
+    };
+  }
+  if (!/^vercel_blob_/i.test(token)) {
+    return {
+      ok: false,
+      error: "BLOB_READ_WRITE_TOKEN должен начинаться с vercel_blob_. Скопируйте его из Vercel → Storage → Blob.",
     };
   }
   return { ok: true, token };
 }
 
+function blobErrorMessage(err) {
+  const msg = String(err && (err.message || err) || "");
+  if (/access denied|valid token|unauthorized|401|403/i.test(msg)) {
+    return "Токен Blob не принят. Vercel → Storage → Blob → Connect to Project (удалите старый BLOB_READ_WRITE_TOKEN вручную) → Redeploy.";
+  }
+  return msg || "Файл не загрузился в Blob.";
+}
+
 export async function uploadBlob(filename, buffer, contentType, folder = "reviews") {
   const ready = blobTokenReady();
   if (!ready.ok) return ready;
-  const token = ready.token;
-  const { put } = await import("@vercel/blob");
-  const safe = String(filename || "photo.jpg").replace(/[^\w.\-]+/g, "-");
-  const blob = await put(`${folder}/${Date.now()}-${safe}`, buffer, {
-    access: "public",
-    contentType,
-    token,
-  });
-  return { ok: true, url: blob.url };
+  try {
+    const { put } = await import("@vercel/blob");
+    const safe = String(filename || "photo.jpg").replace(/[^\w.\-]+/g, "-");
+    const blob = await put(`${folder}/${Date.now()}-${safe}`, buffer, {
+      access: "public",
+      contentType,
+      token: ready.token,
+    });
+    return { ok: true, url: blob.url };
+  } catch (e) {
+    return { ok: false, error: blobErrorMessage(e) };
+  }
 }

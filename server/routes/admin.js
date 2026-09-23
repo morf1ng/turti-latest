@@ -17,7 +17,7 @@ import {
 import { createRefund, yookassaConfigured } from "../yookassa.js";
 import { storeGet, storeSet } from "../kv.js";
 import { getStoryVideo, setStoryVideo, clearStoryVideo } from "../story-video.js";
-import { validateVideoUpload, uploadBlob } from "../blob.js";
+import { validateVideoUpload, uploadBlob, blobTokenReady } from "../blob.js";
 import { IncomingForm } from "formidable";
 import { createPostShipment, postShipConfigured } from "../delivery/post-api.js";
 
@@ -98,7 +98,7 @@ export async function handle(req, res) {
       const storyVideo = await getStoryVideo();
       return ok(res, {
         storyVideo,
-        blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+        blobConfigured: blobTokenReady().ok,
       });
     }
 
