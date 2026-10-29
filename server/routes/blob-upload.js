@@ -26,19 +26,42 @@ function requireAdminUpload(req) {
   return { ok: true };
 }
 
+function safeStoryPath(raw) {
+  const name = String(raw || "story.mov").split("/").pop().replace(/[^\w.\-]+/g, "-").slice(0, 80);
+  return "site/story/" + Date.now() + "-" + (name || "story.mov");
+}
+
 export async function handle(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
 
-  const auth = requireAdminUpload(req);
-  if (!auth.ok) return fail(res, auth.status, auth.error, { hint: auth.hint });
+  let body;
+  try {
+    body = await readJson(req);
+  } catch (e) {
+    return fail(res, 400, e.message || "Некорректный JSON");
+  }
+
+  const isCallback = body && body.type === "blob.upload-completed";
+  if (!isCallback) {
+    const auth = requireAdminUpload(req);
+    if (!auth.ok) return fail(res, auth.status, auth.error, { hint: auth.hint });
+    if (body && body.type === "blob.generate-client-token" && body.payload) {
+      body.payload.pathname = safeStoryPath(body.payload.pathname);
+      body.payload.callbackUrl = body.payload.callbackUrl || "";
+    }
+  } else if (!blobTokenReady().ok) {
+    return fail(res, 503, "Blob не подключён");
+  }
 
   try {
-    const body = await readJson(req);
     const result = await handleUpload({
       body,
       request: req,
-      onBeforeGenerateToken: async (_pathname, _clientPayload, multipart) => {
-        const type = String(multipart?.contentType || "").toLowerCase();
+      onBeforeGenerateToken: async (_pathname, clientPayload) => {
+        let type = "";
+        try {
+          type = String(JSON.parse(clientPayload || "{}").contentType || "").toLowerCase();
+        } catch { /* тип проверит само хранилище */ }
         if (type && !VIDEO_TYPES.has(type)) {
           throw new Error("Допустимы MOV, MP4 и WebM.");
         }
@@ -49,6 +72,7 @@ export async function handle(req, res) {
         };
       },
       onUploadCompleted: async ({ blob }) => {
+        if (!blob || !blob.url) return;
         await setStoryVideo({
           url: blob.url,
           contentType: blob.contentType || "",
@@ -56,8 +80,15 @@ export async function handle(req, res) {
         });
       },
     });
-    return ok(res, result);
+    return ok(res, {
+      ...result,
+      pathname: body && body.payload ? body.payload.pathname : undefined,
+    });
   } catch (e) {
-    return fail(res, 400, e.message || "Не удалось загрузить видео");
+    const msg = String(e && e.message || "");
+    if (/No token found|BLOB_READ_WRITE_TOKEN|Invalid `token`/i.test(msg)) {
+      return fail(res, 503, "Для видео нужен токен хранилища. Vercel → Storage → Blob → Connect to Project → Redeploy.");
+    }
+    return fail(res, 400, msg || "Не удалось загрузить видео");
   }
 }

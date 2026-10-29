@@ -865,11 +865,71 @@ function drawMedia(d) {
   };
 }
 
+function readApi(r) {
+  return r.text().then(function (text) {
+    var data;
+    try { data = text ? JSON.parse(text) : {}; }
+    catch (e) {
+      if (/request entity too large/i.test(text)) {
+        throw new Error("Файл слишком большой для сервера. Обновите страницу и загрузите ещё раз — видео пойдёт сразу в хранилище.");
+      }
+      throw new Error((text || "Сервер ответил не тем форматом").slice(0, 180));
+    }
+    if (!r.ok || data.ok === false) throw new Error(data.error || "Не загрузилось");
+    return data;
+  });
+}
+
+function blobStore(path, token, opts) {
+  opts = opts || {};
+  return new Promise(function (resolve, reject) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(opts.method || "POST", "https://blob.vercel-storage.com" + path);
+    xhr.setRequestHeader("authorization", "Bearer " + token);
+    xhr.setRequestHeader("x-api-version", "9");
+    xhr.setRequestHeader("x-api-blob-request-id", "admin:" + Date.now());
+    xhr.setRequestHeader("x-api-blob-request-attempt", "0");
+    if (opts.contentType) xhr.setRequestHeader("x-content-type", opts.contentType);
+    Object.keys(opts.headers || {}).forEach(function (k) { xhr.setRequestHeader(k, opts.headers[k]); });
+    if (opts.onprogress) xhr.upload.onprogress = opts.onprogress;
+    xhr.onload = function () {
+      var data = {};
+      try { data = JSON.parse(xhr.responseText || "{}"); } catch (e) { data = {}; }
+      if (xhr.status >= 200 && xhr.status < 300) resolve(data);
+      else {
+        var err = data.error;
+        reject(new Error((err && err.message) || (typeof err === "string" ? err : "") || data.message || ("Хранилище ответило " + xhr.status)));
+      }
+    };
+    xhr.onerror = function () { reject(new Error("Сеть оборвалась во время загрузки. Проверьте интернет и попробуйте ещё раз.")); };
+    xhr.send(opts.body == null ? null : opts.body);
+  });
+}
+
 function uploadStoryVideo(file) {
   var prog = $("#vid-prog");
   var ext = (file.name.split(".").pop() || "mov").toLowerCase();
-  var type = file.type || (ext === "mov" ? "video/quicktime" : ext === "mp4" ? "video/mp4" : "video/webm");
-  if (prog) prog.textContent = "Загружаем «" + file.name + "»…";
+  var type = file.type || "";
+  if (!/^video\/(quicktime|mp4|webm|x-msvideo)$/i.test(type)) {
+    type = ext === "mp4" ? "video/mp4" : ext === "webm" ? "video/webm" : "video/quicktime";
+  }
+  if (!file.size) {
+    if (prog) prog.textContent = "Файл пустой.";
+    toast("Файл пустой.", true);
+    return;
+  }
+  if (file.size > 500 * 1024 * 1024) {
+    if (prog) prog.textContent = "Видео больше 500 МБ.";
+    toast("Видео больше 500 МБ.", true);
+    return;
+  }
+  if (prog) prog.textContent = "Готовим загрузку «" + file.name + "»…";
+
+  function showProgress(loaded, total) {
+    if (!prog || !total) return;
+    var pct = Math.min(100, Math.round(loaded / total * 100));
+    prog.textContent = "Загружено " + pct + "% — не закрывайте страницу";
+  }
 
   function saveUrl(url, contentType) {
     return act({ action: "story-video-save", url: url, contentType: contentType || type, name: file.name }).then(function (r) {
@@ -879,23 +939,115 @@ function uploadStoryVideo(file) {
     });
   }
 
-  function uploadDirect() {
-    var fd = new FormData();
-    fd.append("file", file, file.name);
-    return fetch("/api/admin?section=story-video", {
+  function uploadParts(pathname, token) {
+    var partSize = 8 * 1024 * 1024;
+    var slices = [];
+    for (var start = 0; start < file.size; start += partSize) slices.push(file.slice(start, Math.min(start + partSize, file.size)));
+    return blobStore("/mpu?" + new URLSearchParams({ pathname: pathname }), token, {
       method: "POST",
-      headers: { "x-admin-key": PASSWORD },
-      body: fd
-    }).then(function (r) { return r.json(); }).then(function (r) {
-      if (!r.ok) throw new Error(r.error || "Не загрузилось");
-      return saveUrl(r.url, type);
+      contentType: type,
+      headers: { "x-mpu-action": "create" }
+    }).then(function (created) {
+      if (!created.key || !created.uploadId) throw new Error("Хранилище не открыло загрузку");
+      var parts = [];
+      var loaded = {};
+      var cursor = 0;
+      var inflight = 0;
+      var failed = false;
+      var finishing = false;
+      return new Promise(function (resolve, reject) {
+        function finish() {
+          if (finishing) return;
+          finishing = true;
+          parts.sort(function (a, b) { return a.partNumber - b.partNumber; });
+          blobStore("/mpu?" + new URLSearchParams({ pathname: pathname }), token, {
+            method: "POST",
+            contentType: type,
+            headers: {
+              "content-type": "application/json",
+              "x-mpu-action": "complete",
+              "x-mpu-upload-id": created.uploadId,
+              "x-mpu-key": encodeURIComponent(created.key)
+            },
+            body: JSON.stringify(parts)
+          }).then(resolve, reject);
+        }
+        function pump() {
+          if (failed) return;
+          while (inflight < 4 && cursor < slices.length) {
+            var i = cursor++;
+            var partNumber = i + 1;
+            var chunk = slices[i];
+            inflight++;
+            blobStore("/mpu?" + new URLSearchParams({ pathname: pathname }), token, {
+              method: "POST",
+              contentType: type,
+              headers: {
+                "x-mpu-action": "upload",
+                "x-mpu-key": encodeURIComponent(created.key),
+                "x-mpu-upload-id": created.uploadId,
+                "x-mpu-part-number": String(partNumber)
+              },
+              body: chunk,
+              onprogress: function (e) {
+                if (!e.lengthComputable) return;
+                loaded[partNumber] = e.loaded;
+                var sum = 0;
+                Object.keys(loaded).forEach(function (k) { sum += loaded[k]; });
+                showProgress(sum, file.size);
+              }
+            }).then(function (res) {
+              parts.push({ etag: res.etag, partNumber: partNumber });
+              loaded[partNumber] = chunk.size;
+              showProgress(Object.keys(loaded).reduce(function (s, k) { return s + loaded[k]; }, 0), file.size);
+              inflight--;
+              if (parts.length === slices.length) finish();
+              else pump();
+            }).catch(function (err) {
+              failed = true;
+              reject(err);
+            });
+          }
+        }
+        pump();
+      });
     });
   }
 
-  uploadDirect().catch(function (e) {
+  function uploadToStore() {
+    var safe = (file.name || "story.mov").replace(/[^\w.\-]+/g, "-");
+    return fetch("/api/blob-upload", {
+      method: "POST",
+      headers: { "x-admin-key": PASSWORD, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "blob.generate-client-token",
+        payload: {
+          pathname: "site/story/" + safe,
+          callbackUrl: location.origin + "/api/blob-upload",
+          clientPayload: JSON.stringify({ contentType: type, name: file.name }),
+          multipart: file.size > 4 * 1024 * 1024
+        }
+      })
+    }).then(readApi).then(function (tokenRes) {
+      if (!tokenRes.clientToken) throw new Error("Не получили разрешение на загрузку");
+      var pathname = tokenRes.pathname;
+      if (file.size > 4 * 1024 * 1024) return uploadParts(pathname, tokenRes.clientToken);
+      return blobStore("/?" + new URLSearchParams({ pathname: pathname }), tokenRes.clientToken, {
+        method: "PUT",
+        contentType: type,
+        body: file,
+        onprogress: function (e) { if (e.lengthComputable) showProgress(e.loaded, e.total); }
+      });
+    }).then(function (blob) {
+      if (!blob || !blob.url) throw new Error("Хранилище не вернуло ссылку на видео");
+      return saveUrl(blob.url, blob.contentType || type);
+    });
+  }
+
+  uploadToStore().catch(function (e) {
     var msg = String(e && e.message || e || "Ошибка загрузки");
-    if (/invalid header value|PUBLIC KEY|access denied|valid token|vercel_blob/i.test(msg)) {
-      msg = "Blob на Vercel не настроен. Storage → Blob → Connect to Project → Redeploy.";
+    if (/invalid header value|PUBLIC KEY|access denied|valid token|vercel_blob|токен хранилища/i.test(msg)) {
+      msg = "Хранилище на Vercel не настроено. Storage → Blob → Connect to Project → Redeploy.";
     }
     if (prog) prog.textContent = msg;
     toast(msg, true);
