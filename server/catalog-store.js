@@ -167,6 +167,14 @@ export async function deleteProduct(id) {
   return saveCatalog(catalog);
 }
 
+const GALLERY_KEYS = ["main", "open", "spoon", "hand", "food", "video"];
+
+function mediaUrl(value) {
+  const url = String(value || "").trim();
+  if (!/^https:\/\/[^\s]+$/i.test(url) || url.length > 500) return "";
+  return url;
+}
+
 export async function saveProductPhotos(id, photos) {
   const catalog = await getCatalog();
   const pid = String(id || "").trim();
@@ -176,6 +184,21 @@ export async function saveProductPhotos(id, photos) {
     const url = photos?.[size];
     if (url === null || url === "") delete next[size];
     else if (url) next[size] = String(url).trim();
+  }
+  if (photos?.gallery && typeof photos.gallery === "object") {
+    const gallery = { ...(next.gallery || {}) };
+    for (const key of GALLERY_KEYS) {
+      if (!Object.prototype.hasOwnProperty.call(photos.gallery, key)) continue;
+      const url = photos.gallery[key];
+      if (url === null || url === "") delete gallery[key];
+      else {
+        const safe = mediaUrl(url);
+        if (!safe) throw new Error("Ссылка на фото или видео не подходит");
+        gallery[key] = safe;
+      }
+    }
+    if (Object.keys(gallery).length) next.gallery = gallery;
+    else delete next.gallery;
   }
   catalog.photos[pid] = next;
   return saveCatalog(catalog);

@@ -838,6 +838,15 @@
     .gslot{ position:relative; height:84px; border:1.5px dashed var(--line); border-radius:12px; background:var(--white); display:grid; place-items:center; overflow:hidden; }
     .gslot span{ font-size:10.5px; font-weight:700; color:var(--gray); text-align:center; padding:0 6px; }
     .gslot img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .pm-nav{ position:absolute; top:50%; transform:translateY(-50%); z-index:6; width:40px; height:40px; border:0; border-radius:50%; background:rgba(255,255,255,.94); color:#3A1A10; box-shadow:0 6px 16px rgba(40,20,10,.18); display:grid; place-items:center; cursor:pointer; padding:0; }
+    .pm-nav.prev{ left:8px; }
+    .pm-nav.next{ right:8px; }
+    .pm-nav:active{ transform:translateY(-50%) scale(.96); }
+    #product-sheet .pm-gallery .gslot{ padding:0; cursor:pointer; border:1.5px solid var(--line); background:var(--white); font:inherit; color:inherit; }
+    #product-sheet .pm-gallery .gslot.on{ border-color:var(--green); box-shadow:0 0 0 2px rgba(198,54,43,.28); }
+    #product-sheet .pm-gallery .gslot span{ position:absolute; left:0; right:0; bottom:0; z-index:2; padding:12px 4px 4px; background:linear-gradient(transparent, rgba(20,12,8,.75)); color:#fff; }
+    #product-sheet .pm-gallery .gplay{ position:absolute; inset:0; z-index:1; display:grid; place-items:center; background:#2C241C; color:#fff; font-size:16px; }
+    #product-sheet .pm-art video.pm-photo{ object-fit:contain; background:#fff; }
     .free-del{ font-size:13px; font-weight:800; color:var(--green); padding:4px 4px 0; }
     /* details-блоки карточки товара (десктоп — раскрыты, вид как раньше) */
     details.pm-acc summary{ font:800 11px 'Manrope',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:var(--nut); cursor:pointer; list-style:none; padding:2px 0; }
@@ -2096,6 +2105,69 @@
       "peanut":         { 250:"images/peanut-250.png", 500:"images/peanut-500.png", 1000:"images/peanut-1000.png" },
       "pistachio":      { 250:"images/pistachio-250.png", 500:"images/pistachio-500.png", 1000:"images/pistachio-1000.png" },
     };
+    const GALLERY = {};
+    const GALLERY_ORDER = [
+      ["main", "Фото банки", "image"],
+      ["open", "Открытая банка", "image"],
+      ["spoon", "Текстура на ложке", "image"],
+      ["hand", "Банка в руке", "image"],
+      ["food", "С завтраком", "image"],
+      ["video", "Короткое видео", "video"]
+    ];
+    let pmOpenId = "";
+    function productSlides(id, size) {
+      const g = GALLERY[id] || {};
+      const ph = PHOTOS[id] || {};
+      const slides = [];
+      GALLERY_ORDER.forEach(function (slot) {
+        let url = g[slot[0]] || "";
+        if (slot[0] === "main" && !url) url = ph[size] || ph[250] || ph[500] || ph[1000] || "";
+        if (!url) return;
+        slides.push({ key: slot[0], url: url, type: slot[2], label: slot[1] });
+      });
+      return slides;
+    }
+    function mediaFrame(slide, name) {
+      if (slide.type === "video") {
+        return `<video id="pm-photo" class="pm-photo" controls playsinline preload="metadata" src="${escHtml(slide.url)}" aria-label="${escHtml(slide.label)}"></video>`;
+      }
+      return `<img id="pm-photo" class="pm-photo" src="${escHtml(slide.url)}" alt="${escHtml(name)}" onerror="this.remove()">`;
+    }
+    function pmArrows() {
+      return `<button type="button" class="pm-nav prev" id="pm-prev" aria-label="Предыдущее фото"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button><button type="button" class="pm-nav next" id="pm-next" aria-label="Следующее фото"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6 15.5 12l-6 6"/></svg></button>`;
+    }
+    function applyCatalogMedia(catalog) {
+      const photos = (catalog && catalog.photos) || {};
+      Object.keys(photos).forEach(function (id) {
+        const row = photos[id] || {};
+        if (!PHOTOS[id]) PHOTOS[id] = {};
+        [250, 500, 1000].forEach(function (s) {
+          if (row[s] && /^https:\/\//i.test(row[s])) PHOTOS[id][s] = row[s];
+        });
+        if (row.gallery && typeof row.gallery === "object") GALLERY[id] = row.gallery;
+      });
+      document.querySelectorAll("article.pcard[data-open-product]").forEach(function (card) {
+        const id = card.getAttribute("data-open-product");
+        const src = (GALLERY[id] && GALLERY[id].main) || (PHOTOS[id] && (PHOTOS[id][250] || PHOTOS[id][500] || PHOTOS[id][1000]));
+        if (!src || !PRODUCTS[id]) return;
+        const art = card.querySelector(".pcard-art");
+        if (!art) return;
+        let img = art.querySelector(".pcard-photo");
+        if (!img) {
+          img = document.createElement("img");
+          img.className = "pcard-photo";
+          img.alt = PRODUCTS[id].name;
+          art.insertBefore(img, art.firstChild);
+        }
+        img.src = src;
+        img.style.display = "";
+      });
+      const sheet = document.getElementById("product-sheet");
+      if (pmOpenId && sheet && sheet.classList.contains("show")) openProduct(pmOpenId);
+    }
+    fetch("/api/catalog").then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok && d.catalog) applyCatalogMedia(d.catalog);
+    }).catch(function () {});
     function productCard(id, badge) {
       const p = PRODUCTS[id];
       const b = badge || p.badge;
@@ -2159,8 +2231,10 @@
     function openProduct(id) {
       const p = PRODUCTS[id];
       if (!p) return;
-      const ph = PHOTOS[id];
+      pmOpenId = id;
       pmSize = 250;
+      let pmIndex = 0;
+      let slides = productSlides(id, pmSize);
       const jarSizes = { 250: [96, 130], 500: [110, 152], 1000: [128, 180] };
       const similar = Object.keys(PRODUCTS).filter(x => x !== id && PRODUCTS[x].group === p.group).slice(0, 3);
       $("#product-sheet").innerHTML = `
@@ -2168,8 +2242,8 @@
         <button class="sheet-close" data-close>✕</button>
         <div class="pm-overview">
         <div class="pm-visuals">
-        <div class="pm-art">${ph ? `<img id="pm-photo" class="pm-photo" src="${ph[250]}" alt="${p.name}" onerror="this.style.display='none'">` : ""}${jarHTML(id, { w: 96, h: 130 })}</div>
-        <div class="pm-gallery">${[["main","Фото банки"],["open","Открытая банка"],["spoon","Текстура на ложке"],["hand","Банка в руке"],["food","С завтраком"],["video","Короткое видео"]].map(g => `<div class="gslot"><span>${g[1]}</span><img src="images/${id}-${g[0]}.jpg" alt="" onerror="this.remove()"></div>`).join("")}</div>
+        <div class="pm-art" id="pm-stage">${slides[0] ? mediaFrame(slides[0], p.name) : ""}${slides.length > 1 ? pmArrows() : ""}${jarHTML(id, { w: 96, h: 130 })}</div>
+        ${slides.length > 1 ? `<div class="pm-gallery" id="pm-gallery">${slides.map((s, i) => `<button type="button" class="gslot${i === 0 ? " on" : ""}" data-pm-slide="${i}" aria-label="${escHtml(s.label)}">${s.type === "video" ? `<span class="gplay" aria-hidden="true">▶</span>` : `<img src="${escHtml(s.url)}" alt="" onerror="this.remove()">`}<span>${escHtml(s.label)}</span></button>`).join("")}</div>` : ""}
         </div>
         <div class="pm-purchase"><span class="pm-eyebrow">TURTI · Каменный помол</span>
         <h3 class="pm-title">${p.name}</h3>
@@ -2216,6 +2290,46 @@
       $("#product-sheet").scrollTop = 0;
 
       const jarEl = $("#product-sheet .pm-art .jar");
+      function renderFrame() {
+        const stage = $("#pm-stage");
+        if (!stage) return;
+        const old = $("#pm-photo");
+        if (old) old.remove();
+        const slide = slides[pmIndex];
+        if (slide) stage.insertAdjacentHTML("afterbegin", mediaFrame(slide, p.name));
+        $$("#pm-gallery .gslot").forEach((b, i) => {
+          b.classList.toggle("on", i === pmIndex);
+          const img = b.querySelector("img");
+          if (img && slides[i] && slides[i].type !== "video") img.src = slides[i].url;
+        });
+        if (!slide && jarEl) jarEl.style.display = "";
+      }
+      function step(dir) {
+        if (slides.length < 2) return;
+        pmIndex = (pmIndex + dir + slides.length) % slides.length;
+        renderFrame();
+      }
+      const prev = $("#pm-prev");
+      const next = $("#pm-next");
+      if (prev) prev.addEventListener("click", e => { e.stopPropagation(); step(-1); });
+      if (next) next.addEventListener("click", e => { e.stopPropagation(); step(1); });
+      const gallery = $("#pm-gallery");
+      if (gallery) gallery.addEventListener("click", e => {
+        const b = e.target.closest("[data-pm-slide]");
+        if (!b) return;
+        pmIndex = +b.dataset.pmSlide;
+        renderFrame();
+      });
+      const stage = $("#pm-stage");
+      if (stage && slides.length > 1) {
+        let touchX = 0;
+        stage.addEventListener("touchstart", e => { touchX = e.changedTouches[0].clientX; }, { passive: true });
+        stage.addEventListener("touchend", e => {
+          if (slides[pmIndex] && slides[pmIndex].type === "video") return;
+          const dx = e.changedTouches[0].clientX - touchX;
+          if (Math.abs(dx) > 40) step(dx < 0 ? 1 : -1);
+        }, { passive: true });
+      }
       $("#pm-sizes").addEventListener("click", e => {
         const btn = e.target.closest(".size-btn");
         if (!btn) return;
@@ -2223,8 +2337,16 @@
         btn.classList.add("active");
         pmSize = +btn.dataset.size;
         $("#pm-price").textContent = money(p.prices[pmSize]);
-        if (ph) { const im = $("#pm-photo"); if (im) { im.src = ph[pmSize]; im.style.display = ""; } }
-        else if (jarEl) { const [w, h] = jarSizes[pmSize]; jarEl.style.width = w + "px"; jarEl.style.height = h + "px"; }
+        const prevKey = slides[pmIndex] && slides[pmIndex].key;
+        slides = productSlides(id, pmSize);
+        const keep = slides.findIndex(s => s.key === prevKey);
+        pmIndex = keep >= 0 ? keep : 0;
+        renderFrame();
+        if (!slides.length && jarEl) {
+          const [w, h] = jarSizes[pmSize];
+          jarEl.style.width = w + "px";
+          jarEl.style.height = h + "px";
+        }
       });
       const doAdd = () => { addToCart(id + "|" + pmSize); closeSheets(); };
       const doBuy = () => openCheckout([{ key: id + "|" + pmSize, qty: 1 }], "buynow");

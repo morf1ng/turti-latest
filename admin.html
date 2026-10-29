@@ -200,8 +200,10 @@ tr:last-child td{border-bottom:0}
 .cat-form input,.cat-form textarea,.cat-form select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font:500 14px 'Inter',sans-serif;color:var(--ink)}
 .cat-form textarea{min-height:72px;resize:vertical}
 .photo-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.gallery-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(min-width:800px){.gallery-row{grid-template-columns:repeat(3,1fr)}}
 .photo-slot{border:1px dashed var(--line);border-radius:10px;padding:10px;text-align:center;min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
-.photo-slot img{max-width:100%;max-height:80px;object-fit:contain;border-radius:6px}
+.photo-slot img,.photo-slot video{max-width:100%;max-height:80px;object-fit:contain;border-radius:6px}
 .photo-slot label{font-size:11px;color:var(--soft)}
 
 /* ═══════════════ ТЕЛЕФОН ═══════════════ */
@@ -1099,6 +1101,113 @@ function uploadProductPhoto(file) {
   }).then(function (r) { return r.json(); });
 }
 
+function uploadBlobParts(file, pathname, token, type) {
+  var partSize = 8 * 1024 * 1024;
+  var slices = [];
+  for (var start = 0; start < file.size; start += partSize) slices.push(file.slice(start, Math.min(start + partSize, file.size)));
+  return blobStore("/mpu?" + new URLSearchParams({ pathname: pathname }), token, {
+    method: "POST",
+    contentType: type,
+    headers: { "x-mpu-action": "create" }
+  }).then(function (created) {
+    if (!created.key || !created.uploadId) throw new Error("Хранилище не открыло загрузку");
+    var parts = [];
+    var cursor = 0;
+    var inflight = 0;
+    var failed = false;
+    return new Promise(function (resolve, reject) {
+      function finish() {
+        parts.sort(function (a, b) { return a.partNumber - b.partNumber; });
+        blobStore("/mpu?" + new URLSearchParams({ pathname: pathname }), token, {
+          method: "POST",
+          contentType: type,
+          headers: {
+            "content-type": "application/json",
+            "x-mpu-action": "complete",
+            "x-mpu-upload-id": created.uploadId,
+            "x-mpu-key": encodeURIComponent(created.key)
+          },
+          body: JSON.stringify(parts)
+        }).then(resolve, reject);
+      }
+      function pump() {
+        if (failed) return;
+        while (inflight < 4 && cursor < slices.length) {
+          var i = cursor++;
+          var partNumber = i + 1;
+          var chunk = slices[i];
+          inflight++;
+          blobStore("/mpu?" + new URLSearchParams({ pathname: pathname }), token, {
+            method: "POST",
+            contentType: type,
+            headers: {
+              "x-mpu-action": "upload",
+              "x-mpu-key": encodeURIComponent(created.key),
+              "x-mpu-upload-id": created.uploadId,
+              "x-mpu-part-number": String(partNumber)
+            },
+            body: chunk
+          }).then(function (res) {
+            parts.push({ etag: res.etag, partNumber: partNumber });
+            inflight--;
+            if (parts.length === slices.length) finish();
+            else pump();
+          }).catch(function (err) {
+            failed = true;
+            reject(err);
+          });
+        }
+      }
+      pump();
+    });
+  });
+}
+
+function uploadProductClip(file) {
+  var ext = (file.name.split(".").pop() || "mp4").toLowerCase();
+  var type = file.type || "";
+  if (!/^video\/(quicktime|mp4|webm|x-msvideo)$/i.test(type)) {
+    type = ext === "mp4" ? "video/mp4" : ext === "webm" ? "video/webm" : ext === "mov" ? "video/quicktime" : "";
+  }
+  if (!type) return Promise.reject(new Error("Нужен MP4, MOV или WebM."));
+  if (!file.size) return Promise.reject(new Error("Файл пустой."));
+  if (file.size > 80 * 1024 * 1024) return Promise.reject(new Error("Короткое видео — до 80 МБ."));
+  var safe = (file.name || "clip.mp4").replace(/[^\w.\-]+/g, "-");
+  return fetch("/api/blob-upload", {
+    method: "POST",
+    headers: { "x-admin-key": PASSWORD, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: "blob.generate-client-token",
+      payload: {
+        pathname: "products/gallery/" + safe,
+        callbackUrl: location.origin + "/api/blob-upload",
+        clientPayload: JSON.stringify({ contentType: type, name: file.name, purpose: "product-gallery" }),
+        multipart: file.size > 4 * 1024 * 1024
+      }
+    })
+  }).then(readApi).then(function (tokenRes) {
+    if (!tokenRes.clientToken) throw new Error("Не получили разрешение на загрузку");
+    var pathname = tokenRes.pathname;
+    var sent = file.size > 4 * 1024 * 1024
+      ? uploadBlobParts(file, pathname, tokenRes.clientToken, type)
+      : blobStore("/?" + new URLSearchParams({ pathname: pathname }), tokenRes.clientToken, {
+          method: "PUT",
+          contentType: type,
+          body: file
+        });
+    return sent.then(function (blob) {
+      if (!blob || !blob.url) throw new Error("Хранилище не вернуло ссылку на видео");
+      return { url: blob.url };
+    });
+  });
+}
+
+function saveGallerySlot(key, url) {
+  var photos = { gallery: {} };
+  photos.gallery[key] = url;
+  return catalogApi("POST", { action: "save-photos", id: catalogEditId, photos: photos });
+}
+
 function catalogProductIds(data) {
   return Object.keys(data.products || {}).filter(function (id) { return !data.products[id].hidden; });
 }
@@ -1111,6 +1220,15 @@ function catalogCard(id, p, photos) {
     '</div><div class="cat-body"><strong>' + esc(p.name) + '</strong>' +
     '<span>' + rub(p.prices[250]) + ' · ' + esc(id) + '</span></div></article>';
 }
+
+var GALLERY_SLOTS = [
+  ["main", "Фото банки", "image"],
+  ["open", "Открытая банка", "image"],
+  ["spoon", "Текстура на ложке", "image"],
+  ["hand", "Банка в руке", "image"],
+  ["food", "С завтраком", "image"],
+  ["video", "Короткое видео", "video"]
+];
 
 function catalogEditForm(id, p, photos, data) {
   photos = photos || {};
@@ -1126,6 +1244,20 @@ function catalogEditForm(id, p, photos, data) {
       '<span>' + size + ' г</span>' +
       '<input type="file" accept="image/jpeg,image/png,image/webp" data-upload-size="' + size + '">' +
       (url ? '<button type="button" class="btn warn s" data-photo-clear="' + size + '">Убрать</button>' : "") +
+    '</div>';
+  }
+  function gallerySlot(key, label, kind, gallery) {
+    var url = gallery[key] || "";
+    var preview = url
+      ? (kind === "video" ? '<video src="' + esc(url) + '" muted playsinline></video>' : '<img src="' + esc(url) + '" alt="">')
+      : '<span class="tag">Пусто</span>';
+    var accept = kind === "video"
+      ? "video/mp4,video/webm,video/quicktime,.mp4,.mov,.webm"
+      : "image/jpeg,image/png,image/webp";
+    return '<div class="photo-slot">' + preview +
+      '<span>' + label + '</span>' +
+      '<input type="file" accept="' + accept + '" data-upload-gallery="' + key + '" data-gallery-kind="' + kind + '">' +
+      (url ? '<button type="button" class="btn warn s" data-gallery-clear="' + key + '">Убрать</button>' : "") +
     '</div>';
   }
   return '<div class="cat-edit" id="cat-edit">' +
@@ -1160,6 +1292,8 @@ function catalogEditForm(id, p, photos, data) {
       '</div>' +
       '<div><strong style="font-size:13px">Фотографии банок</strong><p class="sub" style="margin:4px 0 10px">Без фото на сайте будет пустая карточка. JPEG, PNG или WebP до 5 МБ.</p>' +
         '<div class="photo-row">' + photoSlot(250) + photoSlot(500) + photoSlot(1000) + '</div></div>' +
+      '<div><strong style="font-size:13px">Кадры вкуса</strong><p class="sub" style="margin:4px 0 10px">На карточке товара они листаются стрелками по порядку: банка, открытая банка, ложка, рука, завтрак, видео. Фото — JPEG, PNG или WebP до 5 МБ. Короткое видео — MP4, MOV или WebM до 80 МБ.</p>' +
+        '<div class="gallery-row">' + GALLERY_SLOTS.map(function (slot) { return gallerySlot(slot[0], slot[1], slot[2], photos.gallery || {}); }).join("") + '</div></div>' +
       '<div class="acts">' +
         '<button type="submit" class="btn ok">Сохранить</button>' +
         (isNew ? '<button type="button" class="btn line" data-cat-cancel>Отмена</button>' :
@@ -1218,6 +1352,14 @@ function bindCatalog() {
       });
     };
   });
+  main.querySelectorAll("[data-gallery-clear]").forEach(function (btn) {
+    btn.onclick = function () {
+      saveGallerySlot(btn.getAttribute("data-gallery-clear"), "").then(function (r) {
+        if (!r.ok) { toast(r.error, true); return; }
+        catalogData = r.catalog; renderCatalogPage();
+      });
+    };
+  });
   main.querySelectorAll("[data-upload-size]").forEach(function (input) {
     input.onchange = function () {
       var file = input.files && input.files[0];
@@ -1236,6 +1378,25 @@ function bindCatalog() {
           msg = "Blob на Vercel не настроен. Storage → Blob → Connect to Project → Redeploy.";
         }
         toast(msg, true);
+      });
+    };
+  });
+  main.querySelectorAll("[data-upload-gallery]").forEach(function (input) {
+    input.onchange = function () {
+      var file = input.files && input.files[0];
+      if (!file || catalogEditId === "__new__") { toast("Сначала сохраните товар", true); return; }
+      var key = input.getAttribute("data-upload-gallery");
+      var kind = input.getAttribute("data-gallery-kind");
+      var job = kind === "video" ? uploadProductClip(file) : uploadProductPhoto(file);
+      toast(kind === "video" ? "Загружаем видео…" : "Загружаем фото…");
+      job.then(function (r) {
+        if (!r || r.ok === false || !r.url) throw new Error((r && r.error) || "Не загрузилось");
+        return saveGallerySlot(key, r.url);
+      }).then(function (r) {
+        if (!r || !r.ok) { toast((r && r.error) || "Не сохранилось", true); return; }
+        catalogData = r.catalog; toast("Кадр сохранён"); renderCatalogPage();
+      }).catch(function (e) {
+        toast(String(e && e.message || e || "Не загрузилось"), true);
       });
     };
   });

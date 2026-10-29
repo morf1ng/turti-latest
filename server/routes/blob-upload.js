@@ -46,6 +46,19 @@ function safeStoryPath(raw) {
   return "site/story/" + Date.now() + "-" + (name || "story.mov");
 }
 
+function safeGalleryPath(raw) {
+  const name = String(raw || "clip.mp4").split("/").pop().replace(/[^\w.\-]+/g, "-").slice(0, 80);
+  return "products/gallery/" + Date.now() + "-" + (name || "clip.mp4");
+}
+
+function clientPurpose(payload) {
+  try {
+    return String(JSON.parse(payload && payload.clientPayload || "{}").purpose || "");
+  } catch {
+    return "";
+  }
+}
+
 export async function handle(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
 
@@ -61,7 +74,10 @@ export async function handle(req, res) {
     const auth = requireAdminUpload(req);
     if (!auth.ok) return fail(res, auth.status, auth.error, { hint: auth.hint });
     if (body && body.type === "blob.generate-client-token" && body.payload) {
-      body.payload.pathname = safeStoryPath(body.payload.pathname);
+      const purpose = clientPurpose(body.payload);
+      body.payload.pathname = purpose === "product-gallery"
+        ? safeGalleryPath(body.payload.pathname)
+        : safeStoryPath(body.payload.pathname);
       body.payload.callbackUrl = body.payload.callbackUrl || "";
     }
   } else if (!publicBlobToken()) {
@@ -95,6 +111,7 @@ export async function handle(req, res) {
       },
       onUploadCompleted: async ({ blob }) => {
         if (!blob || !blob.url) return;
+        if (!String(blob.pathname || "").includes("site/story/")) return;
         await setStoryVideo({
           url: blob.url,
           contentType: blob.contentType || "",
