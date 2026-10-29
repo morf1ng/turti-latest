@@ -167,7 +167,7 @@ export async function deleteProduct(id) {
   return saveCatalog(catalog);
 }
 
-const GALLERY_KEYS = ["main", "open", "spoon", "hand", "food", "video"];
+const GALLERY_KEYS = ["main", "spoon", "hand", "video"];
 
 function mediaUrl(value) {
   const url = String(value || "").trim();

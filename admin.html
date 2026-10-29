@@ -1223,10 +1223,8 @@ function catalogCard(id, p, photos) {
 
 var GALLERY_SLOTS = [
   ["main", "Фото банки", "image"],
-  ["open", "Открытая банка", "image"],
   ["spoon", "Текстура на ложке", "image"],
   ["hand", "Банка в руке", "image"],
-  ["food", "С завтраком", "image"],
   ["video", "Короткое видео", "video"]
 ];
 
@@ -1292,7 +1290,7 @@ function catalogEditForm(id, p, photos, data) {
       '</div>' +
       '<div><strong style="font-size:13px">Фотографии банок</strong><p class="sub" style="margin:4px 0 10px">Без фото на сайте будет пустая карточка. JPEG, PNG или WebP до 5 МБ.</p>' +
         '<div class="photo-row">' + photoSlot(250) + photoSlot(500) + photoSlot(1000) + '</div></div>' +
-      '<div><strong style="font-size:13px">Кадры вкуса</strong><p class="sub" style="margin:4px 0 10px">На карточке товара они листаются стрелками по порядку: банка, открытая банка, ложка, рука, завтрак, видео. Фото — JPEG, PNG или WebP до 5 МБ. Короткое видео — MP4, MOV или WebM до 80 МБ.</p>' +
+      '<div><strong style="font-size:13px">Кадры вкуса</strong><p class="sub" style="margin:4px 0 10px">На карточке товара они листаются стрелками по порядку: банка, ложка, рука, видео. Фото — JPEG, PNG или WebP до 5 МБ. Короткое видео — MP4, MOV или WebM до 80 МБ.</p>' +
         '<div class="gallery-row">' + GALLERY_SLOTS.map(function (slot) { return gallerySlot(slot[0], slot[1], slot[2], photos.gallery || {}); }).join("") + '</div></div>' +
       '<div class="acts">' +
         '<button type="submit" class="btn ok">Сохранить</button>' +
