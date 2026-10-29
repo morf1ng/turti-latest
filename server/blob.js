@@ -97,9 +97,11 @@ export async function uploadBlob(filename, buffer, contentType, folder = "review
     const { put } = await import("@vercel/blob");
     const safe = String(filename || "photo.jpg").replace(/[^\w.\-]+/g, "-");
     const putOpts = { access: "public", contentType };
+    const photosToken = String(process.env.PHOTOS_READ_WRITE_TOKEN || "").trim();
     const publicStore = String(process.env.BLOB_PUBLIC_STORE_ID || "").trim();
-    if (publicStore) putOpts.storeId = publicStore;
-    if (ready.auth === "token") putOpts.token = ready.token;
+    if (/^vercel_blob_/i.test(photosToken)) putOpts.token = photosToken;
+    else if (publicStore) putOpts.storeId = publicStore;
+    else if (ready.auth === "token") putOpts.token = ready.token;
     const blob = await put(`${folder}/${Date.now()}-${safe}`, buffer, putOpts);
     return { ok: true, url: blob.url };
   } catch (e) {
