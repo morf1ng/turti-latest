@@ -886,7 +886,7 @@ function blobStore(path, token, opts) {
     var xhr = new XMLHttpRequest();
     xhr.open(opts.method || "POST", "https://blob.vercel-storage.com" + path);
     xhr.setRequestHeader("authorization", "Bearer " + token);
-    xhr.setRequestHeader("x-api-version", "9");
+    xhr.setRequestHeader("x-api-version", "13");
     xhr.setRequestHeader("x-api-blob-request-id", "admin:" + Date.now());
     xhr.setRequestHeader("x-api-blob-request-attempt", "0");
     if (opts.contentType) xhr.setRequestHeader("x-content-type", opts.contentType);

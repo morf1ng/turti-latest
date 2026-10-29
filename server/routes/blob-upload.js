@@ -11,6 +11,12 @@ const VIDEO_TYPES = new Set([
   "video/x-msvideo",
 ]);
 
+function publicBlobToken() {
+  const photos = String(process.env.PHOTOS_READ_WRITE_TOKEN || "").trim();
+  if (/^vercel_blob_/i.test(photos)) return photos;
+  return "";
+}
+
 function requireAdminUpload(req) {
   const expected = process.env.ADMIN_KEY;
   if (!expected) {
@@ -19,11 +25,20 @@ function requireAdminUpload(req) {
   if (adminKeyFrom(req) !== expected) {
     return { ok: false, status: 401, error: "Доступ запрещён" };
   }
-  const blob = blobTokenReady();
-  if (!blob.ok) {
-    return { ok: false, status: 503, error: blob.error, hint: "Подключите Blob в Vercel → Storage." };
+  if (!publicBlobToken() && !blobTokenReady().ok) {
+    return { ok: false, status: 503, error: "Blob не подключён", hint: "Подключите Blob в Vercel → Storage." };
   }
   return { ok: true };
+}
+
+function storyCallbackUrl(req) {
+  const prod = String(process.env.VERCEL_PROJECT_PRODUCTION_URL || "").trim();
+  if (process.env.VERCEL_ENV === "production" && prod) {
+    return `https://${prod}/api/blob-upload`;
+  }
+  const host = String(req.headers["x-forwarded-host"] || req.headers.host || "").split(",")[0].trim();
+  if (!host) return undefined;
+  return `https://${host}/api/blob-upload`;
 }
 
 function safeStoryPath(raw) {
@@ -49,14 +64,20 @@ export async function handle(req, res) {
       body.payload.pathname = safeStoryPath(body.payload.pathname);
       body.payload.callbackUrl = body.payload.callbackUrl || "";
     }
-  } else if (!blobTokenReady().ok) {
+  } else if (!publicBlobToken()) {
     return fail(res, 503, "Blob не подключён");
+  }
+
+  const token = publicBlobToken();
+  if (!token) {
+    return fail(res, 503, "Для видео нужен ключ публичного хранилища. Vercel → Storage → Blob → Connect to Project.");
   }
 
   try {
     const result = await handleUpload({
       body,
       request: req,
+      token,
       onBeforeGenerateToken: async (_pathname, clientPayload) => {
         let type = "";
         try {
@@ -69,6 +90,7 @@ export async function handle(req, res) {
           allowedContentTypes: [...VIDEO_TYPES],
           maximumSizeInBytes: 500 * 1024 * 1024,
           addRandomSuffix: true,
+          callbackUrl: storyCallbackUrl(req),
         };
       },
       onUploadCompleted: async ({ blob }) => {
