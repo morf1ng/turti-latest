@@ -974,41 +974,42 @@ function uploadStoryVideo(file) {
             body: JSON.stringify(parts)
           }).then(resolve, reject);
         }
+        function sendPart(partNumber, chunk) {
+          inflight++;
+          blobStore("/mpu?" + new URLSearchParams({ pathname: pathname }), token, {
+            method: "POST",
+            contentType: type,
+            headers: {
+              "x-mpu-action": "upload",
+              "x-mpu-key": encodeURIComponent(created.key),
+              "x-mpu-upload-id": created.uploadId,
+              "x-mpu-part-number": String(partNumber)
+            },
+            body: chunk,
+            onprogress: function (e) {
+              if (!e.lengthComputable) return;
+              loaded[partNumber] = e.loaded;
+              var sum = 0;
+              Object.keys(loaded).forEach(function (k) { sum += loaded[k]; });
+              showProgress(sum, file.size);
+            }
+          }).then(function (res) {
+            parts.push({ etag: res.etag, partNumber: partNumber });
+            loaded[partNumber] = chunk.size;
+            showProgress(Object.keys(loaded).reduce(function (s, k) { return s + loaded[k]; }, 0), file.size);
+            inflight--;
+            if (parts.length === slices.length) finish();
+            else pump();
+          }).catch(function (err) {
+            failed = true;
+            reject(err);
+          });
+        }
         function pump() {
           if (failed) return;
           while (inflight < 4 && cursor < slices.length) {
             var i = cursor++;
-            var partNumber = i + 1;
-            var chunk = slices[i];
-            inflight++;
-            blobStore("/mpu?" + new URLSearchParams({ pathname: pathname }), token, {
-              method: "POST",
-              contentType: type,
-              headers: {
-                "x-mpu-action": "upload",
-                "x-mpu-key": encodeURIComponent(created.key),
-                "x-mpu-upload-id": created.uploadId,
-                "x-mpu-part-number": String(partNumber)
-              },
-              body: chunk,
-              onprogress: function (e) {
-                if (!e.lengthComputable) return;
-                loaded[partNumber] = e.loaded;
-                var sum = 0;
-                Object.keys(loaded).forEach(function (k) { sum += loaded[k]; });
-                showProgress(sum, file.size);
-              }
-            }).then(function (res) {
-              parts.push({ etag: res.etag, partNumber: partNumber });
-              loaded[partNumber] = chunk.size;
-              showProgress(Object.keys(loaded).reduce(function (s, k) { return s + loaded[k]; }, 0), file.size);
-              inflight--;
-              if (parts.length === slices.length) finish();
-              else pump();
-            }).catch(function (err) {
-              failed = true;
-              reject(err);
-            });
+            sendPart(i + 1, slices[i]);
           }
         }
         pump();
@@ -1130,32 +1131,33 @@ function uploadBlobParts(file, pathname, token, type) {
           body: JSON.stringify(parts)
         }).then(resolve, reject);
       }
+      function sendPart(partNumber, chunk) {
+        inflight++;
+        blobStore("/mpu?" + new URLSearchParams({ pathname: pathname }), token, {
+          method: "POST",
+          contentType: type,
+          headers: {
+            "x-mpu-action": "upload",
+            "x-mpu-key": encodeURIComponent(created.key),
+            "x-mpu-upload-id": created.uploadId,
+            "x-mpu-part-number": String(partNumber)
+          },
+          body: chunk
+        }).then(function (res) {
+          parts.push({ etag: res.etag, partNumber: partNumber });
+          inflight--;
+          if (parts.length === slices.length) finish();
+          else pump();
+        }).catch(function (err) {
+          failed = true;
+          reject(err);
+        });
+      }
       function pump() {
         if (failed) return;
         while (inflight < 4 && cursor < slices.length) {
           var i = cursor++;
-          var partNumber = i + 1;
-          var chunk = slices[i];
-          inflight++;
-          blobStore("/mpu?" + new URLSearchParams({ pathname: pathname }), token, {
-            method: "POST",
-            contentType: type,
-            headers: {
-              "x-mpu-action": "upload",
-              "x-mpu-key": encodeURIComponent(created.key),
-              "x-mpu-upload-id": created.uploadId,
-              "x-mpu-part-number": String(partNumber)
-            },
-            body: chunk
-          }).then(function (res) {
-            parts.push({ etag: res.etag, partNumber: partNumber });
-            inflight--;
-            if (parts.length === slices.length) finish();
-            else pump();
-          }).catch(function (err) {
-            failed = true;
-            reject(err);
-          });
+          sendPart(i + 1, slices[i]);
         }
       }
       pump();
