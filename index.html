@@ -2134,34 +2134,62 @@
     function pmArrows() {
       return `<button type="button" class="pm-nav prev" id="pm-prev" aria-label="Предыдущее фото"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button><button type="button" class="pm-nav next" id="pm-next" aria-label="Следующее фото"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6 15.5 12l-6 6"/></svg></button>`;
     }
+    function cardPhoto(id) {
+      const g = GALLERY[id] || {};
+      const ph = PHOTOS[id] || {};
+      return g.main || ph[250] || ph[500] || ph[1000] || "";
+    }
+    function keepPhoto(id, row) {
+      if (!row) return;
+      if (!PHOTOS[id]) PHOTOS[id] = {};
+      [250, 500, 1000].forEach(function (s) {
+        if (row[s] && /^https:\/\//i.test(row[s])) PHOTOS[id][s] = row[s];
+      });
+      if (row.gallery && typeof row.gallery === "object") {
+        GALLERY[id] = Object.assign({}, GALLERY[id] || {}, row.gallery);
+      }
+    }
     function applyCatalogMedia(catalog) {
-      const photos = (catalog && catalog.photos) || {};
-      Object.keys(photos).forEach(function (id) {
-        const row = photos[id] || {};
-        if (!PHOTOS[id]) PHOTOS[id] = {};
-        [250, 500, 1000].forEach(function (s) {
-          if (row[s] && /^https:\/\//i.test(row[s])) PHOTOS[id][s] = row[s];
-        });
-        if (row.gallery && typeof row.gallery === "object") GALLERY[id] = row.gallery;
+      const remote = catalog && catalog.products;
+      if (!remote || !Object.keys(remote).length) return;
+      const photos = catalog.photos || {};
+      Object.keys(photos).forEach(function (id) { keepPhoto(id, photos[id]); });
+      Object.keys(PRODUCTS).forEach(function (id) {
+        if (!remote[id] || remote[id].hidden) delete PRODUCTS[id];
       });
-      document.querySelectorAll("article.pcard[data-open-product]").forEach(function (card) {
-        const id = card.getAttribute("data-open-product");
-        const src = (GALLERY[id] && GALLERY[id].main) || (PHOTOS[id] && (PHOTOS[id][250] || PHOTOS[id][500] || PHOTOS[id][1000]));
-        if (!src || !PRODUCTS[id]) return;
-        const art = card.querySelector(".pcard-art");
-        if (!art) return;
-        let img = art.querySelector(".pcard-photo");
-        if (!img) {
-          img = document.createElement("img");
-          img.className = "pcard-photo";
-          img.alt = PRODUCTS[id].name;
-          art.insertBefore(img, art.firstChild);
-        }
-        img.src = src;
-        img.style.display = "";
+      Object.keys(remote).forEach(function (id) {
+        if (remote[id].hidden || PRODUCTS[id]) return;
+        const raw = remote[id];
+        PRODUCTS[id] = {
+          name: raw.name,
+          color: raw.color || "#C9A96E",
+          group: raw.group === "seed" ? "seed" : "nut",
+          ing: raw.ing || "",
+          plus: raw.plus || "",
+          desc: raw.desc || "",
+          eat: raw.eat || "",
+          prices: raw.prices,
+          hit: Boolean(raw.hit),
+          badge: raw.badge || ""
+        };
       });
+      if (Array.isArray(catalog.catNuts)) CAT_NUTS = catalog.catNuts.filter(function (id) { return PRODUCTS[id]; });
+      if (Array.isArray(catalog.catSeeds)) CAT_SEEDS = catalog.catSeeds.filter(function (id) { return PRODUCTS[id]; });
+      if (Array.isArray(catalog.hits)) {
+        HITS.splice(0, HITS.length);
+        catalog.hits.forEach(function (id) { if (PRODUCTS[id]) HITS.push(id); });
+      } else {
+        for (let i = HITS.length - 1; i >= 0; i--) if (!PRODUCTS[HITS[i]]) HITS.splice(i, 1);
+      }
+      Object.keys(COLLECTIONS).forEach(function (cid) {
+        const remoteCol = catalog.collections && catalog.collections[cid];
+        const items = remoteCol && Array.isArray(remoteCol.items) ? remoteCol.items : COLLECTIONS[cid].items;
+        COLLECTIONS[cid].items = items.filter(function (id) { return PRODUCTS[id]; });
+      });
+      paintStorefront();
       const sheet = document.getElementById("product-sheet");
-      if (pmOpenId && sheet && sheet.classList.contains("show")) openProduct(pmOpenId);
+      if (pmOpenId && PRODUCTS[pmOpenId] && sheet && sheet.classList.contains("show")) openProduct(pmOpenId);
+      else if (pmOpenId && !PRODUCTS[pmOpenId]) closeSheets();
     }
     fetch("/api/catalog").then(function (r) { return r.json(); }).then(function (d) {
       if (d && d.ok && d.catalog) applyCatalogMedia(d.catalog);
@@ -2172,7 +2200,7 @@
       return `<article class="pcard" data-open-product="${id}">
         <div class="pcard-art">
           ${b ? `<span class="pcard-badge">${b}</span>` : ""}
-          ${PHOTOS[id] ? `<img class="pcard-photo" src="${PHOTOS[id][250]}" alt="${p.name}" onerror="this.style.display='none'">` : ""}
+          ${cardPhoto(id) ? `<img class="pcard-photo" src="${escHtml(cardPhoto(id))}" alt="${escHtml(p.name)}" onerror="this.style.display='none'">` : ""}
           ${jarHTML(id)}
         </div>
         <div class="pcard-body">
@@ -2188,21 +2216,29 @@
       </article>`;
     }
 
-    $("#hits-list").innerHTML = HITS.map(id => productCard(id)).join("");
-    const hh = $("#hits-home"); if (hh) hh.innerHTML = HITS.map(id => productCard(id)).join("");
-    const CAT_NUTS = ["hazelnut-cocoa","almond-cocoa","pistachio","almond","cashew","peanut","hazelnut","walnut","almond-cashew","three-nuts"];
-    const CAT_SEEDS = ["sesame","hemp","flax-black","flax-seeds","flax-white","flax-mix","thistle"];
-    $("#catalog-list").innerHTML =
-      CAT_NUTS.map(id => productCard(id)).join("") +
-      `<div class="grid-sub">Урбечи из семян</div>` +
-      CAT_SEEDS.map(id => productCard(id)).join("");
-
-    const collList = $("#collections-list");
-    if (collList) collList.innerHTML = Object.entries(COLLECTIONS).map(([cid, c]) => `
+    let CAT_NUTS = ["hazelnut-cocoa","almond-cocoa","pistachio","almond","cashew","peanut","hazelnut","walnut","almond-cashew","three-nuts"];
+    let CAT_SEEDS = ["sesame","hemp","flax-black","flax-seeds","flax-white","flax-mix","thistle"];
+    function paintStorefront() {
+      const nuts = CAT_NUTS.filter(id => PRODUCTS[id]);
+      const seeds = CAT_SEEDS.filter(id => PRODUCTS[id]);
+      const hits = HITS.filter(id => PRODUCTS[id]);
+      $("#hits-list").innerHTML = hits.map(id => productCard(id)).join("");
+      const hh = $("#hits-home"); if (hh) hh.innerHTML = hits.map(id => productCard(id)).join("");
+      $("#catalog-list").innerHTML =
+        nuts.map(id => productCard(id)).join("") +
+        (seeds.length ? `<div class="grid-sub">Урбечи из семян</div>` + seeds.map(id => productCard(id)).join("") : "");
+      const countEl = document.querySelector(".hits-catalog-count");
+      if (countEl) countEl.textContent = (nuts.length + seeds.length) + " " + plural(nuts.length + seeds.length, "вкус", "вкуса", "вкусов");
+      Object.values(COLLECTIONS).forEach(c => {
+        c.items = c.items.filter(id => PRODUCTS[id]);
+        c.oldPrice = c.items.reduce((s, id) => s + PRODUCTS[id].prices[250], 0);
+        c.save = c.oldPrice - c.price;
+      });
+      const colHtml = Object.entries(COLLECTIONS).filter(([, c]) => c.items.length).map(([cid, c]) => `
       <article class="col-card${c.premium ? " col-premium" : ""}">
         ${c.premium ? `<span class="col-premium-badge">★ Премиум</span>` : ""}
         <div class="col-box">
-          <span class="col-badge">выгода ${c.save} ₽</span>
+          ${c.save > 0 ? `<span class="col-badge">выгода ${c.save} ₽</span>` : ""}
           ${c.items.map(id => jarHTML(id, { w: 56, h: 78 })).join("")}
         </div>
         <div class="col-info">
@@ -2212,7 +2248,7 @@
           <p class="col-weight">${c.items.length} ${c.items.length < 5 ? "банки" : "банок"} × 250 г = ${c.items.length * 250} г нетто</p>
           <div class="col-foot">
             <div><span class="price-now" style="font-size:24px">${money(c.price)}</span>
-            <span class="price-old" style="margin-left:8px">${money(c.oldPrice)}</span></div>
+            ${c.save > 0 ? `<span class="price-old" style="margin-left:8px">${money(c.oldPrice)}</span>` : ""}</div>
           </div>
           <div class="two-btns">
             <button class="btn btn-green" data-buy-now="${cid}">Купить</button>
@@ -2221,8 +2257,12 @@
           </div>
         </div>
       </article>`).join("");
-
-    $("#collections-home").innerHTML = collList.innerHTML;
+      const collList = $("#collections-list");
+      if (collList) collList.innerHTML = colHtml;
+      const homeSets = $("#collections-home");
+      if (homeSets) homeSets.innerHTML = colHtml;
+    }
+    paintStorefront();
 
     /* ═══ КАРТОЧКА ТОВАРА ═══ */
     let pmSize = 250;
@@ -2364,7 +2404,7 @@
             <span class="pm-eyebrow">Подарочный набор TURTI</span>
             <h3 class="pm-title">«${c.name}»</h3>
             <p class="pm-desc">${c.items.map(id => PRODUCTS[id].name).join(" · ")} — по 250 г в фирменной коробке.</p>
-            <div class="price-row"><span class="price-now">${money(c.price)}</span><span class="price-old">${money(c.oldPrice)}</span></div>
+            <div class="price-row"><span class="price-now">${money(c.price)}</span>${c.save > 0 ? `<span class="price-old">${money(c.oldPrice)}</span>` : ""}</div>
             <div class="two-btns">
               <button class="btn btn-green" id="col-buy">Купить</button>
               <button class="btn btn-outline" id="col-add">В корзину</button>

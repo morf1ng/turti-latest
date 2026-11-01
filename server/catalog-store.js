@@ -155,7 +155,6 @@ export async function deleteProduct(id) {
   const pid = String(id || "").trim();
   if (!catalog.products[pid]) throw new Error("Товар не найден");
   delete catalog.products[pid];
-  delete catalog.photos[pid];
   catalog.hits = catalog.hits.filter((x) => x !== pid);
   catalog.catNuts = catalog.catNuts.filter((x) => x !== pid);
   catalog.catSeeds = catalog.catSeeds.filter((x) => x !== pid);
