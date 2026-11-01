@@ -323,6 +323,7 @@ var toastTimer;
 var SERVER_DETAIL = "";
 var catalogData = null;
 var catalogEditId = null;
+var setEditId = null;
 
 function toast(msg, isErr) {
   var el = $("#toast"); if (!el) return;
@@ -1321,8 +1322,44 @@ function renderCatalogPage() {
       return catalogCard(id, d.products[id], d.photos[id]); }).join("") + '</div>' +
     '<h2 style="font-size:16px;font-weight:600;margin:18px 0 10px">Из семян</h2>' +
     '<div class="cat-grid">' + seeds.map(function (id) {
-      return catalogCard(id, d.products[id], d.photos[id]); }).join("") + '</div>';
+      return catalogCard(id, d.products[id], d.photos[id]); }).join("") + '</div>' +
+    setsBlock(d);
   bindCatalog();
+}
+
+function setsBlock(d) {
+  var cols = d.collections || {};
+  var ids = Object.keys(cols);
+  var products = catalogProductIds(d).filter(function (id) { return d.products[id] && !d.products[id].hidden; });
+  var editing = setEditId === "__new__" ? { name: "", price: "", purpose: "", items: [], onHome: true } : (setEditId ? cols[setEditId] : null);
+  var form = "";
+  if (editing) {
+    var picked = editing.items || [];
+    form = '<form class="cat-form" id="set-form" style="margin-top:12px">' +
+      '<div class="cat-row"><label>Название<input name="name" required maxlength="80" value="' + esc(editing.name || "") + '"></label>' +
+      '<label>Цена набора, ₽<input name="price" type="number" min="1" required value="' + esc(editing.price || "") + '"></label></div>' +
+      '<label>Короткая строка на карточке<input name="purpose" maxlength="120" value="' + esc(editing.purpose || "") + '" placeholder="Необязательно"></label>' +
+      '<div class="cat-row" style="margin-top:10px"><label><input type="checkbox" name="onHome"' + (editing.onHome === true ? " checked" : "") + '> Показывать на главной</label></div>' +
+      '<p class="sub" style="margin:8px 0">Вкусы в наборе, по 250 г</p>' +
+      '<div class="cat-row" style="flex-wrap:wrap">' + products.map(function (id) {
+        return '<label><input type="checkbox" name="item" value="' + esc(id) + '"' + (picked.indexOf(id) >= 0 ? " checked" : "") + '> ' + esc(d.products[id].name) + '</label>';
+      }).join("") + '</div>' +
+      '<div class="acts"><button type="submit" class="btn ok">Сохранить набор</button>' +
+      '<button type="button" class="btn line" data-set-cancel>Отмена</button>' +
+      (setEditId !== "__new__" ? '<button type="button" class="btn danger" data-set-delete>Удалить</button>' : "") +
+      '</div></form>';
+  }
+  return '<h2 style="font-size:16px;font-weight:600;margin:28px 0 8px">Наборы на главной</h2>' +
+    '<p class="sub" style="margin:0 0 12px">Пока набор не добавлен и не отмечен «на главной», блок на главной странице не показывается.</p>' +
+    '<div class="acts" style="margin-bottom:12px"><button class="btn ok s" id="set-new" type="button">+ Добавить набор</button></div>' +
+    form +
+    (ids.length ? ids.map(function (id) {
+      var c = cols[id];
+      var names = (c.items || []).map(function (pid) { return d.products[pid] ? d.products[pid].name : pid; }).join(" · ");
+      return '<div class="rec"><div class="rec-top"><div><strong>' + esc(c.name) + '</strong><div class="sub">' +
+        esc(names || "вкусы не выбраны") + ' · ' + esc(c.price) + ' ₽ · ' + (c.onHome ? "на главной" : "скрыт") +
+        '</div></div><button class="btn line s" type="button" data-set-edit="' + esc(id) + '">Изменить</button></div></div>';
+    }).join("") : '<p class="sub">Наборов нет.</p>');
 }
 
 function bindCatalog() {
@@ -1400,6 +1437,44 @@ function bindCatalog() {
       });
     };
   });
+  var setNew = $("#set-new");
+  if (setNew) setNew.onclick = function () { setEditId = "__new__"; renderCatalogPage(); };
+  main.querySelectorAll("[data-set-edit]").forEach(function (btn) {
+    btn.onclick = function () { setEditId = btn.getAttribute("data-set-edit"); renderCatalogPage(); };
+  });
+  var setCancel = main.querySelector("[data-set-cancel]");
+  if (setCancel) setCancel.onclick = function () { setEditId = null; renderCatalogPage(); };
+  var setDel = main.querySelector("[data-set-delete]");
+  if (setDel) setDel.onclick = function () {
+    var current = catalogData.collections && catalogData.collections[setEditId];
+    if (!confirm("Удалить набор «" + ((current && current.name) || "") + "»?")) return;
+    catalogApi("POST", { action: "delete-collection", id: setEditId }).then(function (r) {
+      if (!r.ok) { toast(r.error || "Не удалилось", true); return; }
+      catalogData = r.catalog; setEditId = null; toast("Набор удалён"); renderCatalogPage();
+    });
+  };
+  var setForm = $("#set-form");
+  if (setForm) setForm.onsubmit = function (e) {
+    e.preventDefault();
+    var fd = new FormData(setForm);
+    var items = fd.getAll("item");
+    if (!items.length) { toast("Выберите хотя бы один вкус", true); return; }
+    var id = setEditId === "__new__" ? ("col-" + Date.now().toString(36)) : setEditId;
+    catalogApi("POST", {
+      action: "save-collection",
+      id: id,
+      collection: {
+        name: fd.get("name"),
+        price: fd.get("price"),
+        purpose: fd.get("purpose"),
+        items: items,
+        onHome: setForm.querySelector("[name=onHome]").checked
+      }
+    }).then(function (r) {
+      if (!r.ok) { toast(r.error || "Не сохранилось", true); return; }
+      catalogData = r.catalog; setEditId = null; toast("Набор сохранён"); renderCatalogPage();
+    });
+  };
   var form = $("#cat-form");
   if (form) form.onsubmit = function (e) {
     e.preventDefault();

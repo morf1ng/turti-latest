@@ -6,6 +6,7 @@ import {
   deleteProduct,
   saveProductPhotos,
   saveCollection,
+  deleteCollection,
   catalogPayload,
 } from "../catalog-store.js";
 
@@ -46,6 +47,11 @@ export async function handle(req, res) {
 
     if (action === "save-collection") {
       const saved = await saveCollection(body.id, body.collection || body);
+      return ok(res, { catalog: catalogPayload(saved) });
+    }
+
+    if (action === "delete-collection") {
+      const saved = await deleteCollection(body.id);
       return ok(res, { catalog: catalogPayload(saved) });
     }
 

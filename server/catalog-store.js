@@ -218,7 +218,17 @@ export async function saveCollection(cid, data) {
     items,
     price: Math.round(price),
     premium: Boolean(data.premium),
+    onHome: data.onHome !== false,
+    purpose: String(data.purpose || "").trim().slice(0, 120),
   };
+  return saveCatalog(catalog);
+}
+
+export async function deleteCollection(id) {
+  const catalog = await getCatalog();
+  const cid = String(id || "").trim();
+  if (!catalog.collections[cid]) throw new Error("Набор не найден");
+  delete catalog.collections[cid];
   return saveCatalog(catalog);
 }
 

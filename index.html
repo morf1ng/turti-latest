@@ -1466,6 +1466,7 @@
     .story-body .story-film { margin:26px 0; }
     .home-sets { background:#EFE9DC; border-radius:28px; }
     [data-screen-view="home"] > .section { scroll-margin-top:85px; }
+    #intro.is-off { display:none !important; }
     #reviews { background:#F0F2E9; border:1px solid #DDE2D2; border-radius:28px; padding:30px 22px !important; margin-bottom:48px; }
     #delivery { padding-top:12px !important; }
     @media(min-width:768px) {
@@ -1644,7 +1645,7 @@
       </div>
     </section>
 
-    <section class="section home-sets" id="intro">
+    <section class="section home-sets is-off" id="intro">
       <div class="sec-head"><span class="eyebrow">Несколько вкусов в одной коробке</span><h2 class="sec-title">Для знакомства и в подарок</h2><p class="sec-lead">Попробуйте сочетание вкусов или выберите набор для близких.</p></div>
       <div class="collections" id="collections-home"></div>
     </section>
@@ -2181,11 +2182,22 @@
       } else {
         for (let i = HITS.length - 1; i >= 0; i--) if (!PRODUCTS[HITS[i]]) HITS.splice(i, 1);
       }
-      Object.keys(COLLECTIONS).forEach(function (cid) {
-        const remoteCol = catalog.collections && catalog.collections[cid];
-        const items = remoteCol && Array.isArray(remoteCol.items) ? remoteCol.items : COLLECTIONS[cid].items;
-        COLLECTIONS[cid].items = items.filter(function (id) { return PRODUCTS[id]; });
+      Object.keys(COLLECTIONS).forEach(function (cid) { delete COLLECTIONS[cid]; });
+      Object.keys(catalog.collections || {}).forEach(function (cid) {
+        const c = catalog.collections[cid];
+        if (!c || c.onHome !== true) return;
+        const items = (c.items || []).filter(function (id) { return PRODUCTS[id]; });
+        if (!items.length || !(Number(c.price) > 0)) return;
+        COLLECTIONS[cid] = {
+          name: c.name,
+          items: items,
+          price: Number(c.price),
+          purpose: c.purpose || "",
+          premium: Boolean(c.premium),
+          onHome: true
+        };
       });
+      setsFromAdmin = true;
       paintStorefront();
       const sheet = document.getElementById("product-sheet");
       if (pmOpenId && PRODUCTS[pmOpenId] && sheet && sheet.classList.contains("show")) openProduct(pmOpenId);
@@ -2216,6 +2228,7 @@
       </article>`;
     }
 
+    let setsFromAdmin = false;
     let CAT_NUTS = ["hazelnut-cocoa","almond-cocoa","pistachio","almond","cashew","peanut","hazelnut","walnut","almond-cashew","three-nuts"];
     let CAT_SEEDS = ["sesame","hemp","flax-black","flax-seeds","flax-white","flax-mix","thistle"];
     function paintStorefront() {
@@ -2234,7 +2247,8 @@
         c.oldPrice = c.items.reduce((s, id) => s + PRODUCTS[id].prices[250], 0);
         c.save = c.oldPrice - c.price;
       });
-      const colHtml = Object.entries(COLLECTIONS).filter(([, c]) => c.items.length).map(([cid, c]) => `
+      const published = setsFromAdmin ? Object.entries(COLLECTIONS).filter(([, c]) => c.onHome && c.items.length) : [];
+      const colHtml = published.map(([cid, c]) => `
       <article class="col-card${c.premium ? " col-premium" : ""}">
         ${c.premium ? `<span class="col-premium-badge">★ Премиум</span>` : ""}
         <div class="col-box">
@@ -2242,8 +2256,8 @@
           ${c.items.map(id => jarHTML(id, { w: 56, h: 78 })).join("")}
         </div>
         <div class="col-info">
-          <h3>«${c.name}»</h3>
-          <p class="col-purpose">${({"col-intro":"Три вкуса для первого знакомства", "col-nuts":"Четыре ореховых сочетания", "col-fav-v2":"Миндаль, кешью и сочетание с какао", "col-nature-v2":"Пять вкусов на основе семян", "col-full-v2":"Ореховые вкусы и два сочетания с какао"})[cid] || ""}</p>
+          <h3>«${escHtml(c.name)}»</h3>
+          ${c.purpose ? `<p class="col-purpose">${escHtml(c.purpose)}</p>` : ""}
           <p class="col-flavors">${c.items.map(id => PRODUCTS[id].name).join(" · ")} — по 250 г, в фирменной коробке TURTI.</p>
           <p class="col-weight">${c.items.length} ${c.items.length < 5 ? "банки" : "банок"} × 250 г = ${c.items.length * 250} г нетто</p>
           <div class="col-foot">
@@ -2258,9 +2272,11 @@
         </div>
       </article>`).join("");
       const collList = $("#collections-list");
-      if (collList) collList.innerHTML = colHtml;
+      if (collList) collList.innerHTML = colHtml || `<p class="sec-lead">Наборов пока нет.</p>`;
       const homeSets = $("#collections-home");
       if (homeSets) homeSets.innerHTML = colHtml;
+      const homeSection = $("#intro");
+      if (homeSection) homeSection.classList.toggle("is-off", published.length === 0);
     }
     paintStorefront();
 
