@@ -1494,14 +1494,10 @@
     @media(max-width:480px) { .hits-catalog-link { width:100%; } }
     .col-purpose { color:var(--green); font-size:13px; font-weight:700; margin:8px 0 10px; }
 
-    /* На телефоне главная ведёт коротко к наборам: подробные разделы остаются в меню. */
+    /* На телефоне главная как в макете: история, вкусы и доставка видны. */
     @media(max-width:767px) {
-      [data-screen-view="home"] .home-story,
-      [data-screen-view="home"] #hits-main,
       [data-screen-view="home"] .catalog-divider,
-      [data-screen-view="home"] #delivery,
-      [data-screen-view="home"] #faq,
-      [data-screen-view="home"] #reviews { display:none; }
+      [data-screen-view="home"] #faq { display:none; }
       [data-screen-view="home"] .home-sets { margin-top:22px; }
       #collections-home .col-purpose,
       #collections-home .col-flavors,
@@ -1515,6 +1511,48 @@
       footer{ padding-bottom:170px; }
     }
     @media(min-width:768px) { #collections-home .col-card:last-child:nth-child(odd) { grid-column:1 / -1; width:calc((100% - 24px) / 2); justify-self:center; } }
+
+    /* Макет: первый экран, шапка, меню, карточки */
+    .icon-btn { font-size: 18px; color: var(--green-dark); }
+    .header .logo-mark { width:60px; height:60px; flex:0 0 60px; object-fit:contain; border-radius:14px; background:#870000; box-shadow:0 4px 14px rgba(126,29,22,.2); }
+    .hero {
+      position:relative; display:flex; flex-direction:column;
+      min-height:0; height:clamp(560px,72svh,740px);
+      padding:32px 30px 40px; background:#352b1e; overflow:hidden;
+      justify-content:flex-end; align-items:flex-start; text-align:left;
+    }
+    .hero-img { object-fit:cover; object-position:center 48%; }
+    .hero > .hero-shade { display:block; background:linear-gradient(to bottom,rgba(12,16,9,0) 22%,rgba(12,16,9,.22) 48%,rgba(12,10,6,.78) 100%); }
+    .hero-content { position:relative; z-index:2; width:100%; max-width:740px; margin:0; padding:0; text-align:left; }
+    .hero-reference-brand { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 20px; color:#fffdf6; }
+    .hero-reference-brand strong { font:400 42px 'Prata',Georgia,serif; letter-spacing:.16em; line-height:1.2; text-shadow:0 2px 12px rgba(0,0,0,.3); padding-bottom:9px; border-bottom:1px solid rgba(232,201,154,.65); }
+    .hero .hero-title { max-width:690px; color:#fffdf6; text-shadow:none; font-family:'Unbounded','Manrope',sans-serif; font-weight:800; font-size:clamp(34px,3vw,54px); line-height:1.08; letter-spacing:-.035em; }
+    .hero .hero-title .accent { color:#e8c99a !important; font-family:'Prata',serif; font-weight:400; font-style:italic; letter-spacing:-.03em; }
+    .hero .hero-btns { display:flex; flex-direction:row; max-width:none; margin:26px 0 0; justify-content:flex-start; gap:15px; flex-wrap:wrap; }
+    .hero .hero-btns .btn { min-width:245px; min-height:54px; padding:14px 24px; font-family:'Unbounded','Manrope',sans-serif; font-size:16px; }
+    .menu-title { font-size:22px; margin-bottom:16px; }
+    .menu-list { gap:8px; }
+    .menu-list a, .menu-list button { min-height:54px; gap:12px; border-radius:16px; padding:10px 14px; font-size:15px; font-weight:700; transition:background .18s, border-color .18s; }
+    .menu-list a:hover, .menu-list button:hover { border-color:rgba(198,54,43,.3); }
+    .menu-icon { display:grid; place-items:center; width:34px; height:34px; flex:0 0 34px; border-radius:10px; background:#F9EEE8; color:var(--green); }
+    .menu-icon svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+    .menu-cart-count { display:grid; place-items:center; margin-left:auto; min-width:26px; height:26px; padding:0 7px; border-radius:99px; background:#F9EEE8; color:var(--green); font-size:12px; font-weight:800; }
+    .catalog-heading .sec-title em { font-family:'Prata',serif; font-style:italic; font-weight:400; color:var(--green); }
+    .catalog-grid .pcard-art, .hits-scroll .pcard .pcard-art { height:auto; min-height:0; aspect-ratio:1; padding:0; background:#f5f1ed; align-items:center; }
+    .pcard-photo, .pm-photo { object-fit:contain; object-position:center; background:#f5f1ed; }
+    #product-sheet .pm-art { height:auto; min-height:0; aspect-ratio:1; padding:0; background:#f5f1ed; }
+    .dock svg.di { stroke-width:2.1; }
+    .footer-wa { width:auto; border-radius:999px; padding:13px 26px; background:linear-gradient(180deg,#E0574C,#C6362B); box-shadow:0 8px 20px rgba(198,54,43,.35); }
+    @media(max-width:767px){
+      .hero { min-height:540px; height:74svh; padding:24px 20px 32px; }
+      .hero-img { object-position:58% top; }
+      .hero-reference-brand { gap:10px; margin-bottom:20px; }
+      .hero-reference-brand strong { font-size:32px; }
+      .header .logo-mark { width:48px; height:48px; flex-basis:48px; border-radius:11px; }
+      .hero .hero-title { font-size:clamp(30px,7.4vw,48px); }
+      .hero .hero-btns { gap:10px; margin-top:22px; }
+      .hero .hero-btns .btn { min-width:0; flex:1; padding:11px 10px; font-size:11px; min-height:48px; }
+    }
   </style>
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -1536,10 +1574,9 @@
   <!-- ШАПКА -->
   <header class="header">
     <div class="header-side">
-      <button class="icon-btn" data-open-menu aria-label="Меню"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <button class="icon-btn" data-open-menu aria-label="Меню" type="button">☰</button>
       <a class="logo" href="index.html" aria-label="TURTI — на главную">
-        <img class="logo-mark" src="images/turti-avatar.png" alt="TURTI">
-        <span><strong>TURTI</strong></span>
+        <img class="logo-mark" src="images/turti-avatar.png" alt="Логотип TURTI" width="60" height="60">
       </a>
     </div>
     <a class="header-story" href="#story">О нас <span aria-hidden="true">↗</span></a>
@@ -1575,8 +1612,8 @@
            onerror="var t=['images/hero.jpg','images/hero.jpeg','images/hero.webp','images/hero.JPG'];this.onerror=()=>{if(t.length)this.src=t.shift();else{this.onerror=null;this.style.display='none'}};this.src=t.shift();">
       <div class="hero-shade"></div>
       <div class="hero-content">
-        <h1 class="hero-title">25 лет каменного помола<br>Вкус <span class="accent" style="color:#E8C99A">без спешки</span></h1>
-        <p class="hero-intro">Урбеч из орехов и семян из Дагестана.</p>
+        <div class="hero-reference-brand"><strong>TURTI</strong></div>
+        <h1 class="hero-title">25 лет<br>производим урбеч<br>Вкус <span class="accent">без спешки</span></h1>
         <div class="hero-btns">
           <a class="btn btn-gold" href="#catalog">Выбрать вкус</a>
           <a class="btn btn-white" href="#about">Наша история</a>
@@ -1588,20 +1625,21 @@
       <div class="home-story-copy">
         <span class="eyebrow">Знакомьтесь, TURTI</span>
         <h2 class="sec-title" id="home-story-title">За каждой банкой —<br>наша история</h2>
-        <p>Наша история начинается у водяной мельницы в Дагестане. Здесь уже 25 лет орехи и семена перетирают каменными жерновами.</p>
-        <p>Медленный помол, знакомый звук камня и внимание к каждой партии. Рассказываем о людях и месте, где делают TURTI.</p>
+        <p>Наша история начинается на водяной мельнице в Дагестане, где холодная вода медленно приводит в движение каменные жернова.</p>
+        <p>Так сохраняются естественные вкус и аромат орехов и семян — традиция, которую передают из поколения в поколение.</p>
         <a class="btn btn-green" href="#story">Познакомиться с нами →</a>
       </div>
       <div class="story-film" data-story-film>
         <img src="images/about-hero.jpg" alt="Горы Дагестана" loading="lazy">
-        <div class="story-film-caption"><span class="film-symbol" aria-hidden="true">▷</span><span><strong>Как мы делаем урбеч</strong><small>Скоро видео · 3 минуты</small></span></div>
+        <div class="story-film-caption"><span class="film-symbol" aria-hidden="true">▷</span><span><strong>От орехов и семян до урбеча</strong><small>Познакомьтесь с нашей водяной мельницей. Видео появится здесь.</small></span></div>
       </div>
     </section>
 
     <section class="section"  id="hits-main">
       <div class="sec-head">
-        <span class="eyebrow">Выбор покупателей</span>
+        <span class="eyebrow">Рекомендуем попробовать</span>
         <h2 class="sec-title">С какого вкуса начать</h2>
+        <p class="sec-lead">Начните с Миндаль Какао-бобы — насыщенный вкус миндаля и какао-бобов. Попробуйте на тосте или с блинами.</p>
       </div>
       <div class="hits-scroll" id="hits-home"></div>
       <div class="hits-catalog-footer">
@@ -1610,15 +1648,16 @@
     </section>
 
     <section class="catalog-divider" aria-label="Раздел заказа">
-      <span class="eyebrow">Следующий шаг</span>
-      <h3>Как заказать TURTI</h3>
-      <p>Выбрали вкус — теперь осталось оформить доставку.</p>
+      <span class="eyebrow">TURTI — к вашему столу</span>
+      <h3>Ваш вкус. Наша забота.</h3>
+      <p>Выберите урбеч на сайте — мы бережно упакуем и отправим ваш заказ.</p>
     </section>
 
     <section class="section order-section" style="padding-top:34px" id="delivery">
       <div class="sec-head">
         <span class="eyebrow">Доставка и оплата</span>
-        <h2 class="sec-title">Просто и понятно</h2>
+        <h2 class="sec-title">Как заказать TURTI</h2>
+        <p class="sec-lead">Всё начинается с карточки любимого вкуса.</p>
       </div>
       <div class="delivery-flow">
         <article class="delivery-step"><b>1</b><div><h4>Выберите свой вкус</h4><p>Откройте понравившийся урбеч, выберите объём и добавьте банку или набор в корзину.</p></div></article>
@@ -1678,11 +1717,11 @@
     <div class="screen" data-screen-view="catalog">
     <!-- 4. ВСЕ УРБЕЧИ -->
     <section class="section" id="catalog">
-      <div class="sec-head">
-        <span class="eyebrow">17 вкусов</span>
-        <h2 class="sec-title">Все урбечи</h2>
-        <p class="sec-lead">Выберите вкус. Все вкусы — натуральные, без добавок, медленный помол.</p>
-      </div>
+      <header class="sec-head catalog-heading">
+        <span class="eyebrow">Коллекция вкусов</span>
+        <h2 class="sec-title">Найдите <em>свой вкус</em></h2>
+        <p class="sec-lead">Медленный помол на водяной мельнице. 250 г, 500 г и 1 кг.</p>
+      </header>
       <div class="catalog-grid" id="catalog-list"></div>
     </section>
 
@@ -1716,7 +1755,7 @@
         <div class="st-rule"></div>
       <div class="story-film" data-story-film>
         <img src="images/about-hero.jpg" alt="Горы Дагестана" loading="lazy">
-        <div class="story-film-caption"><span class="film-symbol" aria-hidden="true">▷</span><span><strong>Как мы делаем урбеч</strong><small>Скоро видео · 3 минуты</small></span></div>
+        <div class="story-film-caption"><span class="film-symbol" aria-hidden="true">▷</span><span><strong>От орехов и семян до урбеча</strong><small>Познакомьтесь с нашей водяной мельницей. Видео появится здесь.</small></span></div>
       </div>
 
         <div class="st-cards story-single">
@@ -1777,16 +1816,16 @@
   <!-- НИЖНИЙ ДОК -->
   <nav class="dock" aria-label="Нижнее меню">
     <a href="#top" class="dock-active">
-      <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>Главная</a>
+      <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.2 12 4.6l8 6.6"/><path d="M5.8 10.3V19a1.2 1.2 0 0 0 1.2 1.2h3.1v-4.6a1.2 1.2 0 0 1 1.2-1.2h1.4a1.2 1.2 0 0 1 1.2 1.2v4.6H17a1.2 1.2 0 0 0 1.2-1.2v-8.7"/></svg>Главная</a>
     <a href="#catalog">
-      <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6M8 6h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><path d="M9.5 13h5M9.5 16.5h3.5"/></svg>Урбечи</a>
+      <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="8" width="12" height="12" rx="3"/><path d="M8.6 8V5.4h6.8V8"/><path d="M9.6 12.8h4.8M9.6 15.6h3"/></svg>Урбечи</a>
     <a href="#sets">
-      <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M12 8v13M3 12h18"/><path d="M12 8c-2 0-3.5-1.4-3.5-3S10 2.5 12 2.5s3.5 1.4 3.5 3S14 8 12 8z"/></svg>Наборы</a>
+      <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M12 8v13M3 12h18"/></svg>Наборы</a>
     <button data-open-opt type="button">
-      <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v10"/></svg>Опт</button>
+      <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5v9l-9 5-9-5V8ZM3 8l9 5 9-5M12 13v9"/></svg>Опт</button>
     <button data-open-cart type="button">
       <span style="position:relative;display:block">
-        <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h14l-1.4 8.4a2 2 0 0 1-2 1.6H9.3a2 2 0 0 1-2-1.6L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><circle cx="9.5" cy="20" r="1"/><circle cx="17.5" cy="20" r="1"/></svg>
+        <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
         <span class="dock-badge cart-count">0</span>
       </span>Корзина</button>
   </nav>
@@ -1804,18 +1843,18 @@
   <div class="sheet" id="menu-sheet">
     <div class="sheet-grip"></div>
     <button class="sheet-close" data-close aria-label="Закрыть"><svg class="ic-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
-    <h3 style="font-size:22px;margin-bottom:14px">Меню</h3>
-    <nav class="menu-list">
-      <a href="#top" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>Главная</a>
-      <button data-open-search type="button"><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Поиск</button>
-      <a href="#intro" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Первое знакомство</a>
-      <a href="#story" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18M6 20l5-12 4 8 3-7 4 11"/></svg>О нас</a>
-      <a href="#hits" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c4-2.5 6-6 6-10a6 6 0 0 0-12 0c0 4 2 7.5 6 10z"/></svg>Хиты продаж</a>
-      <a href="#catalog" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6M8 6h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><path d="M9.5 13h5"/></svg>Все урбечи</a>
-      <a href="#sets" data-close><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M12 8v13M3 12h18"/><path d="M12 8c-2 0-3.5-1.4-3.5-3S10 2.5 12 2.5s3.5 1.4 3.5 3S14 8 12 8z"/></svg>Коллекции TURTI</a>
-      <a href="reviews.html"><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.8l2.1 4.3 4.7.7-3.4 3.3.8 4.7L12 14.3l-4.2 2.5.8-4.7-3.4-3.3 4.7-.7z"/></svg>Отзывы</a>
-      <button data-open-opt type="button"><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>Опт — от 10 кг</button>
-      <button data-open-cart><svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h14l-1.4 8.4a2 2 0 0 1-2 1.6H9.3a2 2 0 0 1-2-1.6L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Корзина <span class="cart-count" style="margin-left:6px">0</span></button>
+    <h3 class="menu-title">Меню TURTI</h3>
+    <nav class="menu-list" aria-label="Разделы сайта TURTI">
+      <a href="#top" data-close><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h5v-6h4v6h5V9"/></svg></span><span>Главная</span></a>
+      <a href="#catalog" data-close><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="7" width="12" height="14" rx="3"/><path d="M8 7V3h8v4M9 12h6M9 16h6"/></svg></span><span>Все урбечи</span></a>
+      <a href="#hits" data-close><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></span><span>Наши хиты</span></a>
+      <button data-open-search type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span><span>Поиск по вкусам</span></button>
+      <a href="#story" data-close><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m2 20 7-13 4 7 3-5 6 11ZM6.8 11h4.4M14 13h4"/></svg></span><span>О нас</span></a>
+      <a href="#delivery" data-close><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M8 10l1 1 2-2M13 10h3M8 16l1 1 2-2M13 16h3"/></svg></span><span>Как заказать TURTI</span></a>
+      <a href="#sets" data-close><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M12 8v13M3 12h18"/></svg></span><span>Наборы</span></a>
+      <a href="reviews.html"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.2 4.6 5 .7-3.6 3.5.9 5L12 14.4 7.5 16.8l.9-5L4.8 8.3l5-.7Z"/></svg></span><span>Отзывы</span></a>
+      <button data-open-opt type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 9 5v9l-9 5-9-5V8ZM3 8l9 5 9-5M12 13v9"/></svg></span><span>Опт — от 10 кг</span></button>
+      <button data-open-cart type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6ZM9 8V6a3 3 0 0 1 6 0v2"/></svg></span><span>Корзина</span><span class="menu-cart-count cart-count">0</span></button>
     </nav>
   </div>
   <div class="sheet" id="search-sheet">
