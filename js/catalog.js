@@ -131,10 +131,15 @@ export function itemInfo(key) {
     const c = COLLECTIONS[k];
     return c ? { label: "Набор «" + c.name + "»", sub: c.jars + " банок × 250 г", price: c.price, isSet: true } : null;
   }
-  const [id, size] = k.split("|");
+  const parts = k.split("|");
+  const id = parts[0];
+  const size = parts[1];
+  const sugar = parts[2] || "";
+  if (sugar && sugar !== "plain" && sugar !== "sugar") return null;
   const p = PRODUCTS[id];
   if (!p || !p.prices[size]) return null;
-  return { label: p.name, sub: size + " г", price: p.prices[size], id, size: Number(size) };
+  const sugarText = sugar === "sugar" ? " · с сахаром" : sugar === "plain" ? " · без сахара" : "";
+  return { label: p.name, sub: size + " г" + sugarText, price: p.prices[size], id, size: Number(size) };
 }
 
 /** Вес посылки в кг по списку позиций [{key, qty}] */

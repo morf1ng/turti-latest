@@ -259,12 +259,17 @@ export function itemInfoFromCatalog(catalog, key) {
         }
       : null;
   }
-  const [id, size] = k.split("|");
+  const parts = k.split("|");
+  const id = parts[0];
+  const size = parts[1];
+  const sugar = parts[2] || "";
+  if (sugar && sugar !== "plain" && sugar !== "sugar") return null;
   const p = catalog.products[id];
   if (!p || p.hidden || !p.prices?.[size]) return null;
+  const sugarText = sugar === "sugar" ? " · с сахаром" : sugar === "plain" ? " · без сахара" : "";
   return {
     label: p.name,
-    sub: size + " г",
+    sub: size + " г" + sugarText,
     price: p.prices[size],
     id,
     size: Number(size),

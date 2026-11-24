@@ -399,6 +399,7 @@
     .size-btn strong { font-size: 14.5px; }
     .size-btn span { font-size: 12px; color: var(--gray); font-weight: 700; }
     .size-btn.active { border-color: var(--green); background: #FBE7E4; }
+    .pm-choice-label { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--nut); margin: 2px 0 8px; }
     .pm-block { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; }
     .pm-block h4 { font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--nut); margin-bottom: 6px; }
     .pm-block p { font-size: 14px; color: var(--gray); line-height: 1.6; }
@@ -2032,9 +2033,13 @@
         const c = COLLECTIONS[key];
         return c ? { label: "Набор «" + c.name + "»", sub: c.items.length + " банок × 250 г", price: c.price } : null;
       }
-      const [id, size] = key.split("|");
+      const parts = key.split("|");
+      const id = parts[0], size = parts[1], sugar = parts[2] || "";
+      if (sugar && sugar !== "plain" && sugar !== "sugar") return null;
       const p = PRODUCTS[id];
-      return p ? { label: p.name, sub: size + " г", price: p.prices[size] } : null;
+      if (!p || !p.prices[size]) return null;
+      const sugarText = sugar === "sugar" ? " · с сахаром" : sugar === "plain" ? " · без сахара" : "";
+      return { label: p.name, sub: size + " г" + sugarText, price: p.prices[size] };
     }
 
     function addToCart(key, qty = 1) {
@@ -2321,11 +2326,13 @@
 
     /* ═══ КАРТОЧКА ТОВАРА ═══ */
     let pmSize = 250;
+    let pmSugar = "plain";
     function openProduct(id) {
       const p = PRODUCTS[id];
       if (!p) return;
       pmOpenId = id;
       pmSize = 250;
+      pmSugar = "plain";
       let pmIndex = 0;
       let slides = productSlides(id, pmSize);
       const jarSizes = { 250: [96, 130], 500: [110, 152], 1000: [128, 180] };
@@ -2347,6 +2354,11 @@
               <strong>${s === 1000 ? "1 кг" : s + " г"}</strong><span>${money(p.prices[s])}</span>
             </button>`).join("")}
         </div>
+        <p class="pm-choice-label">Сахар</p>
+        <div class="size-row" id="pm-sugar">
+          <button type="button" class="size-btn active" data-sugar="plain"><strong>Без сахара</strong></button>
+          <button type="button" class="size-btn" data-sugar="sugar"><strong>С сахаром</strong></button>
+        </div>
         <div class="pm-price" id="pm-price">${money(p.prices[250])}</div>
         <div class="two-btns" style="margin-bottom:14px">
           <button class="btn btn-green" id="pm-buy">Купить сейчас</button>
@@ -2358,7 +2370,7 @@
         <details class="pm-block pm-acc"><summary>Состав и аллергены</summary>
           <ul class="compo-list">
             <li>Основа: ${p.ing}</li>
-            <li>Без добавок</li>
+            <li id="pm-sugar-note">Без добавок</li>
             <li>Без консервантов</li>
           </ul>
           <p>${p.group === "nut" ? "Содержит орехи." : "Содержит семена."} Производится на площадке, где обрабатываются орехи и семена.</p>
@@ -2423,6 +2435,15 @@
           if (Math.abs(dx) > 40) step(dx < 0 ? 1 : -1);
         }, { passive: true });
       }
+      $("#pm-sugar").addEventListener("click", e => {
+        const btn = e.target.closest("[data-sugar]");
+        if (!btn) return;
+        $$("#pm-sugar .size-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        pmSugar = btn.dataset.sugar;
+        const note = $("#pm-sugar-note");
+        if (note) note.textContent = pmSugar === "sugar" ? "С сахаром" : "Без добавок";
+      });
       $("#pm-sizes").addEventListener("click", e => {
         const btn = e.target.closest(".size-btn");
         if (!btn) return;
@@ -2441,8 +2462,9 @@
           jarEl.style.height = h + "px";
         }
       });
-      const doAdd = () => { addToCart(id + "|" + pmSize); closeSheets(); };
-      const doBuy = () => openCheckout([{ key: id + "|" + pmSize, qty: 1 }], "buynow");
+      const jarKey = () => id + "|" + pmSize + "|" + pmSugar;
+      const doAdd = () => { addToCart(jarKey()); closeSheets(); };
+      const doBuy = () => openCheckout([{ key: jarKey(), qty: 1 }], "buynow");
       $("#pm-add").addEventListener("click", doAdd);
       $("#pm-buy").addEventListener("click", doBuy);
     }
